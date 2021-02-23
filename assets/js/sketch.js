@@ -125,6 +125,8 @@ function draw() {
   {
     button3.hide();
     button5.hide();
+    button.show();
+    button2.show();
   }
   else
   { button.hide();
@@ -157,9 +159,9 @@ function draw() {
     chords[totalchords].inputChord();
 
     if(fullchord==1)
-    chords[c].display_fullchord();
+    chords[totalchords].display_fullchord();
     else
-   chords[c].display_inputchord();
+   chords[totalchords].display_inputchord();
     //console.log(chords[totalchords].chordnotes);
      
   }

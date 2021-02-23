@@ -2,8 +2,8 @@
 function setup() {
  createCanvas(1920,1920);
  // fullscreen();
- // background(70);
- frameRate(60);
+ back_col=color(0,0,0)
+ frameRate(30);
  for(let i=0;i<15;i++)
   {
     chords[i]=new chordclass();
@@ -36,7 +36,7 @@ function setup() {
   button3.style('font-size','20px');
   button3.style('font-family','lato');
   button3.style('color','white');
-  button3.position(360+xoff,19+yoff);
+  button3.position(19+xoff,19+yoff);
   button3.style('border-radius','12px');
    
   button5=createButton('Previous Chord');
@@ -45,26 +45,36 @@ function setup() {
   button5.style('font-size','20px');
   button5.style('font-family','lato');
   button5.style('color','white');
-  button5.position(250+xoff,19+yoff);
+  button5.position(130+xoff,19+yoff);
   button5.style('border-radius','12px');
   
-  button_showintervals=createButton('Show Intervals');
-  button_showintervals.position(250+xoff,125+yoff);
-  button_showintervals.size(200,50);
+  button_showintervals=createButton('color coded intervals');
+  button_showintervals.position(120+xoff,180+yoff);
+  button_showintervals.size(100,50);
   button_showintervals.style('background-color',col);
-  button_showintervals.style('font-size','20px');
+  button_showintervals.style('font-size','15px');
   button_showintervals.style('font-family','lato');
   button_showintervals.style('color','white');
   button_showintervals.style('border-radius','12px');
   
   button4=createButton('Start Again');
-  button4.position(xoff,yoff-500)
-  button4.size(200,100)
+  button4.position(xoff+250,yoff+50)
+  button4.size(200,180);
   button4.style('background-color',col)
   button4.style('font-size','27px')
   button4.style('font-family','lato')
   button4.style('color','white')
-  button4.style('border-radius','12px')
+  button4.style('border-radius','12px');
+
+  button6=createButton('Stream Mode');
+  button6.position(xoff+19,yoff+180)
+  button6.size(100,50);
+  button6.style('background-color',col)
+  button6.style('font-size','15px')
+  button6.style('font-family','lato')
+  button6.style('color','white')
+  button6.style('border-radius','12px');
+
   //inp.size(200,200);
   
   //PAINT CANVAS
@@ -83,8 +93,10 @@ function setup() {
   //c_canv = color(255,255,255);
     colorMode(RGB);
     c_canv=color(255,255,255);
+    paintcanvas[i].colorMode(RGB);
+    
   paintcanvas[i].background(255,255,255,0);
-  paintcanvas[i].colorMode(RGB);
+  
    }
 }
 
@@ -109,6 +121,18 @@ function draw() {
       paintcanvas[i].checkbox.hide();
     }
   
+  if (lastchord==0)
+  {
+    button3.hide();
+    button5.hide();
+  }
+  else
+  { button.hide();
+    button2.hide();
+    button3.show();
+    button5.show();
+  }
+  
   
   button.mousePressed(inputnextchord);
   button2.mousePressed(lastchord_funct);
@@ -116,7 +140,7 @@ function draw() {
   button_showintervals.mousePressed(funct_showintervals);
   button4.mousePressed(startover);
   button5.mousePressed(showpreviouschord);
-  t1=millis();
+  button6.mousePressed(stream_mode);
   //metronome_draw();
   
  
@@ -131,7 +155,11 @@ function draw() {
   { u=totalchords;
     chords[totalchords].display_fretboard();
     chords[totalchords].inputChord();
-   chords[totalchords].display_inputchord();
+
+    if(fullchord==1)
+    chords[c].display_fullchord();
+    else
+   chords[c].display_inputchord();
     //console.log(chords[totalchords].chordnotes);
      
   }
@@ -148,7 +176,7 @@ function draw() {
   paintcanvas[u].checkbox.show();
   
   radius = paintcanvas[u].slider.value();
-       tint(255,255,255,255);
+      // tint(255,255,255,255);
   image(paintcanvas[u],0,0);
      }
  
@@ -250,11 +278,11 @@ function transition(tempamount){
               //let col1=assign_col(assign_noteval(i,j),chords[temp1].chordnotes[0]);  
               //let col2=assign_col(assign_noteval(i,j),chords[temp2].chordnotes[0]);
               //let col3=p5.Vector.lerp(col1,col2,tempamount);
-             // fill(col3.x,col3.y,col3.z);
+              //fill(col3.x,col3.y,col3.z);
 
 
               ellipse(x1,x2,30,30);
-              //pop();
+              pop();
               continue;
           }
            
@@ -411,13 +439,17 @@ function keyPressed() {
       else 
         paintmode=0;
      }
- /*  if (key=='h')
-    u++;
-  if(key=='g')
-  u--;
- */ 
+   
+  
+     if (key=='c')
+     {
+       fullchord=(fullchord+1)%2;
+       
+     }  
+  
 
 }
+
 
 function inputnextchord()
 { 
@@ -474,4 +506,15 @@ function showpreviouschord()
 }
 
 
+function stream_mode()
+{
+  stream_mode_var=(stream_mode_var+1)%2;
+  colorMode(RGB);
+  if(stream_mode_var==1)
+  {
+    back_col=color(0,255,0);
 
+  }
+  else 
+  back_col=color(0,0,0);
+}

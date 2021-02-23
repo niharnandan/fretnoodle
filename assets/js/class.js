@@ -17,7 +17,10 @@ let amount=0;
 let prevc=0;
 let t1;
 let xoff=50;
-let yoff=600;
+let yoff=700;
+let stream_mode_var=0;
+let fullchord=0; //varible to flag whether you want to display full chord during input stage
+
 
 var radius;
 var c_canv;
@@ -26,7 +29,7 @@ var c_canv;
 let paintcanvas=[];
 let u=0;
 let paintmode=0;
- 
+
 
 
 wd=window.outerWidth;
@@ -87,20 +90,20 @@ class  fretclass{
     
     display(x,temploc)
     { 
-      let alphaval=0.5;
+      let alphaval=0.8;
       colorMode(HSB,1);
       //fill(198/360, 96, 74,alphaval);
       fill(60/360,1,1,alphaval);
       textFont('Georgia');
       textSize(15);
-      textStyle(NORMAL);
+      textStyle(BOLD);
       strokeWeight(1);
       let textcolor='WHITE';
       let s='0';
         
       noStroke();
-      if(show_intervals==1)
-      { alphaval=1;
+      
+       alphaval=1;
         if(this.note_intval-x==0)
         {fill(0,0,1,alphaval);
           s='R';
@@ -164,7 +167,7 @@ class  fretclass{
           s='M7';
           textcolor='BLACK';
          }
-      }
+      
       
       if(this.input_chordnote==1)
       { 
@@ -172,14 +175,26 @@ class  fretclass{
         stroke(0,0,1,1);
           
       } else {noStroke();}
-      
+
+      if(show_intervals==0)
+      {fill(60/360,1,1,alphaval);
+      }
+
       ellipse(this.loc.x,this.loc.y,30,30);
       if(show_intervals==1)
       { 
         noStroke();
         fill(textcolor);
-      text(s,this.loc.x-10,this.loc.y);
+        text(s,this.loc.x-10,this.loc.y);
       }
+      else{
+          noStroke();
+          if(stream_mode_var==1)
+          fill('BLACK');
+          else 
+          fill('BLACK');
+          text(s,this.loc.x-10,this.loc.y);
+      }    
     }
     
     get_noteval(){
@@ -205,7 +220,8 @@ class  fretclass{
     }
     create_fretboard(){
     colorMode(RGB);
-    background(0,255,0);
+    
+    background(back_col);
     
     for (let i=0;i<6;i++)
     {
@@ -226,7 +242,7 @@ class  fretclass{
   }
     display_fretboard()
     { colorMode(RGB);
-      background(0,255,0);
+      background(back_col);
       for(let i=0;i<6;i++)
         {  for(let j=0;j<18;j++)
           {this.fretobj[i][j].fretline();                                 
@@ -241,7 +257,7 @@ class  fretclass{
          text(j,this.fretobj[i][j].f_pos-this.fretobj[i][j].f_width/2,590);
            pop();
            if( j==2||j==4||j==6||j==8||j==11||j==13)
-        {   fill(10,200,100,0.03);
+        {   fill(255,200,100,0.03);
             noStroke();
             rect(this.fretobj[i][j].f_pos+this.fretobj[i][j].f_width/4,325,this.fretobj[i][j].f_width/2,200);
           }

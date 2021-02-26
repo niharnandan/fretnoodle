@@ -20,6 +20,8 @@ let xoff=50;
 let yoff=700;
 let stream_mode_var=0;
 let fullchord=0; //varible to flag whether you want to display full chord during input stage
+let x_scale=1;
+let y_scale=1;
 
 
 var radius;
@@ -63,6 +65,7 @@ class  fretclass{
      this.note='G';
      else if (this.note_intval==11)
      this.note='Ab';
+
      
      
      this.i=i;
@@ -70,7 +73,8 @@ class  fretclass{
      this.f_width=f_width;
      this.f_pos=f_pos;
      this.input_chordnote=0;
-     this.loc=createVector(this.f_pos+this.f_width/2,300+this.i*50);
+     this.loc=createVector(this.f_pos+this.f_width/2,300*y_scale+this.i*50*y_scale); //location of ellipse
+     this.loc_f=createVector(this.f_pos,300*y_scale+this.i*50*y_scale) //location fret beginning
      this.present=0;
       this.islerpfrom=0;       //flag to determine whether given ellipse will lerp or not
       this.islerpto=0;
@@ -82,10 +86,10 @@ class  fretclass{
      //stroke(255,255,255,1);
       //stroke(random(255),random(255),random(255),1);
       strokeWeight(this.i+1);
-      line(this.f_pos, 300+this.i*50, this.f_pos+this.f_width,  300+(this.i)*50);
+      line(this.loc_f.x, this.loc_f.y, this.loc_f.x+this.f_width, this.loc_f.y);
       strokeWeight(1);
-      stroke(255,255,255,1)
-      ellipse(this.f_pos+this.f_width,300+this.i*50,5,5);
+      stroke(255,255,255,1);
+      ellipse(this.loc_f.x+this.f_width,this.loc_f.y,5,5);
     }
     
     display(x,temploc)
@@ -225,15 +229,15 @@ class  fretclass{
     
     for (let i=0;i<6;i++)
     {
-      let f_width=orig_width;
-      let f_pos=50;
+      let f_width=orig_width*x_scale;
+      let f_pos=50*x_scale;
       this.fretobj[i]=[];
       var j;
       for( j=0;j<18;j++)
       {                                      //making the fret-string objects
          this.fretobj[i].push(new fretclass(assign_noteval(i,j),i,j,f_width,f_pos));
          f_pos=f_pos+f_width;
-         f_width=f_width-3;       
+         f_width=f_width-3*x_scale;       
       }
       if(j==18)    //for open strings
       this.fretobj[i].push(new fretclass(assign_noteval(i,11),i,j,f_width,0));
@@ -248,18 +252,18 @@ class  fretclass{
           {this.fretobj[i][j].fretline();                                 
          stroke(255,255,255,1);
          strokeWeight(1);
-         line(this.fretobj[i][j].f_pos,300,this.fretobj[i][j].f_pos,550);  //drawing the fret lines
+         line(this.fretobj[i][j].f_pos,300*y_scale,this.fretobj[i][j].f_pos,550*y_scale);  //drawing the fret lines
            push();
            textFont('Georgia');
           textSize(25);
            textStyle(NORMAL);
            strokeWeight(1);
-         text(j,this.fretobj[i][j].f_pos-this.fretobj[i][j].f_width/2,590);
+         text(j,this.fretobj[i][j].f_pos-this.fretobj[i][j].f_width/2,590*y_scale);
            pop();
            if( j==2||j==4||j==6||j==8||j==11||j==13)
         {   fill(255,200,100,0.03);
             noStroke();
-            rect(this.fretobj[i][j].f_pos+this.fretobj[i][j].f_width/4,325,this.fretobj[i][j].f_width/2,200);
+            rect(this.fretobj[i][j].f_pos+this.fretobj[i][j].f_width/4,325*y_scale,this.fretobj[i][j].f_width/2,200*y_scale);
           }
           
           }
@@ -275,13 +279,13 @@ class  fretclass{
     { 
       let x=mouseX;
       let y=mouseY;
-      if (mouseY>270 && mouseY<920)
+      if (mouseY>270*y_scale && mouseY<920*y_scale)
       {
       
         for (let i=0;i<6;i++)
         {   for(let j=0;j<=18;j++)
             { 
-              if((x-this.fretobj[i][j].f_pos<this.fretobj[i][j].f_width)&&(abs((y-(300+i*50)))<10) && ((x-this.fretobj[i][j].f_pos)>0))
+              if((x-this.fretobj[i][j].f_pos<this.fretobj[i][j].f_width)&&(abs((y-(300*y_scale+i*50*y_scale)))<10) && ((x-this.fretobj[i][j].f_pos)>0))
              
              {  if(this.fretobj[i][j].input_chordnote==0)
                 {

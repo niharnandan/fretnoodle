@@ -1,9 +1,14 @@
 
 function setup() {
- createCanvas(1920,1920);
+ createCanvas(wd,ht*1.5);
  // fullscreen();
  back_col=color(0,0,0)
  frameRate(30);
+ x_scale=0.85*window.outerWidth/1536;
+ y_scale=x_scale;   // canvas scaling variables 
+ 
+ 
+ scale(x_scale,y_scale);
  for(let i=0;i<15;i++)
   {
     chords[i]=new chordclass();
@@ -79,7 +84,7 @@ function setup() {
   
   //PAINT CANVAS
   for(let i=0;i<10;i++)
-   { paintcanvas[i]=createGraphics(1920,1000);
+   { paintcanvas[i]=createGraphics(wd,ht*1.5);
       paintcanvas[i].slider = createSlider(1, 20, 3);
     paintcanvas[i].slider.position(wd/2,10);
     paintcanvas[i].slider.hide();
@@ -105,15 +110,18 @@ function setup() {
 
 function draw() {
   // background(70);
-  
-  
+//x_scale=0.85*window.outerWidth/1536;
+ //y_scale=0.85;   // canvas scaling variables 
+ //rotate(PI/8);
+ //scale(x_scale,y_scale);
+ console.log("window width "+window.outerWidth) ;
 //  if(window.innerWidth<768)
   //{translate(900,00,0)
    //rotate(PI/2);
   //}
   //translate(400,-1000,0)
   //translate(width/2,height/2);
-  
+ 
    for(let i=0;i<10;i++)
     {
       paintcanvas[i].slider.hide();
@@ -213,6 +221,7 @@ if(paintmode==1)
  // }
 }
 }
+
 
 function changeBG() {
   //paintcanv.background(255);

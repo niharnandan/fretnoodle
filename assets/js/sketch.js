@@ -115,6 +115,7 @@ function draw() {
  //rotate(PI/8);
  //scale(x_scale,y_scale);
  console.log("window width "+window.outerWidth) ;
+ //console.log("paintmode:"+paintmode);
 //  if(window.innerWidth<768)
   //{translate(900,00,0)
    //rotate(PI/2);
@@ -163,8 +164,9 @@ function draw() {
   
   if(lastchord!=1)
   { u=totalchords;
+    
     chords[totalchords].display_fretboard();
-    chords[totalchords].inputChord();
+    //chords[totalchords].inputChord();
 
     if(fullchord==1)
     chords[totalchords].display_fullchord();
@@ -203,7 +205,146 @@ function mouseClicked() {
       else 
     stampRectangle(c_canv);
   }
+  else{
+    if(lastchord==0)
+    {let x=mouseX;
+      let y=mouseY;
+      if (mouseY>270*y_scale && mouseY<920*y_scale)
+      {
+       loop1:
+        for (let i=0;i<6;i++)
+        {   loop2: 
+            for(let j=0;j<=18;j++)
+            { 
+              if((x-chords[u].fretobj[i][j].f_pos<chords[u].fretobj[i][j].f_width)&&(abs((y-(300*y_scale+i*50*y_scale)))<10) && ((x-chords[u].fretobj[i][j].f_pos)>0))
+             { //console.log("test passed:"+x,y,i,j) ;
+              // console.log("this.input_chord="+ chords[u].fretobj[i][j].input_chordnote);
+               if(deletenote==0) //to avoid multiple entries of the same note
+                {
+               let v= createVector(i,j);
+               loop3:
+               for( let q in chords[u].inputnotes)
+              {
+                 if(chords[u].inputnotes[q].x==v.x && chords[u].inputnotes[q].y==v.y)
+                {
+                  chords[u].inputnotes.splice(q,1); 
+                      chords[u].total_chordnotes--; 
+
+                      for(let r in chords[u].chordnotes)
+                      {
+                        if(chords[u].chordnotes[r]==chords[u].fretobj[i][j].note_intval)
+                        {
+                          chords[u].chordnotes.splice(r,1);                     
+                        }
+                    
+                      }
+                      break loop2;    
+                }
+               }
+               chords[u].inputnotes[chords[u].total_chordnotes]= v;
+               
+               chords[u].fretobj[i][j].input_chordnote=1;
+               //this.fretobj[i][j].display(this.chordnotes[0]);
+               chords[u].chordnotes.push(chords[u].fretobj[i][j].note_intval);
+               chords[u].total_chordnotes++;            
+               //break;
+               
+               //console.log("note inputed"+this.total_chordnotes,this.inputnotes);
+                }
+                
+                /*else if(deletenote==1)
+                {   //chords[u].fretobj[i][j].input_chordnote==0;
+                  for(let q in chords[u].inputnotes)
+                  {if(chords[u].inputnotes[q].x==i && chords[u].inputnotes[q].y==j)
+                    {
+                      chords[u].inputnotes.splice(q,1); 
+                      chords[u].total_chordnotes--;                    
+                    }
+                   // console.log("values of of inputnotes:"+chords[u].inputnotes)
+
+                  }
+                  for(let q in chords[u].chordnotes)
+                  {
+                    if(chords[u].chordnotes[q]==chords[u].fretobj[i][j].note_intval)
+                    {
+                      chords[u].chordnotes.splice(q,1);                     
+                    }
+                
+                  }
+                  //chords[u].total_chordnotes--;
+                  chords[u].fretobj[i][j].input_chordnote==0;
+                
+                  
+                    
+                      //console.log("values of of chordnotes:"+chords[u].chordnotes)
+
+                      
+               //console.log("note deleted"+this.total_chordnotes,this.inputnotes);
+                }*/
+                
+              
+             }
+            } //j loop
+        } // i loop
+      } // within fretboardcanvas 
+  
+} //condition for lastchord
+} //condition for paintmode
 }
+
+/*function doubleClicked()
+ { if (paintmode==0)
+  {
+    if(lastchord==0)
+    {
+  let x=mouseX;
+  let y=mouseY;
+  if (mouseY>270*y_scale && mouseY<920*y_scale)
+  {
+  
+    for (let i=0;i<6;i++)
+    {   for(let j=0;j<=18;j++)
+        { 
+          if((x-chords[u].fretobj[i][j].f_pos<chords[u].fretobj[i][j].f_width)&&(abs((y-(300*y_scale+i*50*y_scale)))<10) && ((x-chords[u].fretobj[i][j].f_pos)>0))
+         
+         { 
+           if(chords[u].fretobj[i][j].input_chordnote==1)
+          {
+            for(let q in chords[u].inputnotes)
+            {if(chords[u].inputnotes[q].x==i && chords[u].inputnotes[q].y==j)
+              {
+                chords[u].inputnotes.splice(q,1);
+                
+              }
+              //console.log("values of q:"+q)
+
+            }
+            for(let r in chords[u].chordnotes)
+            {
+              if(chords[u].chordnotes[r]==chords[u].fretobj[i][j].note_intval)
+              {
+                chords[u].chordnotes.splice(r,1);
+              }
+            }
+            chords[u].total_chordnotes--;
+                chords[u].fretobj[i][j].input_chordnote==0;
+                chords[u].fretobj[i][j].present=0;
+                
+         //console.log("note deleted"+this.total_chordnotes,this.inputnotes);
+          }
+          
+        
+       } //if statement checking which fret
+       console.log("delete this.input_chord="+ chords[u].fretobj[i][j].input_chordnote);
+      } //j loop
+  } // i loop
+} //if statement for checking proximity
+    } //lastchord
+ } //paintmode condition
+} //function end
+*/
+
+
 
 function mouseDragged() {
 if(paintmode==1)
@@ -293,8 +434,9 @@ function transition(tempamount){
 
 
               ellipse(x1,x2,30,30);
-              pop();
+              //pop();
               continue;
+
           }
            
             let v1=createVector(chords[temp1].fretobj[i][j].loc.x,chords[temp1].fretobj[i][j].loc.y);
@@ -442,6 +584,16 @@ function keyPressed() {
           c=(c+1)%(totalchords+1);
         }
       
+    }
+    else
+    { if(key=='d')
+      {
+        if(deletenote==0)
+        deletenote=1;
+        else
+        deletenote=0;
+      }
+
     }
    if(key=='p')
      {

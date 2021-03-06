@@ -22,7 +22,7 @@ let stream_mode_var=0;
 let fullchord=0; //varible to flag whether you want to display full chord during input stage
 let x_scale=1;
 let y_scale=1;
-
+let deletenote=0;
 
 var radius;
 var c_canv;
@@ -271,7 +271,7 @@ class  fretclass{
      colorMode(HSB,1);
     }
     
-    inputChord(){
+   /* inputChord(){
     if(paintmode==0)
   {
    // this.create_fretboard();
@@ -308,7 +308,7 @@ class  fretclass{
     
   }      
            
-                 
+    */             
       
     
     display_fullchord(){
@@ -319,7 +319,8 @@ class  fretclass{
            { //if(this.inputnotes[k].x==i && this.inputnotes[k].y==j)
              //this.fretobj[i][j].input_pos();
              if(this.fretobj[i][j].note_intval==this.chordnotes[k])
-             { //is.fretobj[i][j].present=1;
+             { //this.fretobj[i][j].present=1;
+              //this.fretobj[i][j].input_pos();
                this.fretobj[i][j].display(this.chordnotes[0],this.fretobj[i][j].loc);
              } 
            }
@@ -333,9 +334,10 @@ class  fretclass{
     //this.create_fretboard;
     for(let i=0;i<6;i++)
       {  for(let j=0;j<=18;j++)
-         { for(let k=0;k<this.total_chordnotes;k++)
+         { this.fretobj[i][j].present=0;
+            for(let k=0;k<this.total_chordnotes;k++)
            { if(this.inputnotes[k].x==i && this.inputnotes[k].y==j)
-            { this.fretobj[i][j].input_pos();
+            { //this.fretobj[i][j].input_pos();
                
               this.fretobj[i][j].display(this.chordnotes[0],this.fretobj[i][j].loc);
             } 

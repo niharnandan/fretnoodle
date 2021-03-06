@@ -164,15 +164,14 @@ function draw() {
   
   if(lastchord!=1)
   { u=totalchords;
-    
-    chords[totalchords].display_fretboard();
+    chords[c].display_fretboard();
     //chords[totalchords].inputChord();
 
     if(fullchord==1)
-    chords[totalchords].display_fullchord();
+    chords[c].display_fullchord();
     else
-   chords[totalchords].display_inputchord();
-    //console.log(chords[totalchords].chordnotes);
+   chords[c].display_inputchord();
+    console.log(c, totalchords);
      
   }
   else
@@ -183,13 +182,13 @@ function draw() {
     
    if(paintmode==1)
      {
-        paintcanvas[u].slider.show();
-   paintcanvas[u].eraser.show();
-  paintcanvas[u].checkbox.show();
+        paintcanvas[c].slider.show();
+   paintcanvas[c].eraser.show();
+  paintcanvas[c].checkbox.show();
   
-  radius = paintcanvas[u].slider.value();
+  radius = paintcanvas[c].slider.value();
       // tint(255,255,255,255);
-  image(paintcanvas[u],0,0);
+  image(paintcanvas[c],0,0);
      }
  
   }
@@ -197,10 +196,10 @@ function draw() {
 function mouseClicked() {
  if(paintmode==1)
  {
-    if (paintcanvas[u].checkbox.checked())
-     { paintcanvas[u].erase();
+    if (paintcanvas[c].checkbox.checked())
+     { paintcanvas[c].erase();
       stampRectangle(255);
-      paintcanvas[u].noErase();
+      paintcanvas[c].noErase();
      }
       else 
     stampRectangle(c_canv);
@@ -567,8 +566,8 @@ function keyPressed() {
     if(key=='f')
     fullscreen(1);
   
-  if (lastchord==1)
-    {
+  //if (lastchord==1)
+   // {
       if(key=='z')
       {  amount=0;
          prevc=c;
@@ -584,7 +583,7 @@ function keyPressed() {
           c=(c+1)%(totalchords+1);
         }
       
-    }
+      //}
     else
     { if(key=='d')
       {
@@ -619,6 +618,7 @@ function inputnextchord()
   
  
  totalchords++;
+ c=totalchords;
   
 }
 

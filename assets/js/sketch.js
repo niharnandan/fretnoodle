@@ -196,6 +196,8 @@ function draw() {
 function mouseClicked() {
  if(paintmode==1)
  {
+  
+   
     if (paintcanvas[c].checkbox.checked())
      { paintcanvas[c].erase();
       stampRectangle(255);
@@ -203,6 +205,7 @@ function mouseClicked() {
      }
       else 
     stampRectangle(c_canv);
+   
   }
   else{
     if(lastchord==0){
@@ -353,6 +356,8 @@ function mouseClicked() {
 function mouseDragged() {
 if(paintmode==1)
 {
+
+  if(!keyIsDown(SHIFT)){
   if (paintcanvas[c].checkbox.checked()){
     paintcanvas[c].erase();
      paintcanvas[c].rect(mouseX,mouseY,paintcanvas[c].slider.value(),paintcanvas[c].slider.value());
@@ -364,6 +369,25 @@ if(paintmode==1)
     paintcanvas[c].strokeWeight(paintcanvas[c].slider.value());
     paintcanvas[c].line(mouseX, mouseY, pmouseX, pmouseY);
  // }
+   }
+
+   else if(keyIsDown(SHIFT)){
+     for(let p=0;p<=totalchords;p++)
+     {
+      if (paintcanvas[p].checkbox.checked()){
+        paintcanvas[p].erase();
+         paintcanvas[p].rect(mouseX,mouseY,paintcanvas[p].slider.value(),paintcanvas[p].slider.value());
+        paintcanvas[p].noErase();
+      }else{
+        paintcanvas[p].stroke(c_canv)
+      }
+     // if (mouseX < 390) {
+        paintcanvas[p].strokeWeight(paintcanvas[p].slider.value());
+        paintcanvas[p].line(mouseX, mouseY, pmouseX, pmouseY);
+     // }
+     }
+   }
+
 }
 }
 
@@ -376,10 +400,10 @@ function changeBG() {
 
 
 
-function stampRectangle(c_canv){
-  paintcanvas[c].fill(c_canv)
-  paintcanvas[c].noStroke()
-  paintcanvas[c].rect(mouseX,mouseY,paintcanvas[0].slider.value(),paintcanvas[c].slider.value())
+function stampRectangle(c_canv,c_=c){
+  paintcanvas[c_].fill(c_canv)
+  paintcanvas[c_].noStroke()
+  paintcanvas[c_].rect(mouseX,mouseY,paintcanvas[0].slider.value(),paintcanvas[c_].slider.value())
 }
 
 

@@ -9,7 +9,7 @@ function setup() {
  
  
  scale(x_scale,y_scale);
- for(let i=0;i<15;i++)
+ for(let i=0;i<20;i++)
   {
     chords[i]=new chordclass();
   }
@@ -83,7 +83,7 @@ function setup() {
   //inp.size(200,200);
   
   //PAINT CANVAS
-  for(let i=0;i<10;i++)
+  for(let i=0;i<20;i++)
    { paintcanvas[i]=createGraphics(wd,ht*1.5);
       paintcanvas[i].slider = createSlider(1, 20, 3);
     paintcanvas[i].slider.position(wd/2,10);
@@ -372,7 +372,7 @@ if(paintmode==1)
    }
 
    else if(keyIsDown(SHIFT)){
-     for(let p=0;p<=totalchords;p++)
+     for(let p=0;p<=20;p++)
      {
       if (paintcanvas[p].checkbox.checked()){
         paintcanvas[p].erase();

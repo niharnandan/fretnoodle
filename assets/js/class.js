@@ -360,6 +360,19 @@ class  fretclass{
             }
         }
     }
+
+    rootchange(note_intval_){
+     for(let p=0;p<this.chordnotes.length;p++)
+     {
+       if(this.chordnotes[p]==note_intval_)
+       {
+         let temp=this.chordnotes[0];
+         this.chordnotes[0]=note_intval_;
+         this.chordnotes[p]=temp;
+
+       }
+     }
+    }
     
   }
   

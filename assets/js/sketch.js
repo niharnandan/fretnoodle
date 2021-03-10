@@ -114,7 +114,7 @@ function draw() {
  //y_scale=0.85;   // canvas scaling variables 
  //rotate(PI/8);
  //scale(x_scale,y_scale);
- console.log("window width "+window.outerWidth) ;
+ //console.log("window width "+window.outerWidth) ;
  //console.log("paintmode:"+paintmode);
 //  if(window.innerWidth<768)
   //{translate(900,00,0)
@@ -205,8 +205,8 @@ function mouseClicked() {
     stampRectangle(c_canv);
   }
   else{
-    if(lastchord==0)
-    {let x=mouseX;
+    if(lastchord==0){
+    let x=mouseX;
       let y=mouseY;
       if (mouseY>270*y_scale && mouseY<920*y_scale)
       {
@@ -215,42 +215,47 @@ function mouseClicked() {
         {   loop2: 
             for(let j=0;j<=18;j++)
             { 
-              if((x-chords[u].fretobj[i][j].f_pos<chords[u].fretobj[i][j].f_width)&&(abs((y-(300*y_scale+i*50*y_scale)))<10) && ((x-chords[u].fretobj[i][j].f_pos)>0))
+              if((x-chords[c].fretobj[i][j].f_pos<chords[c].fretobj[i][j].f_width)&&(abs((y-(300*y_scale+i*50*y_scale)))<10) && ((x-chords[c].fretobj[i][j].f_pos)>0))
              { //console.log("test passed:"+x,y,i,j) ;
               // console.log("this.input_chord="+ chords[u].fretobj[i][j].input_chordnote);
-               if(deletenote==0) //to avoid multiple entries of the same note
+            
+               if(!keyIsDown(SHIFT)) //to avoid multiple entries of the same note
                 {
                let v= createVector(i,j);
                loop3:
-               for( let q in chords[u].inputnotes)
+               for( let q in chords[c].inputnotes)
               {
-                 if(chords[u].inputnotes[q].x==v.x && chords[u].inputnotes[q].y==v.y)
+                 if(chords[c].inputnotes[q].x==v.x && chords[c].inputnotes[q].y==v.y)
                 {
-                  chords[u].inputnotes.splice(q,1); 
-                      chords[u].total_chordnotes--; 
+                  chords[c].inputnotes.splice(q,1); 
+                      chords[c].total_chordnotes--; 
 
-                      for(let r in chords[u].chordnotes)
+                      for(let r in chords[c].chordnotes)
                       {
-                        if(chords[u].chordnotes[r]==chords[u].fretobj[i][j].note_intval)
+                        if(chords[c].chordnotes[r]==chords[c].fretobj[i][j].note_intval)
                         {
-                          chords[u].chordnotes.splice(r,1);                     
+                          chords[c].chordnotes.splice(r,1);                     
                         }
                     
                       }
                       break loop2;    
                 }
                }
-               chords[u].inputnotes[chords[u].total_chordnotes]= v;
+               chords[c].inputnotes[chords[c].total_chordnotes]= v;
                
-               chords[u].fretobj[i][j].input_chordnote=1;
+               chords[c].fretobj[i][j].input_chordnote=1;
                //this.fretobj[i][j].display(this.chordnotes[0]);
-               chords[u].chordnotes.push(chords[u].fretobj[i][j].note_intval);
-               chords[u].total_chordnotes++;            
+               chords[c].chordnotes.push(chords[c].fretobj[i][j].note_intval);
+               chords[c].total_chordnotes++;            
                //break;
                
                //console.log("note inputed"+this.total_chordnotes,this.inputnotes);
+                }//condition for left mouse click
+                else if(keyIsDown(SHIFT)){
+                chords[c].rootchange(chords[c].fretobj[i][j].note_intval);
+                console.log("right mouse clicked");
                 }
-                
+         
                 /*else if(deletenote==1)
                 {   //chords[u].fretobj[i][j].input_chordnote==0;
                   for(let q in chords[u].inputnotes)
@@ -348,16 +353,16 @@ function mouseClicked() {
 function mouseDragged() {
 if(paintmode==1)
 {
-  if (paintcanvas[u].checkbox.checked()){
-    paintcanvas[u].erase();
-     paintcanvas[u].rect(mouseX,mouseY,paintcanvas[u].slider.value(),paintcanvas[u].slider.value());
-    paintcanvas[u].noErase();
+  if (paintcanvas[c].checkbox.checked()){
+    paintcanvas[c].erase();
+     paintcanvas[c].rect(mouseX,mouseY,paintcanvas[c].slider.value(),paintcanvas[c].slider.value());
+    paintcanvas[c].noErase();
   }else{
-    paintcanvas[u].stroke(c_canv)
+    paintcanvas[c].stroke(c_canv)
   }
  // if (mouseX < 390) {
-    paintcanvas[u].strokeWeight(paintcanvas[u].slider.value());
-    paintcanvas[u].line(mouseX, mouseY, pmouseX, pmouseY);
+    paintcanvas[c].strokeWeight(paintcanvas[c].slider.value());
+    paintcanvas[c].line(mouseX, mouseY, pmouseX, pmouseY);
  // }
 }
 }
@@ -365,16 +370,16 @@ if(paintmode==1)
 
 function changeBG() {
   //paintcanv.background(255);
-  paintcanvas[u].clear();
+  paintcanvas[c].clear();
   //ColorPicker()
 }
 
 
 
 function stampRectangle(c_canv){
-  paintcanvas[u].fill(c_canv)
-  paintcanvas[u].noStroke()
-  paintcanvas[u].rect(mouseX,mouseY,paintcanvas[0].slider.value(),paintcanvas[u].slider.value())
+  paintcanvas[c].fill(c_canv)
+  paintcanvas[c].noStroke()
+  paintcanvas[c].rect(mouseX,mouseY,paintcanvas[0].slider.value(),paintcanvas[c].slider.value())
 }
 
 
@@ -398,11 +403,11 @@ function animation(){
 
 function shownextchord(){
  
-  if(lastchord==1)
-    { amount=0;
+  //if(lastchord==1){
+     amount=0;
       prevc =c;     
       c=(c+1)%(totalchords+1);
-    }  
+   // }  
 }
 
 function transition(tempamount){
@@ -659,13 +664,13 @@ function startover()
 
 function showpreviouschord()
 {
-   if(lastchord==1)
-    { amount=0;
+  // if(lastchord==1){
+     amount=0;
          prevc=c;
          c=c-1;
          if(c<0)
          {c=totalchords;}
-    }  
+   // }  
 }
 
 

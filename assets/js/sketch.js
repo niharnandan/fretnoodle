@@ -95,8 +95,16 @@ function setup() {
   paintcanvas[i].checkbox = createCheckbox('Erase', false);
     paintcanvas[i].checkbox.position(wd/2+50,40)
     paintcanvas[i].checkbox.hide();
+    paintcanvas[i].checkboxred=createCheckbox('red',false);
+    paintcanvas[i].checkboxred.position(wd/2+50,70);
+    paintcanvas[i].checkboxred.hide();
+    paintcanvas[i].checkboxblue=createCheckbox('blue',false);
+    paintcanvas[i].checkboxblue.position(wd/2-50,70);
+    paintcanvas[i].checkboxblue.hide();
+
   //c_canv = color(255,255,255);
     colorMode(RGB);
+    
     c_canv=color(255,255,255);
     paintcanvas[i].colorMode(RGB);
     
@@ -185,7 +193,6 @@ function draw() {
         paintcanvas[c].slider.show();
    paintcanvas[c].eraser.show();
   paintcanvas[c].checkbox.show();
-  
   radius = paintcanvas[c].slider.value();
       // tint(255,255,255,255);
   image(paintcanvas[c],0,0);

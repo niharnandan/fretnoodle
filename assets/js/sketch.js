@@ -241,10 +241,11 @@ function mouseClicked() {
                       chords[c].total_chordnotes--; 
 
                       for(let r in chords[c].chordnotes)
-                      {
-                        if(chords[c].chordnotes[r]==chords[c].fretobj[i][j].note_intval)
+                      {  
+                        if(chords[c].chordnotes[chords[c].chordnotes.length-r]==chords[c].fretobj[i][j].note_intval)
                         {
-                          chords[c].chordnotes.splice(r,1);                     
+                          chords[c].chordnotes.splice(chords[c].chordnotes.length-r,1); 
+                          break;                    
                         }
                     
                       }

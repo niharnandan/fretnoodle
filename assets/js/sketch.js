@@ -648,6 +648,14 @@ function keyPressed() {
 
 }
 
+function doubleClicked()
+{
+  if(paintmode==0)
+        paintmode=1;
+      else 
+        paintmode=0;
+}
+
 
 function inputnextchord()
 { 

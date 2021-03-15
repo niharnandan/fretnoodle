@@ -447,7 +447,7 @@ function transition(tempamount){
   //.chords[c].create_fretboard();
   
   colorMode(HSB,1);
-  fill(60/360, 96, 74,0.5);
+  fill(60/360, 96, 74);
   let radii=30;
   let temp1=prevc;
   let temp2=c;
@@ -672,6 +672,8 @@ function inputnextchord()
     lastchord=1;
    // button,style(curser,'not-allowed')
    // button.style(opacity,0.4)
+   c=0;
+   prevc=0;
     button.hide()
    // button.show();
   }

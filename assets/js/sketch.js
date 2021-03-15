@@ -236,15 +236,15 @@ function mouseClicked() {
                for( let q in chords[c].inputnotes)
               {
                  if(chords[c].inputnotes[q].x==v.x && chords[c].inputnotes[q].y==v.y)
-                {
+                { chords[c].fretobj[i][j].input_chordnote=0;
                   chords[c].inputnotes.splice(q,1); 
                       chords[c].total_chordnotes--; 
 
                       for(let r in chords[c].chordnotes)
                       {  
-                        if(chords[c].chordnotes[chords[c].chordnotes.length-r]==chords[c].fretobj[i][j].note_intval)
+                        if(chords[c].chordnotes[chords[c].chordnotes.length-r-1]==chords[c].fretobj[i][j].note_intval)
                         {
-                          chords[c].chordnotes.splice(chords[c].chordnotes.length-r,1); 
+                          chords[c].chordnotes.splice(chords[c].chordnotes.length-r-1,1); 
                           break;                    
                         }
                     

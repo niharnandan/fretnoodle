@@ -1,11 +1,30 @@
+let klack;
+let pling;
+let nextKlack = 0;
+let muted = false;
+let beats=0;
+let ismetronome=0;
+let tempo_chord=0 //flag to ensure the transition function gets called only once during metronome shifting of chords
+
+function preload() {
+  klack = loadSound('assets/klack.wav');
+  pling=loadSound('assets/pling.wav');
+  klack.playMode('restart');
+  pling.playMode('restart');
+  // Sound recording by Mirko Horstmann via freesound.org
+  //  
+}
+
 
 function setup() {
  createCanvas(wd,ht*1.5);
  // fullscreen();
  back_col=color(0,0,0)
- frameRate(30);
+ frameRate(60);
  x_scale=0.85*window.outerWidth/1536;
  y_scale=x_scale;   // canvas scaling variables 
+ tempoSlider = createSlider(40, 208, 100);
+ tempoSlider.class('slider');
  
  
  scale(x_scale,y_scale);
@@ -80,6 +99,15 @@ function setup() {
   button6.style('color','white')
   button6.style('border-radius','12px');
 
+  button7=createButton('toggle metronome');
+  button7.position(xoff+19,yoff+280)
+  button7.size(100,50);
+  button7.style('background-color',col)
+  button7.style('font-size','15px')
+  button7.style('font-family','lato')
+  button7.style('color','white')
+  button7.style('border-radius','12px');
+
   //inp.size(200,200);
   
   //PAINT CANVAS
@@ -144,12 +172,14 @@ function draw() {
     button5.hide();
     button.show();
     button2.show();
+    button7.hide();
   }
   else
   { button.hide();
     button2.hide();
     button3.show();
     button5.show();
+    button7.show();
   }
   
   
@@ -160,16 +190,8 @@ function draw() {
   button4.mousePressed(startover);
   button5.mousePressed(showpreviouschord);
   button6.mousePressed(stream_mode);
-  //metronome_draw();
-  
- 
-   //textAlign(CENTER);
- 
-  
+  button7.mousePressed(togglemetronome)
 
-  
-  
-  
   if(lastchord!=1)
   { u=totalchords;
     chords[c].display_fretboard();
@@ -197,8 +219,35 @@ function draw() {
       // tint(255,255,255,255);
   image(paintcanvas[c],0,0);
      }
- 
+     let timeNow = millis();
+
+     if(ismetronome==1){
+  
+     if (timeNow > nextKlack) {
+       if(beats%4==0)
+       pling.play();
+       else
+       klack.play();
+       prevKlack = timeNow;
+       nextKlack = timeNow + 60000/tempoSlider.value();
+       beats++;
+       tempo_chord=1;
   }
+  
+    if(beats%4==0 && tempo_chord==1)
+    {
+      amount=0;
+      prevc =c;     
+      c=(c+1)%(totalchords+1);
+      tempo_chord=0;
+    }
+}
+   
+  // textAlign(CENTER);
+  // textSize(50);
+  // text(`${tempoSlider.value()}bpm`, width/2, height);
+
+}
   
 function mouseClicked() {
  if(paintmode==1)
@@ -267,35 +316,7 @@ function mouseClicked() {
                 console.log("right mouse clicked");
                 }
          
-                /*else if(deletenote==1)
-                {   //chords[u].fretobj[i][j].input_chordnote==0;
-                  for(let q in chords[u].inputnotes)
-                  {if(chords[u].inputnotes[q].x==i && chords[u].inputnotes[q].y==j)
-                    {
-                      chords[u].inputnotes.splice(q,1); 
-                      chords[u].total_chordnotes--;                    
-                    }
-                   // console.log("values of of inputnotes:"+chords[u].inputnotes)
-
-                  }
-                  for(let q in chords[u].chordnotes)
-                  {
-                    if(chords[u].chordnotes[q]==chords[u].fretobj[i][j].note_intval)
-                    {
-                      chords[u].chordnotes.splice(q,1);                     
-                    }
-                
-                  }
-                  //chords[u].total_chordnotes--;
-                  chords[u].fretobj[i][j].input_chordnote==0;
-                
-                  
-                    
-                      //console.log("values of of chordnotes:"+chords[u].chordnotes)
-
-                      
-               //console.log("note deleted"+this.total_chordnotes,this.inputnotes);
-                }*/
+   
                 
               
              }
@@ -307,57 +328,7 @@ function mouseClicked() {
 } //condition for paintmode
 }
 
-/*function doubleClicked()
- { if (paintmode==0)
-  {
-    if(lastchord==0)
-    {
-  let x=mouseX;
-  let y=mouseY;
-  if (mouseY>270*y_scale && mouseY<920*y_scale)
-  {
-  
-    for (let i=0;i<6;i++)
-    {   for(let j=0;j<=18;j++)
-        { 
-          if((x-chords[u].fretobj[i][j].f_pos<chords[u].fretobj[i][j].f_width)&&(abs((y-(300*y_scale+i*50*y_scale)))<10) && ((x-chords[u].fretobj[i][j].f_pos)>0))
-         
-         { 
-           if(chords[u].fretobj[i][j].input_chordnote==1)
-          {
-            for(let q in chords[u].inputnotes)
-            {if(chords[u].inputnotes[q].x==i && chords[u].inputnotes[q].y==j)
-              {
-                chords[u].inputnotes.splice(q,1);
-                
-              }
-              //console.log("values of q:"+q)
 
-            }
-            for(let r in chords[u].chordnotes)
-            {
-              if(chords[u].chordnotes[r]==chords[u].fretobj[i][j].note_intval)
-              {
-                chords[u].chordnotes.splice(r,1);
-              }
-            }
-            chords[u].total_chordnotes--;
-                chords[u].fretobj[i][j].input_chordnote==0;
-                chords[u].fretobj[i][j].present=0;
-                
-         //console.log("note deleted"+this.total_chordnotes,this.inputnotes);
-          }
-          
-        
-       } //if statement checking which fret
-       console.log("delete this.input_chord="+ chords[u].fretobj[i][j].input_chordnote);
-      } //j loop
-  } // i loop
-} //if statement for checking proximity
-    } //lastchord
- } //paintmode condition
-} //function end
-*/
 
 
 
@@ -422,7 +393,7 @@ function animation(){
  // background(0);
   
   
-  amount=amount+0.05;
+  amount=amount+0.025;
   if(amount>1)
   chords[c].display_fullchord();
   else
@@ -441,6 +412,18 @@ function shownextchord(){
       c=(c+1)%(totalchords+1);
    // }  
 }
+
+function showpreviouschord()
+{
+  // if(lastchord==1){
+     amount=0;
+         prevc=c;
+         c=c-1;
+         if(c<0)
+         {c=totalchords;}
+   // }  
+}
+
 
 function transition(tempamount){
   //tempamount=tempamount;
@@ -702,18 +685,10 @@ function startover()
     chords[i]=new chordclass();
   }
   button.show();
+
+  ismetronome=0; 
 }
 
-function showpreviouschord()
-{
-  // if(lastchord==1){
-     amount=0;
-         prevc=c;
-         c=c-1;
-         if(c<0)
-         {c=totalchords;}
-   // }  
-}
 
 
 function stream_mode()
@@ -727,4 +702,10 @@ function stream_mode()
   }
   else 
   back_col=color(0,0,0);
+}
+
+
+function togglemetronome()
+{
+  ismetronome=(ismetronome+1)%2;
 }

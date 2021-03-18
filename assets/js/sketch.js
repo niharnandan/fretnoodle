@@ -11,10 +11,8 @@ function preload() {
   pling=loadSound('assets/pling.wav');
   klack.playMode('restart');
   pling.playMode('restart');
-  // Sound recording by Mirko Horstmann via freesound.org
-  //  
-}
 
+}
 
 function setup() {
  createCanvas(wd,ht*1.5);
@@ -23,8 +21,7 @@ function setup() {
  frameRate(60);
  x_scale=0.85*window.outerWidth/1536;
  y_scale=x_scale;   // canvas scaling variables 
- tempoSlider = createSlider(40, 208, 100);
- tempoSlider.class('slider');
+
  
  
  scale(x_scale,y_scale);
@@ -100,13 +97,18 @@ function setup() {
   button6.style('border-radius','12px');
 
   button7=createButton('toggle metronome');
-  button7.position(xoff+19,yoff+280)
+  button7.position(xoff+19,yoff+250)
   button7.size(100,50);
   button7.style('background-color',col)
   button7.style('font-size','15px')
   button7.style('font-family','lato')
   button7.style('color','white')
   button7.style('border-radius','12px');
+
+  tempoSlider = createSlider(40, 208, 100);
+  tempoSlider.class('slider');
+  tempoSlider.position(xoff+150,yoff+260);
+  
 
   //inp.size(200,200);
   
@@ -192,6 +194,8 @@ function draw() {
   button6.mousePressed(stream_mode);
   button7.mousePressed(togglemetronome)
 
+  
+
   if(lastchord!=1)
   { u=totalchords;
     chords[c].display_fretboard();
@@ -201,7 +205,7 @@ function draw() {
     chords[c].display_fullchord();
     else
    chords[c].display_inputchord();
-    console.log(c, totalchords);
+   // console.log(c, totalchords);
      
   }
   else
@@ -234,7 +238,7 @@ function draw() {
        tempo_chord=1;
   }
   
-    if(beats%4==0 && tempo_chord==1)
+    if(beats%4==0 && tempo_chord==1 && timeNow>(prevKlack+30000/tempoSlider.value()))
     {
       amount=0;
       prevc =c;     
@@ -242,11 +246,15 @@ function draw() {
       tempo_chord=0;
     }
 }
-   
-  // textAlign(CENTER);
-  // textSize(50);
-  // text(`${tempoSlider.value()}bpm`, width/2, height);
+   push();
+   textAlign(CENTER);
+   textSize(20);
+   colorMode(RGB);
+   fill(255,255,255);
+   text(`${tempoSlider.value()}bpm`, xoff+200, yoff+300);
+  pop();
 
+  console.log(frameRate());
 }
   
 function mouseClicked() {
@@ -392,7 +400,9 @@ function animation(){
   
  // background(0);
   
-  
+  if(ismetronome==1)
+  amount=amount+1/(frameRate()*30/tempoSlider.value());   //incrementing amount in order to fit perfectly between transition from end of last bar to to start of next
+  else 
   amount=amount+0.025;
   if(amount>1)
   chords[c].display_fullchord();
@@ -445,12 +455,7 @@ function transition(tempamount){
           { //constant bubbles
               let x1=chords[temp2].fretobj[i][j].loc.x;       
               let x2=chords[temp2].fretobj[i][j].loc.y;   
-              //push();
-              //let col1=assign_col(assign_noteval(i,j),chords[temp1].chordnotes[0]);  
-              //let col2=assign_col(assign_noteval(i,j),chords[temp2].chordnotes[0]);
-              //let col3=p5.Vector.lerp(col1,col2,tempamount);
-              //fill(col3.x,col3.y,col3.z);
-
+       
 
               ellipse(x1,x2,30,30);
               //pop();
@@ -534,28 +539,7 @@ function transition(tempamount){
            prionum.length=0;
           }
 
-      
-     
-    /* if(chords[temp2].fretobj[i][j].present==1)
-       { let flag=0;
-         for(let k=0;k<18;k++)
-           { 
-             if(chords[temp1].fretobj[i][k].present==1)
-               {
-                 if(chords[temp1].fretobj[i][k].islerp==1)
-                   {
-                     flag=1
-                   }
-               }
-           }
-         if(flag==0)
-           {
-              let loneradii=map(amount,0,1,0,radii);
-               let lonex=chords[temp2].fretobj[i][j].loc.x;
-               let loney=chords[temp2].fretobj[i][j].loc.y;
-               ellipse(lonex,loney,loneradii,loneradii);
-           }
-       }*/
+
        if((chords[temp2].fretobj[i][j].present==1)&&(chords[temp2].fretobj[i][j].islerpto==0))
            {
              let loneradii=map(amount,0,1,0,radii);
@@ -566,20 +550,7 @@ function transition(tempamount){
       }
     }
   
- /* for(let i=0;i<6;i++)
-     { for(let j=0;j<18;j++)
-       {
-         if((chords[temp2].fretobj[i][j].present==1)&&(chords[temp2].fretobj[i][j].islerpto==0))
-           {
-             let loneradii=map(amount,0,1,0,radii);
-               let lonex=chords[temp2].fretobj[i][j].loc.x;
-               let loney=chords[temp2].fretobj[i][j].loc.y;
-               ellipse(lonex,loney,loneradii,loneradii)
-           }
-           
-       }
-     
-     }*/ 
+
 }
 
 function keyPressed() {
@@ -653,8 +624,7 @@ function inputnextchord()
   function lastchord_funct()
   {
     lastchord=1;
-   // button,style(curser,'not-allowed')
-   // button.style(opacity,0.4)
+ 
    c=0;
    prevc=0;
     button.hide()

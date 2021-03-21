@@ -23,6 +23,7 @@ let fullchord=0; //varible to flag whether you want to display full chord during
 let x_scale=1;
 let y_scale=1;
 let deletenote=0;
+let shownote=1;
 
 var radius;
 var c_canv;
@@ -90,6 +91,17 @@ class  fretclass{
       strokeWeight(1);
       stroke(255,255,255,1);
       ellipse(this.loc_f.x+this.f_width,this.loc_f.y,5,5);
+      if(shownote==1){
+      push()
+      textFont('Georgia');
+      textSize(20);
+      textStyle(NORMAL);
+      colorMode(RGB,1);
+      fill(1,1,1,0.3);
+      noStroke();
+      text(this.note,this.loc_f.x,this.loc_f.y);
+      pop();
+      }
     }
     
     display(x,temploc)
@@ -261,10 +273,13 @@ class  fretclass{
          text(j,this.fretobj[i][j].f_pos-this.fretobj[i][j].f_width/2,590*y_scale);
            pop();
            if( j==2||j==4||j==6||j==8||j==11||j==13)
-        {   fill(255,200,100,0.03);
+        { colorMode(RGB,255);  
+          fill(255,200,100,10);
             noStroke();
             rect(this.fretobj[i][j].f_pos+this.fretobj[i][j].f_width/4,325*y_scale,this.fretobj[i][j].f_width/2,200*y_scale);
           }
+
+        
           
           }
         }

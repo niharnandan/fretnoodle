@@ -120,18 +120,34 @@ function setup() {
     paintcanvas[i].slider.hide();
   paintcanvas[i].eraser = createButton("clear");
   paintcanvas[i].eraser.mousePressed(changeBG);
-    paintcanvas[i].eraser.position(wd/2,40);
-    paintcanvas[i].eraser.hide();
+  paintcanvas[i].eraser.position(wd/2,40);
+  paintcanvas[i].eraser.hide();
+  paintcanvas[i].redbutton=createButton("red");
+ paintcanvas[i].redbutton.mousePressed(redpaint);
+ paintcanvas[i].redbutton.hide();
+  paintcanvas[i].redbutton.position(wd/2+150,20);
+  paintcanvas[i].bluebutton=createButton("blue");
+  
+ 
+  paintcanvas[i].bluebutton.mousePressed(bluepaint);
+  paintcanvas[i].bluebutton.position(wd/2+150,40);
+  paintcanvas[i].bluebutton.hide();
+
+  paintcanvas[i].whitebutton=createButton("white");
+  paintcanvas[i].whitebutton.mousePressed(whitepaint);
+  paintcanvas[i].whitebutton.hide();
+   paintcanvas[i].whitebutton.position(wd/2+150,0);
+  
   paintcanvas[i].checkbox = createCheckbox('Erase', false);
     paintcanvas[i].checkbox.position(wd/2+50,40)
     paintcanvas[i].checkbox.hide();
-    paintcanvas[i].checkboxred=createCheckbox('red',false);
+  /*  paintcanvas[i].checkboxred=createCheckbox('red',false);
     paintcanvas[i].checkboxred.position(wd/2+50,70);
     paintcanvas[i].checkboxred.hide();
     paintcanvas[i].checkboxblue=createCheckbox('blue',false);
     paintcanvas[i].checkboxblue.position(wd/2-50,70);
     paintcanvas[i].checkboxblue.hide();
-
+*/
   //c_canv = color(255,255,255);
     colorMode(RGB);
     
@@ -166,6 +182,9 @@ function draw() {
       paintcanvas[i].slider.hide();
       paintcanvas[i].eraser.hide();
       paintcanvas[i].checkbox.hide();
+      paintcanvas[i].redbutton.hide();
+      paintcanvas[i].bluebutton.hide();
+      paintcanvas[i].whitebutton.hide();
     }
   
   if (lastchord==0)
@@ -219,6 +238,11 @@ function draw() {
         paintcanvas[c].slider.show();
    paintcanvas[c].eraser.show();
   paintcanvas[c].checkbox.show();
+  paintcanvas[c].redbutton.show();
+ paintcanvas[c].bluebutton.show();
+ paintcanvas[c].whitebutton.show();
+ //paintcanvas[c].checkboxred.show();
+ //paintcanvas[c].checkboxblue.show();
   radius = paintcanvas[c].slider.value();
       // tint(255,255,255,255);
   image(paintcanvas[c],0,0);
@@ -599,6 +623,15 @@ function keyPressed() {
        fullchord=(fullchord+1)%2;
        
      }  
+
+     if(key=='n')
+     {
+       shownote=(shownote+1)%2;
+     }
+
+   
+     
+
   
 
 }
@@ -678,4 +711,29 @@ function stream_mode()
 function togglemetronome()
 {
   ismetronome=(ismetronome+1)%2;
+}
+
+function redpaint()
+{
+  push()
+  colorMode(RGB);
+ c_canv=color(255,0,0);
+  pop();
+}
+
+function bluepaint()
+{
+  push();
+  colorMode(RGB);
+  c_canv=color(0,0,255);
+  pop();
+
+}
+
+function whitepaint()
+{
+  push();
+  colorMode(RGB);
+  c_canv=color(255,255,255);
+  pop();
 }

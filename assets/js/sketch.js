@@ -287,7 +287,8 @@ function mouseClicked() {
   
    
     if (paintcanvas[c].checkbox.checked())
-     { paintcanvas[c].erase();
+     { 
+       paintcanvas[c].erase();
       stampRectangle(255);
       paintcanvas[c].noErase();
      }
@@ -372,7 +373,7 @@ if(paintmode==1)
   if (paintcanvas[c].checkbox.checked()){
     paintcanvas[c].erase();
      paintcanvas[c].rect(mouseX,mouseY,paintcanvas[c].slider.value(),paintcanvas[c].slider.value());
-    paintcanvas[c].noErase();
+  paintcanvas[c].noErase();
   }else{
     paintcanvas[c].stroke(c_canv)
   }
@@ -413,8 +414,9 @@ function changeBG() {
 
 function stampRectangle(c_canv,c_=c){
   paintcanvas[c_].fill(c_canv)
-  paintcanvas[c_].noStroke()
-  paintcanvas[c_].rect(mouseX,mouseY,paintcanvas[0].slider.value(),paintcanvas[c_].slider.value())
+  paintcanvas[c_].noStroke();
+
+  paintcanvas[c_].rect(mouseX,mouseY,paintcanvas[c_].slider.value(),paintcanvas[c_].slider.value())
 }
 
 
@@ -717,7 +719,7 @@ function redpaint()
 {
   push()
   colorMode(RGB);
- c_canv=color(255,0,0);
+ c_canv=color(255,140,0);
   pop();
 }
 
@@ -725,7 +727,7 @@ function bluepaint()
 {
   push();
   colorMode(RGB);
-  c_canv=color(0,0,255);
+  c_canv=color(255,0,255);
   pop();
 
 }

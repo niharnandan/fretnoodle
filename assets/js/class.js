@@ -232,6 +232,7 @@ class  fretclass{
      this.inputnotes=[];
      this.fretobj=[];
      this.create_fretboard();
+     this.chordname;
       
     }
     create_fretboard(){
@@ -388,6 +389,27 @@ class  fretclass{
        }
      }
     }
+
+    chordanalyze(){
+      let ch_formula=[] //chord formula
+      for(let i=0;i<this.chordnotes.length;i++)
+      {
+        ch_formula.push(this.chordnotes[i]-this.chordnotes[0]);
+
+      }
+      ch_formula.sort();
+      for(let i=0;i<ch_formula.length;i++)
+      {
+        if(ch_formula[i]=ch_formula[i+1])
+        {
+          ch_formula.splice(i,1);      //delete repeating notes in input chords
+        }
+      }
+
+      
+
+
+    }
     
   }
   
@@ -478,3 +500,4 @@ class  fretclass{
      col_vector=createVector(hue(col_),saturation(col_),brightness(col_));
      return col_vector
   }
+

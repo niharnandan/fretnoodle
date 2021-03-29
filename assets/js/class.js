@@ -210,7 +210,9 @@ class  fretclass{
           else 
           fill('BLACK');
           text(s,this.loc.x-10,this.loc.y);
-      }    
+      }  
+      
+
     }
     
     get_noteval(){
@@ -233,6 +235,7 @@ class  fretclass{
      this.fretobj=[];
      this.create_fretboard();
      this.chordname;
+     this.ch_formula=[];
       
     }
     create_fretboard(){
@@ -392,21 +395,51 @@ class  fretclass{
 
     chordanalyze(){
       let ch_formula=[] //chord formula
+      let interval;
       for(let i=0;i<this.chordnotes.length;i++)
-      {
-        ch_formula.push(this.chordnotes[i]-this.chordnotes[0]);
+      { if(this.chordnotes[i]-this.chordnotes[0]<0)
+        {
+          interval=12+this.chordnotes[i]-this.chordnotes[0];
+        }
+        else
+        interval=this.chordnotes[i]-this.chordnotes[0];
+        ch_formula.push(int(interval));
 
       }
-      ch_formula.sort();
+      ch_formula.sort((a,b) => a-b);
+      
       for(let i=0;i<ch_formula.length;i++)
       {
-        if(ch_formula[i]=ch_formula[i+1])
+        if(ch_formula[i]==ch_formula[i+1])
         {
           ch_formula.splice(i,1);      //delete repeating notes in input chords
         }
       }
 
-      
+      console.log(ch_formula)
+
+      for(let c of chordbase)
+      {
+        if(ch_formula.length==(c.length-1))
+        { var i;
+          for( i=0;i<c.length-1;i++)
+          {
+          
+            
+            if(c[i]!=ch_formula[i])
+           { console.log("breaking  "+i)
+              break;
+            
+           }
+          }
+          if(i==c.length-1)
+          { this.chordname=assign_notename(this.chordnotes[0])+c[c.length-1];
+            console.log(" the chord is :"+this.chordname);
+          } 
+        }
+      }
+
+     // console.log(ch_formula)
 
 
     }
@@ -438,7 +471,34 @@ class  fretclass{
     return noteval_temp;
     
   }
+  function assign_notename(note_intval)
+  {
+    if (note_intval==0)
+     return 'A';
+     else if (note_intval==1)
+     return 'Bb';
+     else if (note_intval==2)
+     return 'B';
+     else if (note_intval==3)
+     return 'C';
+     else if (note_intval==4)
+     return 'Db';
+     else if (note_intval==5)
+     return 'D';
+     else if (note_intval==6)
+     return 'Eb';
+     else if (note_intval==7)
+     return 'E';
+     else if (note_intval==8)
+     return 'F';
+     else if (note_intval==9)
+     return 'Gb';
+     else if (note_intval==10)
+     return 'G';
+     else if (note_intval==11)
+     return 'Ab';
 
+  }
   function assign_col(note_intval,x)
   { let alphaval=0.5;
       let col_=color(0,1,1,alphaval);
@@ -501,3 +561,30 @@ class  fretclass{
      return col_vector
   }
 
+  /*
+  0-R
+  1-m2
+  2=M2
+  3=m3
+  4=M3
+  5=P4
+  6=#4
+  7=P5
+  8=m6
+  9=M6
+  10=m7
+  11=M7
+
+  */
+let chordbase=[
+[0,4,7,'Maj'],
+[0,3,7,'Min'],
+[0,3,6,'Dim'],
+[0,4,8,'aug'],
+[0,4,7,11,'maj7'],
+[0,3,7,10,'min7'],
+[0,3,6,9,'dim7'],
+[0,4,7,10,'dom7'],
+[0,3,6,10,'min7b5'],
+
+];

@@ -168,7 +168,7 @@ function draw() {
  //y_scale=0.85;   // canvas scaling variables 
  //rotate(PI/8);
  //scale(x_scale,y_scale);
- //console.log("window width "+window.outerWidth) ;
+ //("window width "+window.outerWidth) ;
  //console.log("paintmode:"+paintmode);
 //  if(window.innerWidth<768)
   //{translate(900,00,0)
@@ -225,12 +225,14 @@ function draw() {
     else
    chords[c].display_inputchord();
    // console.log(c, totalchords);
+   chords[c].chordanalyze(); 
      
   }
   else
     { u=c;
       chords[c].display_fretboard();
-      animation();   
+      animation();
+      chords[c].chordanalyze();   
     }
     
    if(paintmode==1)
@@ -275,10 +277,11 @@ function draw() {
    textSize(20);
    colorMode(RGB);
    fill(255,255,255);
-   text(`${tempoSlider.value()}bpm`, xoff+200, yoff+300);
+   text(`${tempoSlider.value()}bpm`, (xoff+200),(yoff+300));
+   text(chords[c].chordname,(100)*x_scale,(250)*y_scale)
   pop();
 
-  console.log(frameRate());
+ // console.log(frameRate());
 }
   
 function mouseClicked() {
@@ -346,7 +349,7 @@ function mouseClicked() {
                 }//condition for left mouse click
                 else if(keyIsDown(SHIFT)){
                 chords[c].rootchange(chords[c].fretobj[i][j].note_intval);
-                console.log("right mouse clicked");
+                //console.log("right mouse clicked");
                 }
          
    
@@ -671,7 +674,7 @@ function funct_showintervals(){
 }
 
 function myInputEvent() {
-  console.log('you are typing: ', this.value());
+  //console.log('you are typing: ', this.value());
 }
 
 function startover()

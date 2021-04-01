@@ -5,7 +5,11 @@ let muted = false;
 let beats=0;
 let ismetronome=0;
 let tempo_chord=0 //flag to ensure the transition function gets called only once during metronome shifting of chords
-
+let inputbars=[];
+let timeNow;
+let x_barpos;
+let y_barpos;
+let showbars=0;
 function preload() {
   klack = loadSound('assets/klack.wav');
   pling=loadSound('assets/pling.wav');
@@ -105,6 +109,8 @@ function setup() {
   button7.style('color','white')
   button7.style('border-radius','12px');
 
+  
+
   tempoSlider = createSlider(40, 208, 100);
   tempoSlider.class('slider');
   tempoSlider.position(xoff+150,yoff+260);
@@ -114,7 +120,13 @@ function setup() {
   
   //PAINT CANVAS
   for(let i=0;i<20;i++)
-   { paintcanvas[i]=createGraphics(wd,ht*1.5);
+   { 
+     inputbars[i]=createInput(1,float);
+    inputbars[i].position(0, 0);
+    inputbars[i].size(100);
+    inputbars[i].hide();
+     
+    paintcanvas[i]=createGraphics(wd,ht*1.5);
       paintcanvas[i].slider = createSlider(1, 20, 3);
     paintcanvas[i].slider.position(wd/2,10);
     paintcanvas[i].slider.hide();
@@ -185,8 +197,9 @@ function draw() {
       paintcanvas[i].redbutton.hide();
       paintcanvas[i].bluebutton.hide();
       paintcanvas[i].whitebutton.hide();
+      inputbars[i].hide();
     }
-  
+  inputbars[c].show();
   if (lastchord==0)
   {
     button3.hide();
@@ -214,7 +227,7 @@ function draw() {
   button7.mousePressed(togglemetronome)
 
   
-
+ timeNow=millis();
   if(lastchord!=1)
   { u=totalchords;
     chords[c].display_fretboard();
@@ -234,7 +247,7 @@ function draw() {
       animation();
       chords[c].chordanalyze();   
     }
-    
+    chords[c].bars=inputbars[c].value();
    if(paintmode==1)
      {
         paintcanvas[c].slider.show();
@@ -249,7 +262,7 @@ function draw() {
       // tint(255,255,255,255);
   image(paintcanvas[c],0,0);
      }
-     let timeNow = millis();
+    
 
      if(ismetronome==1){
   
@@ -261,17 +274,35 @@ function draw() {
        prevKlack = timeNow;
        nextKlack = timeNow + 60000/tempoSlider.value();
        beats++;
+       if(beats>4)
        tempo_chord=1;
+       else
+       c=0;                 //fixing the bug of random shifting of chord unexpectedly with metronome is in use
+      
   }
   
-    if(beats%4==0 && tempo_chord==1 && timeNow>(prevKlack+30000/tempoSlider.value()))
+  
+    push();
+    textAlign(CENTER);
+    textSize(20);
+    colorMode(RGB);
+    fill(255,255,255);
+    text((beats-1)%4+1,200,200);
+    text(c,250,200);
+  
+   pop();
+  
+  
+    if(beats%(4*chords[c].bars)==0 && tempo_chord==1 && timeNow>(prevKlack+30000/tempoSlider.value()))
     {
       amount=0;
       prevc =c;     
       c=(c+1)%(totalchords+1);
       tempo_chord=0;
+      console.log(chords[c].bars);
+
     }
-}
+  }
    push();
    textAlign(CENTER);
    textSize(20);
@@ -282,6 +313,9 @@ function draw() {
   pop();
 
  // console.log(frameRate());
+ if(showbars==1)
+ showprogression();
+
 }
   
 function mouseClicked() {
@@ -437,6 +471,9 @@ function animation(){
   chords[c].display_fullchord();
   else
   { //chords[c].display_fullchord();
+    if(beats>4 && ismetronome==1)             //to ensure that transition animation does not happen during count in
+    transition(amount);
+    else if(ismetronome==0)
     transition(amount);
   }
  
@@ -634,6 +671,17 @@ function keyPressed() {
        shownote=(shownote+1)%2;
      }
 
+     if(key=='m')
+     {
+      
+       togglemetronome();
+     }
+
+     if (key=='b')
+     showbars=(showbars+1)%2;
+
+
+
    
      
 
@@ -662,6 +710,7 @@ function inputnextchord()
   function lastchord_funct()
   {
     lastchord=1;
+    beats=0;
  
    c=0;
    prevc=0;
@@ -682,10 +731,12 @@ function startover()
   for(let i=0;i<10;i++)
     {
       paintcanvas[i].clear();
+      inputbars[i].value(1);
     }
   lastchord=0;
   chords.length=0;
   totalchords=0;
+  beats=0;
   c=0;
   prevc=0;
   for(let i=0;i<15;i++)
@@ -714,7 +765,8 @@ function stream_mode()
 
 
 function togglemetronome()
-{
+{ 
+  nextKlack = timeNow + 60000/tempoSlider.value();
   ismetronome=(ismetronome+1)%2;
 }
 
@@ -741,4 +793,41 @@ function whitepaint()
   colorMode(RGB);
   c_canv=color(255,255,255);
   pop();
+}
+
+function showprogression(){
+  //location coordinated of of bars
+  x_barpos=500;
+  y_barpos=500;
+  let barlength=100;
+  for(let i=0;i<=totalchords;i++)
+  {
+    if(x_barpos>=500+barlength*4)
+    { x_barpos=500;
+      y_barpos=y_barpos+60;
+    }
+      push();
+      colorMode(HSB,1)
+      fill(120/360,300/360,300/360,0.3);
+      if(i==c)
+      {
+        strokeWeight(3);
+        stroke(0,0,1);
+      }
+      else
+      noStroke();
+      barlength=100*chords[i].bars;
+      rect(x_barpos,y_barpos,barlength,50,20,20,20,20);
+      textAlign(CENTER);
+      textSize(15);
+   
+   fill(0,0,1);
+   noStroke();
+   
+   text(chords[i].chordname,x_barpos+50,y_barpos+20)
+
+      x_barpos=x_barpos+100*chords[i].bars;
+      pop();
+      console.log(x_barpos);
+  }
 }

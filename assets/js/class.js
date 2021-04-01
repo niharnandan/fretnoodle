@@ -236,6 +236,7 @@ class  fretclass{
      this.create_fretboard();
      this.chordname;
      this.ch_formula=[];
+     this.bars=1;
       
     }
     create_fretboard(){
@@ -394,6 +395,7 @@ class  fretclass{
     }
 
     chordanalyze(){
+      let found=0; //flag to signal if chord is found in database
       let ch_formula=[] //chord formula
       let interval;
       for(let i=0;i<this.chordnotes.length;i++)
@@ -406,28 +408,32 @@ class  fretclass{
         ch_formula.push(int(interval));
 
       }
-      ch_formula.sort((a,b) => a-b);
+      ch_formula.sort((a,b) => a-b);  //to sort integers
       
+      console.log(ch_formula)
       for(let i=0;i<ch_formula.length;i++)
       {
         if(ch_formula[i]==ch_formula[i+1])
         {
-          ch_formula.splice(i,1);      //delete repeating notes in input chords
+          ch_formula.splice(i,1); 
+          i=i-1;                  //delete repeating notes in input chords
         }
       }
 
-      console.log(ch_formula)
-
+      //console.log(ch_formula)
+      loop1:
       for(let c of chordbase)
       {
         if(ch_formula.length==(c.length-1))
         { var i;
+          loop2:
           for( i=0;i<c.length-1;i++)
           {
           
             
             if(c[i]!=ch_formula[i])
-           { console.log("breaking  "+i)
+           { //console.log("breaking  "+i)
+              found=0;
               break;
             
            }
@@ -435,8 +441,15 @@ class  fretclass{
           if(i==c.length-1)
           { this.chordname=assign_notename(this.chordnotes[0])+c[c.length-1];
             console.log(" the chord is :"+this.chordname);
-          } 
+            found=1;
+            break loop1;
+          }
         }
+      }
+
+      if(found==0)
+      {
+        this.chordname="undefined";
       }
 
      // console.log(ch_formula)
@@ -577,14 +590,18 @@ class  fretclass{
 
   */
 let chordbase=[
-[0,4,7,'Maj'],
-[0,3,7,'Min'],
-[0,3,6,'Dim'],
+[0,4,7,'maj'],
+[0,3,7,'min'],
+[0,3,6,'dim'],
 [0,4,8,'aug'],
 [0,4,7,11,'maj7'],
 [0,3,7,10,'min7'],
 [0,3,6,9,'dim7'],
 [0,4,7,10,'dom7'],
 [0,3,6,10,'min7b5'],
+[0,2,4,5,7,9,11,'maj scale']
+
+
+
 
 ];

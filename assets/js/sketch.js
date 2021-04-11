@@ -2,7 +2,7 @@ let klack;
 let pling;
 let nextKlack = 0;
 let muted = false;
-let beats=0;
+let beats=-4;
 let ismetronome=0;
 let tempo_chord=0 //flag to ensure the transition function gets called only once during metronome shifting of chords
 let inputbars=[];
@@ -35,7 +35,7 @@ function setup() {
   }
  
   colorMode(HSB,1)
-  col=color(10/360,0.8,0.5,0.2)
+  col=color(286/360,0.3,0.4)
   button=createButton('Input New Chord');
   button.position(19+xoff,19+yoff);
   button.size(150,70);
@@ -210,7 +210,7 @@ function draw() {
   }
   else
   { button.hide();
-    button2.hide();
+    //button2.hide();
     button3.show();
     button5.show();
     button7.show();
@@ -274,7 +274,7 @@ function draw() {
        prevKlack = timeNow;
        nextKlack = timeNow + 60000/tempoSlider.value();
        beats++;
-       if(beats>4)
+       if(beats>0)
        tempo_chord=1;
        else
        c=0;                 //fixing the bug of random shifting of chord unexpectedly with metronome is in use
@@ -315,6 +315,8 @@ function draw() {
  // console.log(frameRate());
  if(showbars==1)
  showprogression();
+
+ console.log(x_scale,y_scale);
 
 }
   
@@ -471,7 +473,7 @@ function animation(){
   chords[c].display_fullchord();
   else
   { //chords[c].display_fullchord();
-    if(beats>4 && ismetronome==1)             //to ensure that transition animation does not happen during count in
+    if(beats>0 && ismetronome==1)             //to ensure that transition animation does not happen during count in
     transition(amount);
     else if(ismetronome==0)
     transition(amount);
@@ -709,8 +711,8 @@ function inputnextchord()
 
   function lastchord_funct()
   {
-    lastchord=1;
-    beats=0;
+    lastchord=(lastchord+1)%2;
+    beats=-4;
  
    c=0;
    prevc=0;
@@ -736,7 +738,7 @@ function startover()
   lastchord=0;
   chords.length=0;
   totalchords=0;
-  beats=0;
+  beats=-4;
   c=0;
   prevc=0;
   for(let i=0;i<15;i++)
@@ -797,14 +799,14 @@ function whitepaint()
 
 function showprogression(){
   //location coordinated of of bars
-  x_barpos=500;
-  y_barpos=500;
-  let barlength=100;
+  x_barpos=500*x_scale;
+  y_barpos=650*y_scale;
+  let barlength=130*x_scale;
   for(let i=0;i<=totalchords;i++)
   {
-    if(x_barpos>=500+barlength*4)
-    { x_barpos=500;
-      y_barpos=y_barpos+60;
+    if(x_barpos>=500*x_scale+130*x_scale*4)
+    { x_barpos=500*x_scale;
+      y_barpos=y_barpos+60*y_scale;
     }
       push();
       colorMode(HSB,1)
@@ -816,17 +818,17 @@ function showprogression(){
       }
       else
       noStroke();
-      barlength=100*chords[i].bars;
+      barlength=130*chords[i].bars*x_scale;
       rect(x_barpos,y_barpos,barlength,50,20,20,20,20);
       textAlign(CENTER);
-      textSize(15);
+      textSize(15*x_scale);
    
    fill(0,0,1);
    noStroke();
    
-   text(chords[i].chordname,x_barpos+50,y_barpos+20)
+   text(chords[i].chordname,x_barpos+50*x_scale,y_barpos+20*y_scale)
 
-      x_barpos=x_barpos+100*chords[i].bars;
+      x_barpos=x_barpos+130*chords[i].bars*x_scale;
       pop();
       console.log(x_barpos);
   }

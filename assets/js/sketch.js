@@ -10,11 +10,24 @@ let timeNow;
 let x_barpos;
 let y_barpos;
 let showbars=0;
+let img_add;
+let img_next;
+let img_prev;
+let img_delete;
+x_scale=0.85*window.outerWidth/1536;                     //shifted this here from setup
+y_scale=x_scale;   // canvas scaling variables 
+let xoff=50;
+let yoff=600*y_scale;
+
 function preload() {
   klack = loadSound('assets/klack.wav');
   pling=loadSound('assets/pling.wav');
   klack.playMode('restart');
   pling.playMode('restart');
+  img_add=loadImage('assets/add.png');
+  img_next=loadImage('assets/next.png');
+  img_prev=loadImage('assets/prev.png');
+  img_delete=loadImage('assets/delete.png');
 
 }
 
@@ -23,8 +36,7 @@ function setup() {
  // fullscreen();
  back_col=color(0,0,0)
  frameRate(60);
- x_scale=0.85*window.outerWidth/1536;
- y_scale=x_scale;   // canvas scaling variables 
+
 
  
  
@@ -35,10 +47,12 @@ function setup() {
   }
  
   colorMode(HSB,1)
-  col=color(286/360,0.3,0.4)
-  button=createButton('Input New Chord');
-  button.position(19+xoff,19+yoff);
-  button.size(150,70);
+  colorMode(RGB,255);  
+  col=color(255,200,100,50)
+  button=createButton('+');
+  
+  button.position(19*x_scale+xoff,19*x_scale+yoff);
+  button.size(50*x_scale,50*y_scale);
   button.style('background-color', col);
   button.style('font-size','20px');
   button.style('font-family','lato');
@@ -55,22 +69,22 @@ function setup() {
   button2.style('color','white');
   button2.style('border-radius','12px');
   
-  button3=createButton('Next Chord');
-  button3.size(100,80);
+  button3=createButton('>');
+  button3.size(50*x_scale,50*y_scale);
   button3.style('background-color', col);
   button3.style('font-size','20px');
   button3.style('font-family','lato');
   button3.style('color','white');
-  button3.position(19+xoff,19+yoff);
+  button3.position(120*x_scale+xoff,19+yoff);
   button3.style('border-radius','12px');
    
-  button5=createButton('Previous Chord');
-  button5.size(100,80);
+  button5=createButton('<');
+  button5.size(50*x_scale,50*y_scale);
   button5.style('background-color', col);
   button5.style('font-size','20px');
   button5.style('font-family','lato');
   button5.style('color','white');
-  button5.position(130+xoff,19+yoff);
+  button5.position(70*x_scale+xoff,19+yoff);
   button5.style('border-radius','12px');
   
   button_showintervals=createButton('color coded intervals');
@@ -83,10 +97,10 @@ function setup() {
   button_showintervals.style('border-radius','12px');
   
   button4=createButton('Start Again');
-  button4.position(xoff+250,yoff+50)
-  button4.size(200,180);
+  button4.position(xoff+19,yoff+250)
+  button4.size(50,70);
   button4.style('background-color',col)
-  button4.style('font-size','27px')
+  button4.style('font-size','15px')
   button4.style('font-family','lato')
   button4.style('color','white')
   button4.style('border-radius','12px');
@@ -202,8 +216,8 @@ function draw() {
   inputbars[c].show();
   if (lastchord==0)
   {
-    button3.hide();
-    button5.hide();
+   // button3.hide();
+    //button5.hide();
     button.show();
     button2.show();
     button7.hide();

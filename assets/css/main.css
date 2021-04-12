@@ -2088,6 +2088,8 @@
 				background-color:#aed6f1;
 				border-radius: 15px ;
 				padding: 10px;;
+				box-shadow: 5px 5px #888888;
+}
 				
 			}
 
@@ -2096,11 +2098,15 @@
 				.flex.flex-2 .col.col1, .flex.flex-2 .col.col2 {
 					width: 100%;
 					margin-bottom: 2em;
+					
+}
 				}
 
 					.flex.flex-2 .col.col1 .image, .flex.flex-2 .col.col2 .image {
 						max-width: 60%;
 						margin: 0 auto 2em auto;
+						
+}
 					}
 
 			}
@@ -2114,11 +2120,15 @@
 				.flex.flex-3 .col {
 					width: 100%;
 					margin-bottom: 2em;
+					
+}
 				}
 
 					.flex.flex-3 .col .image {
 						max-width: 60%;
 						margin: 0 auto 2em auto;
+				
+}
 					}
 
 			}
@@ -2170,6 +2180,8 @@
 				-webkit-order: 2;
 				-ms-order: 2;
 				order: 2;
+		
+}
 			}
 
 				.flex.flex-2 .col.first, .flex.flex-3 .col.first, .flex.flex-4 .col.first {
@@ -2177,6 +2189,8 @@
 					-webkit-order: 1;
 					-ms-order: 1;
 					order: 1;
+				
+}
 				}
 
 			.flex.flex-tabs {

@@ -16,12 +16,10 @@ let lerpamount=0 //index for linear interpolation during transition
 let amount=0;
 let prevc=0;
 let t1;
-let xoff=50;
-let yoff=700;
+
 let stream_mode_var=0;
 let fullchord=0; //varible to flag whether you want to display full chord during input stage
-let x_scale=1;
-let y_scale=1;
+
 let deletenote=0;
 let shownote=1;
 

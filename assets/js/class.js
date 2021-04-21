@@ -88,11 +88,11 @@ class  fretclass{
       line(this.loc_f.x, this.loc_f.y, this.loc_f.x+this.f_width, this.loc_f.y);
       strokeWeight(1);
       stroke(255,255,255,1);
-      ellipse(this.loc_f.x+this.f_width,this.loc_f.y,5,5);
+      ellipse(this.loc_f.x+this.f_width,this.loc_f.y,6*x_scale,6*x_scale);
       if(shownote==1){
       push()
       textFont('Georgia');
-      textSize(20);
+      textSize(25*x_scale);
       textStyle(NORMAL);
       colorMode(RGB,1);
       fill(1,1,1,0.3);
@@ -109,7 +109,7 @@ class  fretclass{
       //fill(198/360, 96, 74,alphaval);
       fill(60/360,1,1,alphaval);
       textFont('Georgia');
-      textSize(15);
+      textSize(18*x_scale);
       textStyle(BOLD);
       strokeWeight(1);
       let textcolor='WHITE';
@@ -194,7 +194,7 @@ class  fretclass{
       {fill(60/360,1,1,alphaval);
       }
 
-      ellipse(this.loc.x,this.loc.y,30,30);
+      ellipse(this.loc.x,this.loc.y,40*x_scale,40*x_scale);
       if(show_intervals==1)
       { 
         noStroke();
@@ -207,7 +207,7 @@ class  fretclass{
           fill('BLACK');
           else 
           fill('BLACK');
-          text(s,this.loc.x-10,this.loc.y);
+          text(s,this.loc.x-10*x_scale,this.loc.y);
       }  
       
 
@@ -270,7 +270,7 @@ class  fretclass{
          line(this.fretobj[i][j].f_pos,300*y_scale,this.fretobj[i][j].f_pos,550*y_scale);  //drawing the fret lines
            push();
            textFont('Georgia');
-          textSize(25);
+          textSize(25*x_scale);
            textStyle(NORMAL);
            strokeWeight(1);
          text(j,this.fretobj[i][j].f_pos-this.fretobj[i][j].f_width/2,590*y_scale);
@@ -408,7 +408,7 @@ class  fretclass{
       }
       ch_formula.sort((a,b) => a-b);  //to sort integers
       
-      console.log(ch_formula)
+      //console.log(ch_formula)
       for(let i=0;i<ch_formula.length;i++)
       {
         if(ch_formula[i]==ch_formula[i+1])
@@ -438,7 +438,7 @@ class  fretclass{
           }
           if(i==c.length-1)
           { this.chordname=assign_notename(this.chordnotes[0])+c[c.length-1];
-            console.log(" the chord is :"+this.chordname);
+           // console.log(" the chord is :"+this.chordname);
             found=1;
             break loop1;
           }
@@ -453,6 +453,20 @@ class  fretclass{
      // console.log(ch_formula)
 
 
+    }
+
+    deletechord(){
+      for(let i=0;i<6;i++)
+      {for(let j=0;j<=18;j++)
+       {
+         this.fretobj[i][j].present=0;
+         this.fretobj[i][j].input_chordnote=0;
+       }
+      }
+      this.chordnotes=[];
+      this.inputnotes=[];
+      this.total_chordnotes=0;
+      //this.bars=1;
     }
     
   }
@@ -586,7 +600,7 @@ class  fretclass{
   10=m7
   11=M7
 
-  */
+  */                   //INTERVALLIC FORMULAS IN DATABASE MUST BE IN ASCENDING ORDER
 let chordbase=[
 [0,4,7,'maj'],
 [0,3,7,'min'],
@@ -596,8 +610,13 @@ let chordbase=[
 [0,3,7,10,'min7'],
 [0,3,6,9,'dim7'],
 [0,4,7,10,'dom7'],
+[0,2,4,7,10,'dom9'],
+[0,4,7,9,10,'dom13'],
+
 [0,3,6,10,'min7b5'],
-[0,2,4,5,7,9,11,'maj scale']
+[0,2,4,5,7,9,11,'maj scale'],
+[0,3,5,7,10,'min pent'],
+[0,2,3,5,7,9,11,'melodic min']
 
 
 

@@ -9,14 +9,14 @@ let inputbars=[];
 let timeNow;
 let x_barpos;
 let y_barpos;
-let showbars=0;
+let showbars=1;
 let img_add;
 let img_next;
 let img_prev;
 let img_delete;
 x_scale=0.85*window.outerWidth/1536;                     //shifted this here from setup
 y_scale=x_scale;   // canvas scaling variables 
-let xoff=50;
+let xoff=15;
 let yoff=600*y_scale;
 
 function preload() {
@@ -41,7 +41,7 @@ function setup() {
  
  
  scale(x_scale,y_scale);
- for(let i=0;i<20;i++)
+ for(let i=0;i<50;i++)
   {
     chords[i]=new chordclass();
   }
@@ -50,9 +50,9 @@ function setup() {
   colorMode(RGB,255);  
   col=color(255,200,100,50)
   button=createButton('+');
-  
-  button.position(19*x_scale+xoff,19*x_scale+yoff);
-  button.size(50*x_scale,50*y_scale);
+
+  button.position(19+xoff,19+yoff);
+  button.size(50,50);
   button.style('background-color', col);
   button.style('font-size','20px');
   button.style('font-family','lato');
@@ -60,8 +60,8 @@ function setup() {
   button.style('border-radius','12px');
 
  
-  button2=createButton('Start Animation');
-  button2.position(19+xoff,100+yoff);
+  button2=createButton('SHOW MAP');
+  button2.position(19+xoff,90+yoff);
   button2.style('font-family','lato');
   button2.size(150,70);
   button2.style('background-color', col);
@@ -70,25 +70,25 @@ function setup() {
   button2.style('border-radius','12px');
   
   button3=createButton('>');
-  button3.size(50*x_scale,50*y_scale);
+  button3.size(50,50);
   button3.style('background-color', col);
   button3.style('font-size','20px');
   button3.style('font-family','lato');
   button3.style('color','white');
-  button3.position(120*x_scale+xoff,19+yoff);
+  button3.position(120+xoff,19+yoff);
   button3.style('border-radius','12px');
    
   button5=createButton('<');
-  button5.size(50*x_scale,50*y_scale);
+  button5.size(50,50);
   button5.style('background-color', col);
   button5.style('font-size','20px');
   button5.style('font-family','lato');
   button5.style('color','white');
-  button5.position(70*x_scale+xoff,19+yoff);
+  button5.position(70+xoff,19+yoff);
   button5.style('border-radius','12px');
   
   button_showintervals=createButton('color coded intervals');
-  button_showintervals.position(120+xoff,180+yoff);
+  button_showintervals.position(120+xoff,410+yoff);
   button_showintervals.size(100,50);
   button_showintervals.style('background-color',col);
   button_showintervals.style('font-size','15px');
@@ -97,16 +97,16 @@ function setup() {
   button_showintervals.style('border-radius','12px');
   
   button4=createButton('Start Again');
-  button4.position(xoff+19,yoff+250)
-  button4.size(50,70);
+  button4.position(xoff+19,yoff+470)
+  button4.size(200,70);
   button4.style('background-color',col)
-  button4.style('font-size','15px')
+  button4.style('font-size','20px')
   button4.style('font-family','lato')
   button4.style('color','white')
   button4.style('border-radius','12px');
 
   button6=createButton('Stream Mode');
-  button6.position(xoff+19,yoff+180)
+  button6.position(xoff+19,yoff+410)
   button6.size(100,50);
   button6.style('background-color',col)
   button6.style('font-size','15px')
@@ -115,7 +115,7 @@ function setup() {
   button6.style('border-radius','12px');
 
   button7=createButton('toggle metronome');
-  button7.position(xoff+19,yoff+250)
+  button7.position(xoff+19,yoff+350)
   button7.size(100,50);
   button7.style('background-color',col)
   button7.style('font-size','15px')
@@ -123,11 +123,22 @@ function setup() {
   button7.style('color','white')
   button7.style('border-radius','12px');
 
+  button8=createButton('-');                     //delete chord
+  button8.position(xoff+170,yoff+19)
+  button8.size(50,50);
+  button8.style('background-color',col)
+  button8.style('font-size','25px')
+  button8.style('font-family','lato')
+  button8.style('color','white')
+  button8.style('border-radius','12px');
+  
+
   
 
   tempoSlider = createSlider(40, 208, 100);
   tempoSlider.class('slider');
-  tempoSlider.position(xoff+150,yoff+260);
+  tempoSlider.position(xoff+130,yoff+380);
+  tempoSlider.hide();
   
 
   //inp.size(200,200);
@@ -137,35 +148,36 @@ function setup() {
    { 
      inputbars[i]=createInput(1,float);
     inputbars[i].position(0, 0);
-    inputbars[i].size(100);
+    inputbars[i].size(30);
     inputbars[i].hide();
      
     paintcanvas[i]=createGraphics(wd,ht*1.5);
       paintcanvas[i].slider = createSlider(1, 20, 3);
-    paintcanvas[i].slider.position(wd/2,10);
+    paintcanvas[i].slider.position(wd/1.2,10);
     paintcanvas[i].slider.hide();
   paintcanvas[i].eraser = createButton("clear");
   paintcanvas[i].eraser.mousePressed(changeBG);
-  paintcanvas[i].eraser.position(wd/2,40);
+  paintcanvas[i].eraser.position(wd/1.2,40);
   paintcanvas[i].eraser.hide();
-  paintcanvas[i].redbutton=createButton("red");
+  paintcanvas[i].redbutton=createButton("orange");
  paintcanvas[i].redbutton.mousePressed(redpaint);
  paintcanvas[i].redbutton.hide();
-  paintcanvas[i].redbutton.position(wd/2+150,20);
-  paintcanvas[i].bluebutton=createButton("blue");
+  paintcanvas[i].redbutton.position(wd/1.06,20);
+  paintcanvas[i].bluebutton=createButton("magenta");
   
  
   paintcanvas[i].bluebutton.mousePressed(bluepaint);
-  paintcanvas[i].bluebutton.position(wd/2+150,40);
+  paintcanvas[i].bluebutton.position(wd/1.06,40);
   paintcanvas[i].bluebutton.hide();
 
   paintcanvas[i].whitebutton=createButton("white");
   paintcanvas[i].whitebutton.mousePressed(whitepaint);
   paintcanvas[i].whitebutton.hide();
-   paintcanvas[i].whitebutton.position(wd/2+150,0);
+   paintcanvas[i].whitebutton.position(wd/1.06,0);
   
-  paintcanvas[i].checkbox = createCheckbox('Erase', false);
-    paintcanvas[i].checkbox.position(wd/2+50,40)
+  paintcanvas[i].checkbox = createCheckbox('Eraser', false);
+    paintcanvas[i].checkbox.position(wd/1.15,40)
+    paintcanvas[i].checkbox.style('color','white')
     paintcanvas[i].checkbox.hide();
   /*  paintcanvas[i].checkboxred=createCheckbox('red',false);
     paintcanvas[i].checkboxred.position(wd/2+50,70);
@@ -221,6 +233,8 @@ function draw() {
     button.show();
     button2.show();
     button7.hide();
+    tempoSlider.hide();
+    button8.show();
   }
   else
   { button.hide();
@@ -228,6 +242,8 @@ function draw() {
     button3.show();
     button5.show();
     button7.show();
+    button8.hide();
+    tempoSlider.show();
   }
   
   
@@ -239,6 +255,7 @@ function draw() {
   button5.mousePressed(showpreviouschord);
   button6.mousePressed(stream_mode);
   button7.mousePressed(togglemetronome)
+  button8.mousePressed(deletechord_global)
 
   
  timeNow=millis();
@@ -248,7 +265,8 @@ function draw() {
     //chords[totalchords].inputChord();
 
     if(fullchord==1)
-    chords[c].display_fullchord();
+   { chords[c].display_fullchord();
+   }
     else
    chords[c].display_inputchord();
    // console.log(c, totalchords);
@@ -290,8 +308,8 @@ function draw() {
        beats++;
        if(beats>0)
        tempo_chord=1;
-       else
-       c=0;                 //fixing the bug of random shifting of chord unexpectedly with metronome is in use
+       //else
+      // c=0;                 //fixing the bug of random shifting of chord unexpectedly with metronome is in use
       
   }
   
@@ -301,8 +319,15 @@ function draw() {
     textSize(20);
     colorMode(RGB);
     fill(255,255,255);
-    text((beats-1)%4+1,200,200);
-    text(c,250,200);
+    if(beats<0)
+    text(beats,200*x_scale,200*y_scale)
+    else if((beats-1)%4+1==0)
+    text(4,200*x_scale,200*y_scale);
+    else
+    text((beats-1)%4+1,200*x_scale,200*y_scale);
+    
+   //text(beats%4,200,200);
+    //text(c,250,200);
   
    pop();
   
@@ -314,6 +339,7 @@ function draw() {
       c=(c+1)%(totalchords+1);
       tempo_chord=0;
       console.log(chords[c].bars);
+      beats=0;      
 
     }
   }
@@ -322,15 +348,19 @@ function draw() {
    textSize(20);
    colorMode(RGB);
    fill(255,255,255);
-   text(`${tempoSlider.value()}bpm`, (xoff+200),(yoff+300));
+   if(lastchord==1)
+   text(`${tempoSlider.value()}bpm`, (xoff+200),(yoff+360));
    text(chords[c].chordname,(100)*x_scale,(250)*y_scale)
+   textSize(10);
+   noStroke();
+   text("Bar Length",70,20)
   pop();
 
  // console.log(frameRate());
  if(showbars==1)
  showprogression();
 
- console.log(x_scale,y_scale);
+ //console.log(x_scale,y_scale);
 
 }
   
@@ -350,9 +380,9 @@ function mouseClicked() {
    
   }
   else{
-    if(lastchord==0){
+    if(lastchord==0){     //chords can be edited only in input mode
     let x=mouseX;
-      let y=mouseY;
+    let y=mouseY;
       if (mouseY>270*y_scale && mouseY<920*y_scale)
       {
        loop1:
@@ -364,13 +394,13 @@ function mouseClicked() {
              { //console.log("test passed:"+x,y,i,j) ;
               // console.log("this.input_chord="+ chords[u].fretobj[i][j].input_chordnote);
             
-               if(!keyIsDown(SHIFT)) //to avoid multiple entries of the same note
+               if(!keyIsDown(SHIFT)) //deactivated rootnote changing mode
                 {
                let v= createVector(i,j);
                loop3:
                for( let q in chords[c].inputnotes)
               {
-                 if(chords[c].inputnotes[q].x==v.x && chords[c].inputnotes[q].y==v.y)
+                 if(chords[c].inputnotes[q].x==v.x && chords[c].inputnotes[q].y==v.y) //to check if note is already present, if yes, delete note
                 { chords[c].fretobj[i][j].input_chordnote=0;
                   chords[c].inputnotes.splice(q,1); 
                       chords[c].total_chordnotes--; 
@@ -487,7 +517,7 @@ function animation(){
   chords[c].display_fullchord();
   else
   { //chords[c].display_fullchord();
-    if(beats>0 && ismetronome==1)             //to ensure that transition animation does not happen during count in
+    if(beats>=0 && ismetronome==1)             //to ensure that transition animation does not happen during count in
     transition(amount);
     else if(ismetronome==0)
     transition(amount);
@@ -523,7 +553,7 @@ function transition(tempamount){
   
   colorMode(HSB,1);
   fill(60/360, 96, 74);
-  let radii=30;
+  let radii=40*x_scale;
   let temp1=prevc;
   let temp2=c;
   if(tempamount<0.1)
@@ -539,7 +569,7 @@ function transition(tempamount){
               let x2=chords[temp2].fretobj[i][j].loc.y;   
        
 
-              ellipse(x1,x2,30,30);
+              ellipse(x1,x2,radii,radii);
               //pop();
               continue;
 
@@ -716,11 +746,26 @@ function doubleClicked()
 
 function inputnextchord()
 { 
-  
- 
+  if(c!=totalchords)
+  {chords.splice(c+1,0,chords[20])
+   
+   totalchords++;
+   c=c+1
+  }
+  else{
  totalchords++;
  c=totalchords;
-  
+  } 
+}
+
+function deletechord_global()
+{ if(totalchords!=0)
+  {//chords[c].deletechord();
+  chords.splice(c,1);
+  paintcanvas.splice(c,1);
+  inputbars.splice(c,1);
+  totalchords--;
+  } 
 }
 
   function lastchord_funct()
@@ -728,8 +773,8 @@ function inputnextchord()
     lastchord=(lastchord+1)%2;
     beats=-4;
  
-   c=0;
-   prevc=0;
+   //c=0;
+  prevc=c;
     button.hide()
    // button.show();
   }
@@ -781,7 +826,7 @@ function stream_mode()
 
 
 function togglemetronome()
-{ 
+{ beats=-4;
   nextKlack = timeNow + 60000/tempoSlider.value();
   ismetronome=(ismetronome+1)%2;
 }
@@ -813,13 +858,13 @@ function whitepaint()
 
 function showprogression(){
   //location coordinated of of bars
-  x_barpos=500*x_scale;
+  x_barpos=900*x_scale;
   y_barpos=650*y_scale;
   let barlength=130*x_scale;
   for(let i=0;i<=totalchords;i++)
   {
-    if(x_barpos>=500*x_scale+130*x_scale*4)
-    { x_barpos=500*x_scale;
+    if(x_barpos>=900*x_scale+130*x_scale*4)
+    { x_barpos=900*x_scale;
       y_barpos=y_barpos+60*y_scale;
     }
       push();
@@ -833,7 +878,7 @@ function showprogression(){
       else
       noStroke();
       barlength=130*chords[i].bars*x_scale;
-      rect(x_barpos,y_barpos,barlength,50,20,20,20,20);
+      rect(x_barpos,y_barpos,barlength,50*x_scale,20,20,20,20);
       textAlign(CENTER);
       textSize(15*x_scale);
    
@@ -844,6 +889,6 @@ function showprogression(){
 
       x_barpos=x_barpos+130*chords[i].bars*x_scale;
       pop();
-      console.log(x_barpos);
+      //console.log(x_barpos);
   }
 }

@@ -144,7 +144,7 @@ function setup() {
   //inp.size(200,200);
   
   //PAINT CANVAS
-  for(let i=0;i<20;i++)
+  for(let i=0;i<50;i++)
    { 
      inputbars[i]=createInput(1,float);
     inputbars[i].position(0, 0);
@@ -296,7 +296,7 @@ function draw() {
      }
     
 
-     if(ismetronome==1){
+     if(ismetronome==1 && lastchord==1){
   
      if (timeNow > nextKlack) {
        if(beats%4==0)
@@ -467,7 +467,7 @@ if(paintmode==1)
    }
 
    else if(keyIsDown(SHIFT)){
-     for(let p=0;p<=20;p++)
+     for(let p=0;p<=50;p++)
      {
       if (paintcanvas[p].checkbox.checked()){
         paintcanvas[p].erase();
@@ -747,8 +747,8 @@ function doubleClicked()
 function inputnextchord()
 { 
   if(c!=totalchords)
-  {chords.splice(c+1,0,chords[20])
-   
+  {chords.splice(c+1,0,chords[40])
+   paintcanvas.splice(c+1,0,paintcanvas[40])
    totalchords++;
    c=c+1
   }
@@ -771,6 +771,8 @@ function deletechord_global()
   function lastchord_funct()
   {
     lastchord=(lastchord+1)%2;
+    if(lastchord==0)
+    ismetronome=0;
     beats=-4;
  
    //c=0;
@@ -826,7 +828,8 @@ function stream_mode()
 
 
 function togglemetronome()
-{ beats=-4;
+{ tempo_chord=0;                 
+  beats=-4;
   nextKlack = timeNow + 60000/tempoSlider.value();
   ismetronome=(ismetronome+1)%2;
 }

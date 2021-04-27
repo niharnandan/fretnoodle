@@ -77,6 +77,7 @@ class  fretclass{
      this.present=0;
       this.islerpfrom=0;       //flag to determine whether given ellipse will lerp or not
       this.islerpto=0;
+      this.iscommon=0;        //to check if the bubble is common between two consecutive chords
     }
     
     fretline()
@@ -375,6 +376,7 @@ class  fretclass{
           for(let j=0;j<18;j++)
             {
               this.fretobj[i][j].islerpto=0;
+              this.fretobj[i][j].iscommon=0;
             }
         }
     }

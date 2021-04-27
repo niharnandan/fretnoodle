@@ -556,7 +556,7 @@ function transition(tempamount){
   let radii=40*x_scale;
   let temp1=prevc;
   let temp2=c;
-  if(tempamount<0.1)
+  if(tempamount<0.03)
   {chords[temp1].reset_lerp();//prevent arising bubbles during backward lerp (left motion)
   chords[temp2].reset_lerp();
   }
@@ -567,7 +567,7 @@ function transition(tempamount){
           { //constant bubbles
               let x1=chords[temp2].fretobj[i][j].loc.x;       
               let x2=chords[temp2].fretobj[i][j].loc.y;   
-       
+              chords[temp2].fretobj[i][j].iscommon=1;
 
               ellipse(x1,x2,radii,radii);
               //pop();
@@ -588,20 +588,20 @@ function transition(tempamount){
                 { 
               
                     
-                  if(k-j==1)
+                  if(k-j==1 && chords[temp2].fretobj[i][k].iscommon==0)
                   {priority1=k;               
                    prionum.push(1);      
                   }
-                 else if(k-j==-1)
+                 else if(k-j==-1 && chords[temp2].fretobj[i][k].iscommon==0)
                  {
                    priority2=k;                 
                    prionum.push(2);                   
                  }
-                 else if(k-j==2)
+                 else if(k-j==2 && chords[temp2].fretobj[i][k].iscommon==0)
                   { priority3=k;               
                    prionum.push(3)                 
                   }
-                 else if(k-j==-2)
+                 else if(k-j==-2 && chords[temp2].fretobj[i][k].iscommon==0)
                   { priority4=k;                
                    prionum.push(4);              
                   }
@@ -609,7 +609,7 @@ function transition(tempamount){
                 }
               }
            
-           let highpri=min(prionum);  //highest priority
+           let highpri=min(prionum);  //highest priority( indicated by smallest number)
            
            if(highpri==1)
              {
@@ -764,7 +764,10 @@ function deletechord_global()
   chords.splice(c,1);
   paintcanvas.splice(c,1);
   inputbars.splice(c,1);
+  if(c==totalchords)
+  {c--;}
   totalchords--;
+  
   } 
 }
 

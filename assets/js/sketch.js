@@ -18,6 +18,7 @@ x_scale=0.85*window.outerWidth/1536;                     //shifted this here fro
 y_scale=x_scale;   // canvas scaling variables 
 let xoff=15;
 let yoff=600*y_scale;
+let nav=0; //variable to determine if we are navigating forwards or backwards
 
 function preload() {
   klack = loadSound('assets/klack.wav');
@@ -400,7 +401,7 @@ function mouseClicked() {
                loop3:
                for( let q in chords[c].inputnotes)
               {
-                 if(chords[c].inputnotes[q].x==v.x && chords[c].inputnotes[q].y==v.y) //to check if note is already present, if yes, delete note
+                 if(chords[c].inputnotes[q].x==v.x && chords[c].inputnotes[q].y==v.y) //to check if note is already present, if yes, - note
                 { chords[c].fretobj[i][j].input_chordnote=0;
                   chords[c].inputnotes.splice(q,1); 
                       chords[c].total_chordnotes--; 
@@ -518,7 +519,7 @@ function animation(){
   else
   { //chords[c].display_fullchord();
     if(beats>=0 && ismetronome==1)             //to ensure that transition animation does not happen during count in
-    transition(amount);
+   transition(amount);
     else if(ismetronome==0)
     transition(amount);
   }
@@ -528,7 +529,10 @@ function animation(){
 
 function shownextchord(){
  
-  //if(lastchord==1){
+  
+  if(lastchord==1) //we want nav to remain 0 during edit mode
+   nav=1;
+
      amount=0;
       prevc =c;     
       c=(c+1)%(totalchords+1);
@@ -537,12 +541,15 @@ function shownextchord(){
 
 function showpreviouschord()
 {
-  // if(lastchord==1){
+   if(lastchord==1)
+    nav=-1;
+
      amount=0;
          prevc=c;
          c=c-1;
          if(c<0)
-         {c=totalchords;}
+         {c=totalchords;
+         }
    // }  
 }
 
@@ -552,17 +559,18 @@ function transition(tempamount){
   //.chords[c].create_fretboard();
   
   colorMode(HSB,1);
-  fill(60/360, 96, 74);
+  fill(60/360,1,1,0.8);
+  noStroke();
   let radii=40*x_scale;
-  let temp1=prevc;
-  let temp2=c;
-  if(tempamount<0.03)
-  {chords[temp1].reset_lerp();//prevent arising bubbles during backward lerp (left motion)
-  chords[temp2].reset_lerp();
-  }
+  //if(tempamount<0.03)
+  //{chords[temp1].reset_lerp();//prevent arising bubbles during backward lerp (left motion)
+  //chords[temp2].reset_lerp();
+  //}
   for(let i=0;i<6;i++)
     { for(let j=0;j<18;j++)
-      {  if(chords[temp1].fretobj[i][j].present==1)               
+      {  
+        
+         /*if(chords[temp1].fretobj[i][j].present==1)               
           { if(chords[temp1].fretobj[i][j].present==1&&chords[temp2].fretobj[i][j].present==1)
           { //constant bubbles
               let x1=chords[temp2].fretobj[i][j].loc.x;       
@@ -659,11 +667,265 @@ function transition(tempamount){
                let loney=chords[temp2].fretobj[i][j].loc.y;
                ellipse(lonex,loney,loneradii,loneradii)
            }
+           */
+
+           if(nav==1)
+           {
+             if(chords[prevc].fretobj[i][j].iscommon_f==1)
+             {
+              let x1=chords[c].fretobj[i][j].loc.x;       
+              let x2=chords[c].fretobj[i][j].loc.y; 
+              ellipse(x1,x2,radii,radii);
+              continue;           
+             }
+
+             if(chords[c].fretobj[i][j].arise_f==1){
+              let loneradii=map(amount,0,1,0,radii);
+              let lonex=chords[c].fretobj[i][j].loc.x;
+              let loney=chords[c].fretobj[i][j].loc.y;
+              ellipse(lonex,loney,loneradii,loneradii)
+              continue;
+
+             }
+             if(chords[prevc].fretobj[i][j].collapse_f==1)
+             {
+              let loneradii=map(amount,0,1,radii,0);
+              let lonex=chords[prevc].fretobj[i][j].loc.x;
+              let loney=chords[prevc].fretobj[i][j].loc.y;
+              ellipse(lonex,loney,loneradii,loneradii);
+              
+             }
+             
+             if(chords[prevc].fretobj[i][j].islerpfrom==1)
+            {
+             let v1=createVector(chords[c].fretobj[i][j].loc.x,chords[c].fretobj[i][j].loc.y);
+             let v2=createVector(chords[c].fretobj[i][chords[prevc].fretobj[i][j].lerp_destination].loc.x,chords[c].fretobj[i][chords[prevc].fretobj[i][j].lerp_destination].loc.y);
+             let v3 = p5.Vector.lerp(v1, v2, tempamount);
+             ellipse(v3.x,v3.y,radii,radii);
+            }
+
+    
+
+           }
+           else if(nav==-1)
+           {
+            if(chords[prevc].fretobj[i][j].iscommon_b==1)
+            {
+             let x1=chords[c].fretobj[i][j].loc.x;       
+             let x2=chords[c].fretobj[i][j].loc.y; 
+             ellipse(x1,x2,radii,radii);
+             continue;           
+            }
+
+            if(chords[c].fretobj[i][j].arise_b==1){
+             let loneradii=map(amount,0,1,0,radii);
+             let lonex=chords[c].fretobj[i][j].loc.x;
+             let loney=chords[c].fretobj[i][j].loc.y;
+             ellipse(lonex,loney,loneradii,loneradii)
+             continue;
+
+            }
+            if(chords[prevc].fretobj[i][j].collapse_b==1)
+            {
+             let loneradii=map(amount,0,1,radii,0);
+             let lonex=chords[prevc].fretobj[i][j].loc.x;
+             let loney=chords[prevc].fretobj[i][j].loc.y;
+             ellipse(lonex,loney,loneradii,loneradii);
+             
+            }
+            
+            if(chords[prevc].fretobj[i][j].islerpto==1)
+           {
+             for(let o of chords[prevc].fretobj[i][j].lerp_origin)
+           { let v1=createVector(chords[c].fretobj[i][j].loc.x,chords[c].fretobj[i][j].loc.y);
+            let v2=createVector(chords[c].fretobj[i][o].loc.x,chords[c].fretobj[i][o].loc.y);
+            let v3 = p5.Vector.lerp(v1,v2, tempamount);
+            ellipse(v3.x,v3.y,radii,radii);
+           }
+           }
+     
+           }
       }
     }
   
 
+} 
+function lastchord_funct()
+{
+  lastchord=(lastchord+1)%2;
+  if(lastchord==0)
+  ismetronome=0;
+  beats=-4;
+
+ //c=0;
+prevc=c;
+nav=0;
+  button.hide()
+ // button.show();
+
+ for(temp1=0;temp1<=totalchords;temp1++)  //loops through the chords
+  {
+    chords[temp1].reset_lerp();
+    
+  }
+ if(lastchord==1)
+ {
+
+ for(temp1=0;temp1<=totalchords;temp1++)
+ { 
+   temp2_f=(temp1+1)%(totalchords+1);
+   if(temp1==0)
+   temp2_b=totalchords;
+   else 
+   temp2_b=temp1-1;
+
+  for(let i=0;i<6;i++)
+    { for(let j=0;j<18;j++)
+      {                
+        if(chords[temp1].fretobj[i][j].present==1&&chords[temp2_f].fretobj[i][j].present==1)
+        { //constant bubbles   
+              chords[temp1].fretobj[i][j].iscommon_f=1;
+              chords[temp2_f].fretobj[i][j].iscommon_b=1;
+              
+        }
+      }
+    }
+ }
+ for(temp1=0;temp1<=totalchords;temp1++)
+ { 
+   temp2_f=(temp1+1)%(totalchords+1);
+   if(temp1==0)
+   temp2_b=totalchords;
+   else 
+   temp2_b=temp1-1;
+
+  for(let i=0;i<6;i++)
+    { for(let j=0;j<18;j++)
+      {  
+
+        
+      if(chords[temp1].fretobj[i][j].present==1 &&chords[temp1].fretobj[i][j].iscommon_f==0) //we want all constant nodes to remain untouched 
+      {
+        let priority1,priority2,priority3,priority4;//records fret no(k) 
+        let prionum=[]; 
+        prionum.push(5); //default assumes node collapse
+
+        for(let k=0;k<18;k++)
+        {
+          if(k==j)continue;
+
+          if(chords[temp2_f].fretobj[i][k].present==1)
+          {
+            if(k-j==1&&chords[temp2_f].fretobj[i][k].iscommon_b==0)
+            {priority1=k;               
+             prionum.push(1);      
+            }
+           else if(k-j==-1&&chords[temp2_f].fretobj[i][k].iscommon_b==0)
+           {
+             priority2=k;                 
+             prionum.push(2);                   
+           }
+           else if(k-j==2&&chords[temp2_f].fretobj[i][k].iscommon_b==0)
+            { priority3=k;               
+             prionum.push(3)                 
+            }
+           else if(k-j==-2&&chords[temp2_f].fretobj[i][k].iscommon_b==0)
+            { priority4=k;                
+             prionum.push(4);              
+            }
+            
+          }
+
+         
+        }
+        prionum.sort();
+        let highpri=prionum[0];  //highest priority( indicated by smallest number)
+
+        if(highpri==1)
+             { chords[temp1].fretobj[i][j].lerp_destination=priority1;
+               chords[temp2_f].fretobj[i][priority1].lerp_origin.push(j);
+              
+
+              
+               chords[temp2_f].fretobj[i][priority1].islerpto=1;
+               chords[temp1].fretobj[i][j].islerpfrom=1;
+             }
+           else if(highpri==2)
+             {  chords[temp1].fretobj[i][j].lerp_destination=priority2;
+              chords[temp2_f].fretobj[i][priority2].lerp_origin.push(j);
+             
+
+             
+              chords[temp2_f].fretobj[i][priority2].islerpto=1;
+              chords[temp1].fretobj[i][j].islerpfrom=1;
+             }
+           else if(highpri==3)
+             {
+              chords[temp1].fretobj[i][j].lerp_destination=priority3;
+              chords[temp2_f].fretobj[i][priority3].lerp_origin.push(j);
+             
+
+             
+              chords[temp2_f].fretobj[i][priority3].islerpto=1;
+              chords[temp1].fretobj[i][j].islerpfrom=1;
+             }
+            else if(highpri==4)
+              {
+                chords[temp1].fretobj[i][j].lerp_destination=priority4;
+                chords[temp2_f].fretobj[i][priority4].lerp_origin.push(j);
+               
+  
+               
+                chords[temp2_f].fretobj[i][priority4].islerpto=1;
+                chords[temp1].fretobj[i][j].islerpfrom=1;
+              }
+           else
+             {
+              chords[temp1].fretobj[i][j].collapse_f=1;
+              chords[temp1].fretobj[i][j].arise_b=1
+             }
+          // console.log("    "+prionumarray)
+           prionum.length=0;
+            }// if statement checking if node is present in temp1
+        
+      
+
+        
+
+        
+
+
+
+      } //j loop
+    }//i loop
+    
+  }//temp1 loop
+
+  for(temp1=0;temp1<=totalchords;temp1++)  //loops through the chords
+ { 
+   temp2_f=(temp1+1)%(totalchords+1);  //temp2_f represents the next chord while temp2_b represent the previous chorf
+   if(temp1==0)
+   temp2_b=totalchords;
+   else 
+   temp2_b=temp1-1;
+
+  for(let i=0;i<6;i++)
+    { for(let j=0;j<18;j++)
+      {                
+
+        if((chords[temp1].fretobj[i][j].present==1)&&(chords[temp1].fretobj[i][j].islerpto==0))
+        {
+          chords[temp1].fretobj[i][j].arise_f=1;
+          chords[temp1].fretobj[i][j].collapse_b=1;
+        }
+      }
+    }
+ }
+}//if conditional to check if we are in edit mode
+
+  
 }
+
 
 function keyPressed() {
     if(key=='f')
@@ -771,18 +1033,7 @@ function deletechord_global()
   } 
 }
 
-  function lastchord_funct()
-  {
-    lastchord=(lastchord+1)%2;
-    if(lastchord==0)
-    ismetronome=0;
-    beats=-4;
  
-   //c=0;
-  prevc=c;
-    button.hide()
-   // button.show();
-  }
 
 function funct_showintervals(){
   show_intervals=(show_intervals+1)%2;

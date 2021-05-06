@@ -25,8 +25,8 @@ let shownote=1;
 
 var radius;
 var c_canv;
- ht=window.outerHeight;
-  wd=window.outerWidth;
+ht=window.outerHeight;
+wd=window.outerWidth;
 let paintcanvas=[];
 let u=0;
 let paintmode=0;
@@ -77,7 +77,18 @@ class  fretclass{
      this.present=0;
       this.islerpfrom=0;       //flag to determine whether given ellipse will lerp or not
       this.islerpto=0;
-      this.iscommon=0;        //to check if the bubble is common between two consecutive chords
+      this.iscommon_f=0;  //to check if the bubble is common between two consecutive chords
+      this.iscommon_b=0;
+      this.lerp_destination=0
+      this.lerp_origin=[]  //since many nodes can converge at one new node
+      this.arise_f=0;
+      this.collapse_f=0;
+      this.constant_f=0;
+      this.noaction_f=1; //f is for forwards navigation
+      this.arise_b=0;
+      this.collapse_b=0;
+      this.constant_b=0;
+      this.noaction_b=1;
     }
     
     fretline()
@@ -335,8 +346,7 @@ class  fretclass{
     for(let i=0;i<6;i++)
       {  for(let j=0;j<=18;j++)
          { for(let k=0;k<this.total_chordnotes;k++)
-           { //if(this.inputnotes[k].x==i && this.inputnotes[k].y==j)
-             //this.fretobj[i][j].input_pos();
+           { 
              if(this.fretobj[i][j].note_intval==this.chordnotes[k])
              { //this.fretobj[i][j].present=1;
               //this.fretobj[i][j].input_pos();
@@ -375,8 +385,21 @@ class  fretclass{
         {
           for(let j=0;j<18;j++)
             {
+              
+              this.fretobj[i][j].islerpfrom=0;       //flag to determine whether given ellipse will lerp or not
               this.fretobj[i][j].islerpto=0;
-              this.fretobj[i][j].iscommon=0;
+              this.fretobj[i][j].iscommon_f=0;  //to check if the bubble is common between two consecutive chords
+              this.fretobj[i][j].iscommon_b=0;
+              this.fretobj[i][j].lerp_destination=0
+              this.fretobj[i][j].lerp_origin=[]  //since many nodes can converge at one new node
+              this.fretobj[i][j].arise_f=0;
+              this.fretobj[i][j].collapse_f=0;
+              this.fretobj[i][j].constant_f=0;
+              this.fretobj[i][j].noaction_f=1; //f is for forwards navigation
+              this.fretobj[i][j].arise_b=0;
+              this.fretobj[i][j].collapse_b=0;
+              this.fretobj[i][j].constant_b=0;
+              this.fretobj[i][j].noaction_b=1;
             }
         }
     }
@@ -457,7 +480,7 @@ class  fretclass{
 
     }
 
-    deletechord(){
+   /* deletechord(){
       for(let i=0;i<6;i++)
       {for(let j=0;j<=18;j++)
        {
@@ -469,7 +492,7 @@ class  fretclass{
       this.inputnotes=[];
       this.total_chordnotes=0;
       //this.bars=1;
-    }
+    }*/
     
   }
   

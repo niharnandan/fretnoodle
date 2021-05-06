@@ -160,21 +160,28 @@ function setup() {
   paintcanvas[i].eraser.mousePressed(changeBG);
   paintcanvas[i].eraser.position(wd/1.2,40);
   paintcanvas[i].eraser.hide();
-  paintcanvas[i].redbutton=createButton("orange");
+  paintcanvas[i].eraser.style('border-radius','20%');
+  paintcanvas[i].eraser.style('background-color','orange')
+  paintcanvas[i].redbutton=createButton(".");
  paintcanvas[i].redbutton.mousePressed(redpaint);
  paintcanvas[i].redbutton.hide();
   paintcanvas[i].redbutton.position(wd/1.06,20);
-  paintcanvas[i].bluebutton=createButton("magenta");
-  
- 
-  paintcanvas[i].bluebutton.mousePressed(bluepaint);
-  paintcanvas[i].bluebutton.position(wd/1.06,40);
-  paintcanvas[i].bluebutton.hide();
+  paintcanvas[i].redbutton.style('border-radius','50%');
+  paintcanvas[i].redbutton.style('background-color','orange')
 
-  paintcanvas[i].whitebutton=createButton("white");
+  paintcanvas[i].bluebutton=createButton(".");
+  paintcanvas[i].bluebutton.mousePressed(bluepaint);
+  paintcanvas[i].bluebutton.position(wd/1.08,40);
+  paintcanvas[i].bluebutton.hide();
+  paintcanvas[i].bluebutton.style('border-radius','50%');
+  paintcanvas[i].bluebutton.style('background-color','magenta')
+
+  paintcanvas[i].whitebutton=createButton(".");
   paintcanvas[i].whitebutton.mousePressed(whitepaint);
   paintcanvas[i].whitebutton.hide();
-   paintcanvas[i].whitebutton.position(wd/1.06,0);
+   paintcanvas[i].whitebutton.position(wd/1.08,0);
+   paintcanvas[i].whitebutton.style('border-radius','50%');
+  paintcanvas[i].whitebutton.style('background-color','white')
   
   paintcanvas[i].checkbox = createCheckbox('Eraser', false);
     paintcanvas[i].checkbox.position(wd/1.15,40)
@@ -471,6 +478,7 @@ if(paintmode==1)
      for(let p=0;p<=50;p++)
      {
       if (paintcanvas[p].checkbox.checked()){
+        
         paintcanvas[p].erase();
          paintcanvas[p].rect(mouseX,mouseY,paintcanvas[p].slider.value(),paintcanvas[p].slider.value());
         paintcanvas[p].noErase();

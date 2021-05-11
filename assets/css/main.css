@@ -2040,7 +2040,6 @@
 			.button.special:active {
 				background-color: #ededed;
 			}
-
 /* Flex */
 
 	.flex {
@@ -2503,11 +2502,11 @@
 			}
 
 		.image.round {
-			border-radius: 100%;
+			border-radius: 25%;
 		}
 
 			.image.round img {
-				border-radius: 100%;
+				border-radius: 25%;
 			}
 
 		.image.main {
@@ -3710,7 +3709,7 @@
 		-webkit-justify-content: center;
 		-ms-justify-content: center;
 		justify-content: center;
-		background-image: url("../../images/guitarbanner.jpg");
+		background-image: url("../../images/guitarbannerdark.jpg");
 		background-position: center;
 		background-size: cover;
 		background-repeat: no-repeat;

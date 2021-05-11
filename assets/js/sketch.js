@@ -34,6 +34,8 @@ function preload() {
 
 function setup() {
  createCanvas(wd,ht*1.5);
+ if(wd<800)
+ pixelDensity(1);
  // fullscreen();
  back_col=color(0,0,0)
  frameRate(60);
@@ -222,8 +224,11 @@ function draw() {
   //}
   //translate(400,-1000,0)
   //translate(width/2,height/2);
+  window.onkeydown = function(e) { 
+    return !(e.keyCode == 32);
+};             //prevent page scrolling when space is pressed
  
-   for(let i=0;i<10;i++)
+   for(let i=0;i<chords.length;i++)
     {
       paintcanvas[i].slider.hide();
       paintcanvas[i].eraser.hide();
@@ -291,9 +296,9 @@ function draw() {
    if(paintmode==1)
      {
         paintcanvas[c].slider.show();
-   paintcanvas[c].eraser.show();
-  paintcanvas[c].checkbox.show();
-  paintcanvas[c].redbutton.show();
+ paintcanvas[c].eraser.show();
+ paintcanvas[c].checkbox.show();
+ paintcanvas[c].redbutton.show();
  paintcanvas[c].bluebutton.show();
  paintcanvas[c].whitebutton.show();
  //paintcanvas[c].checkboxred.show();
@@ -941,32 +946,19 @@ function keyPressed() {
   
   //if (lastchord==1)
    // {
-      if(key=='z')
-      {  amount=0;
-         prevc=c;
-         c=c-1;
-         if(c<0)
-         {c=totalchords;}
+      if(keyCode==LEFT_ARROW)
+      {  showpreviouschord();
         
     
       } 
-      if(key=='x')
-        { amount=0;
-          prevc=c;
-          c=(c+1)%(totalchords+1);
+      if(keyCode==RIGHT_ARROW)
+        { shownextchord();
         }
       
       //}
-    else
-    { if(key=='d')
-      {
-        if(deletenote==0)
-        deletenote=1;
-        else
-        deletenote=0;
-      }
+    
 
-    }
+    
    if(key=='p')
      {
        if(paintmode==0)
@@ -976,9 +968,9 @@ function keyPressed() {
      }
    
   
-     if (key=='c')
+     if (keyCode===32)
      {
-       fullchord=(fullchord+1)%2;
+       lastchord_funct();
        
      }  
 
@@ -989,12 +981,19 @@ function keyPressed() {
 
      if(key=='m')
      {
-      
+       if(lastchord==1)
        togglemetronome();
      }
 
      if (key=='b')
      showbars=(showbars+1)%2;
+
+     if(keyCode==13)
+     {if(lastchord==0)
+      inputnextchord();
+     }
+
+     
 
 
 
@@ -1032,6 +1031,13 @@ function deletechord_global()
 { if(totalchords!=0)
   {//chords[c].deletechord();
   chords.splice(c,1);
+  paintcanvas[c].slider.hide();
+  paintcanvas[c].eraser.hide();
+  paintcanvas[c].checkbox.hide();
+  paintcanvas[c].redbutton.hide();
+  paintcanvas[c].bluebutton.hide();
+  paintcanvas[c].whitebutton.hide();
+  inputbars[c].hide();
   paintcanvas.splice(c,1);
   inputbars.splice(c,1);
   if(c==totalchords)

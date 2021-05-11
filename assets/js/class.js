@@ -25,8 +25,8 @@ let shownote=1;
 
 var radius;
 var c_canv;
- ht=window.outerHeight;
-  wd=window.outerWidth;
+ht=window.outerHeight;
+wd=window.outerWidth;
 let paintcanvas=[];
 let u=0;
 let paintmode=0;
@@ -77,7 +77,18 @@ class  fretclass{
      this.present=0;
       this.islerpfrom=0;       //flag to determine whether given ellipse will lerp or not
       this.islerpto=0;
-      this.iscommon=0;        //to check if the bubble is common between two consecutive chords
+      this.iscommon_f=0;  //to check if the bubble is common between two consecutive chords
+      this.iscommon_b=0;
+      this.lerp_destination=0
+      this.lerp_origin=[]  //since many nodes can converge at one new node
+      this.arise_f=0;
+      this.collapse_f=0;
+      this.constant_f=0;
+      this.noaction_f=1; //f is for forwards navigation
+      this.arise_b=0;
+      this.collapse_b=0;
+      this.constant_b=0;
+      this.noaction_b=1;
     }
     
     fretline()
@@ -335,8 +346,7 @@ class  fretclass{
     for(let i=0;i<6;i++)
       {  for(let j=0;j<=18;j++)
          { for(let k=0;k<this.total_chordnotes;k++)
-           { //if(this.inputnotes[k].x==i && this.inputnotes[k].y==j)
-             //this.fretobj[i][j].input_pos();
+           { 
              if(this.fretobj[i][j].note_intval==this.chordnotes[k])
              { //this.fretobj[i][j].present=1;
               //this.fretobj[i][j].input_pos();
@@ -375,8 +385,21 @@ class  fretclass{
         {
           for(let j=0;j<18;j++)
             {
+              
+              this.fretobj[i][j].islerpfrom=0;       //flag to determine whether given ellipse will lerp or not
               this.fretobj[i][j].islerpto=0;
-              this.fretobj[i][j].iscommon=0;
+              this.fretobj[i][j].iscommon_f=0;  //to check if the bubble is common between two consecutive chords
+              this.fretobj[i][j].iscommon_b=0;
+              this.fretobj[i][j].lerp_destination=0
+              this.fretobj[i][j].lerp_origin=[]  //since many nodes can converge at one new node
+              this.fretobj[i][j].arise_f=0;
+              this.fretobj[i][j].collapse_f=0;
+              this.fretobj[i][j].constant_f=0;
+              this.fretobj[i][j].noaction_f=1; //f is for forwards navigation
+              this.fretobj[i][j].arise_b=0;
+              this.fretobj[i][j].collapse_b=0;
+              this.fretobj[i][j].constant_b=0;
+              this.fretobj[i][j].noaction_b=1;
             }
         }
     }
@@ -457,7 +480,7 @@ class  fretclass{
 
     }
 
-    deletechord(){
+   /* deletechord(){
       for(let i=0;i<6;i++)
       {for(let j=0;j<=18;j++)
        {
@@ -469,7 +492,7 @@ class  fretclass{
       this.inputnotes=[];
       this.total_chordnotes=0;
       //this.bars=1;
-    }
+    }*/
     
   }
   
@@ -605,20 +628,79 @@ class  fretclass{
   */                   //INTERVALLIC FORMULAS IN DATABASE MUST BE IN ASCENDING ORDER
 let chordbase=[
 [0,4,7,'maj'],
+[0,4,7,9,'maj6'],
+[0,4,7,11,'maj7'],
+[0,2,4,7,11,'maj9'],
+[0,2,4,7,'majAdd9'],
+[0,2,4,7,9,'maj6/9'],
+[0,4,7,9,11,'maj7/6'],
+[0,2,4,7,9,11,'maj13'],
+
 [0,3,7,'min'],
+[0,3,7,9,'min6'],
+[0,3,7,10,'min7'],
+[0,2,3,7,10,'min9'],
+[0,2,3,5,7,10,'min11'],
+[0,3,5,7,10,'min7/11'],
+[0,2,3,7,'-Add9'],
+[0,2,3,7,9,'min6/9'],
+[0,3,7,11,'minMaj7'],
+[0,2,3,7,11,'minMaj9'],
+
+[0,4,7,10,'7'],
+[0,4,7,9,10,'7/6'],
+[0,4,5,7,10,'7/11'],
+[0,5,7,10,'7sus'],
+[0,5,7,9,10,'7/6Sus'],
+[0,2,4,7,10,'dom9'],
+[0,2,4,5,7,10,'dom11'],
+[0,2,4,7,9,10,'dom13'],
+[0,2,5,7,9,10,'13sus'],
+[0,4,5,7,9,10,'7/6/11'],
+[0,2,4,5,7,9,10,'dom11/13'],
+[0,3,6,9,'dim7'],
+[0,3,4,7,10,'7#9'],
+[0,4,6,10,'7b5'],
+[0,1,4,7,10,'7b9'],
+[0,4,8,10,'7#5'],
+
+
+
+
+
 [0,3,6,'dim'],
 [0,4,8,'aug'],
-[0,4,7,11,'maj7'],
-[0,3,7,10,'min7'],
-[0,3,6,9,'dim7'],
-[0,4,7,10,'dom7'],
-[0,2,4,7,10,'dom9'],
-[0,4,7,9,10,'dom13'],
 
+[0,2,4,5,7,9,11,' ionion'],
+[0,2,3,5,7,8,10,' dor'],
+[0,1,3,5,7,8,10,' phry'],
+[0,2,4,6,7,9,11,' lyd'],
+[0,2,4,5,7,9,10,' mixolyd'],
+[0,2,3,5,7,8,10,' Aeolian'],
+[0,1,3,5,6,8,10,' loc'],
+
+[0,2,3,5,7,9,11,' melodic-'],
+[0,1,3,5,7,9,10,' Dor b2'],
+[0,2,4,6,8,9,11,' Lyd Aug'],
+[0,2,4,6,7,9,10,' Lyd Dom'],
+[0,2,4,5,7,8,10,' Mixo b6'],
+[0,2,3,5,6,8,10,' Aeol b5'],
+[0,1,3,4,6,8,10,' superloc'],
+
+[0,2,3,5,7,8,11,' Harmonic-'],
+[0,1,3,5,6,9,10,' locr nat6'],
+[0,2,4,5,8,9,11,' ion #5'],
+[0,2,3,6,7,9,10,' Dor #4'],
+[0,1,4,5,7,8,10,' phry maj'],
+[0,3,4,6,7,9,11,' lyd #9'],
+[0,1,3,4,6,8,9,' alt Dombb7'],
+
+
+[0,2,4,6,8,10,'WholeTone'],
 [0,3,6,10,'min7b5'],
-[0,2,4,5,7,9,11,'maj scale'],
+
 [0,3,5,7,10,'min pent'],
-[0,2,3,5,7,9,11,'melodic min']
+
 
 
 

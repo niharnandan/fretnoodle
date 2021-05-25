@@ -1,6 +1,6 @@
 let klack;
 let pling;
-let nextKlack = 0;
+let nextKlack = 0; //tells when next kalck sound will appear in milliseconds
 let muted = false;
 let beats=-4;
 let ismetronome=0;

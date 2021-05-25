@@ -39,7 +39,8 @@ function setup() {
  // fullscreen();
  back_col=color(0,0,0)
  frameRate(60);
-
+if(wd<800)
+alert("This App is meant to be used on laptop/desktop and not your mobile phone/tablet.If you still wish to continue with the ugly mobile UI, make sure you rotate your mobile to landscape mode and reload the page");
 
  
  
@@ -152,7 +153,7 @@ function setup() {
      inputbars[i]=createInput(1,float);
     inputbars[i].position(0, 0);
     inputbars[i].size(30);
-    inputbars[i].hide();
+    //inputbars[i].hide();
      
     paintcanvas[i]=createGraphics(wd,ht*1.5);
       paintcanvas[i].slider = createSlider(1, 20, 3);
@@ -228,7 +229,7 @@ function draw() {
     return !(e.keyCode == 32);
 };             //prevent page scrolling when space is pressed
  
-   for(let i=0;i<chords.length;i++)
+   for(let i=0;i<chords.length;i++) //50 is the number of intial chords
     {
       paintcanvas[i].slider.hide();
       paintcanvas[i].eraser.hide();
@@ -1018,12 +1019,13 @@ function inputnextchord()
   if(c!=totalchords)
   {chords.splice(c+1,0,chords[40])
    paintcanvas.splice(c+1,0,paintcanvas[40])
+   inputbars.splice(c+1,0,inputbars[40])
    totalchords++;
    c=c+1
   }
   else{
  totalchords++;
- c=totalchords;
+ c=totalchords; 
   } 
 }
 

@@ -285,7 +285,11 @@ class  fretclass{
           textSize(25*x_scale);
            textStyle(NORMAL);
            strokeWeight(1);
+           if(j!=0)
          text(j,this.fretobj[i][j].f_pos-this.fretobj[i][j].f_width/2,590*y_scale);
+         else
+         text(j,this.fretobj[i][j].f_pos-this.fretobj[i][j].f_width/3.5,590*y_scale);
+
            pop();
            if( j==2||j==4||j==6||j==8||j==11||j==13)
         { colorMode(RGB,255);  
@@ -472,7 +476,7 @@ class  fretclass{
 
       if(found==0)
       {
-        this.chordname="undefined";
+        this.chordname="input valid \n chord";
       }
 
      // console.log(ch_formula)
@@ -627,6 +631,7 @@ class  fretclass{
 
   */                   //INTERVALLIC FORMULAS IN DATABASE MUST BE IN ASCENDING ORDER
 let chordbase=[
+  
 [0,4,7,'maj'],
 [0,4,7,9,'maj6'],
 [0,4,7,11,'maj7'],

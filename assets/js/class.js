@@ -1,45 +1,19 @@
 
 //p5.disableFriendlyErrors = true; // disables FES
 let fret_pos=50; //marker to keep track of the fret beginnings and ending
-let orig_width=120; //fretwidth of first fret
-let button;
-let button2;
-let chords=[]
-let lastchord=0;
-let totalchords=0;
-let button3;
-let button4,button5;
-let button_showintervaxls;
-let c=0;
-let show_intervals=0;
-let lerpamount=0 //index for linear interpolation during transition
-let amount=0;
-let prevc=0;
-let t1;
+let orig_width=120; //fretwidth of first fret, fret width progressively decreases as fret no. increases
 
-let stream_mode_var=0;
-let fullchord=0; //varible to flag whether you want to display full chord during input stage
-
-let deletenote=0;
-let shownote=1;
-
-var radius;
-var c_canv;
 ht=window.outerHeight;
 wd=window.outerWidth;
-let paintcanvas=[];
-let u=0;
-let paintmode=0;
 
 
+//each fret-string combination on the board is a seperate object, indexed as fretobj[i][j], i=string number(0-5),j=fretnumber(0-18)   
+//each inputed chord/scale/arpeggio is treated as a seperate object containing within it all the fretobj[i][j]
 
-wd=window.outerWidth;
-ht=window.outerHeight;
-
-class  fretclass{                                 
+class  fretclass{                     
     constructor(x,i,j,f_width,f_pos)
     {   
-     this.note_intval=x;
+     this.note_intval=x;     //intval stores the note names as integer values to make calculations easier(A=0,A#=1,B=2,C=3,C#=4...etc)
      if (this.note_intval==0)
      this.note='A';
      else if (this.note_intval==1)
@@ -67,15 +41,16 @@ class  fretclass{
 
      
      
-     this.i=i;
-     this.j=j;
-     this.f_width=f_width;
-     this.f_pos=f_pos;
-     this.input_chordnote=0;
+     this.i=i;  //string number
+     this.j=j;  //fret number
+     this.f_width=f_width;  
+     this.f_pos=f_pos;    //x-coordinate position of the fret on the canvas
+     this.input_chordnote=0;  //differentiate the original inputed notes by having white outline around the ellipse
      this.loc=createVector(this.f_pos+this.f_width/2,300*y_scale+this.i*50*y_scale); //location of ellipse
-     this.loc_f=createVector(this.f_pos,300*y_scale+this.i*50*y_scale) //location fret beginning
-     this.present=0;
-      this.islerpfrom=0;       //flag to determine whether given ellipse will lerp or not
+     this.loc_f=createVector(this.f_pos,300*y_scale+this.i*50*y_scale) //location fret beginning, loc_f.x is exact same as f_width
+     this.present=0;          //flag to indicate whether this note is present in the inputed chord during map mode
+     this.isdisable=0;     //if disable==1, ellipse wont participate in transition animation
+     this.islerpfrom=0;       //flag to determine whether given ellipse will lerp or not
       this.islerpto=0;
       this.iscommon_f=0;  //to check if the bubble is common between two consecutive chords
       this.iscommon_b=0;
@@ -93,10 +68,20 @@ class  fretclass{
     
     fretline()
     { colorMode(RGB,255,255,255,1);
-     stroke(10*this.j,130,130+this.j*2,1);
+      if(stream_mode_var==1){
+     //stroke(10*this.j,130,130+this.j*2,1);
+     stroke(255,255,255,1);
+      //stroke(random(255),random(255),random(255),1);
+      strokeWeight(this.i+1);
+      }
+      else{
+        stroke(10*this.j,130,130+this.j*2,1);
      //stroke(255,255,255,1);
       //stroke(random(255),random(255),random(255),1);
       strokeWeight(this.i+1);
+      }
+
+      
       line(this.loc_f.x, this.loc_f.y, this.loc_f.x+this.f_width, this.loc_f.y);
       strokeWeight(1);
       stroke(255,255,255,1);
@@ -107,7 +92,12 @@ class  fretclass{
       textSize(25*x_scale);
       textStyle(NORMAL);
       colorMode(RGB,1);
+      if(stream_mode_var==0)
       fill(1,1,1,0.3);
+      else{
+      fill(1,1,1,0.8);
+      }
+
       noStroke();
       text(this.note,this.loc_f.x,this.loc_f.y);
       pop();
@@ -129,7 +119,10 @@ class  fretclass{
         
       noStroke();
       
-       alphaval=1;
+      if(this.isdisable==1&&this.present==1)
+      alphaval=0.1;
+      else
+      alphaval=1;
         if(this.note_intval-x==0)
         {fill(0,0,1,alphaval);
           s='R';
@@ -202,9 +195,12 @@ class  fretclass{
           
       } else {noStroke();}
 
+      
+
       if(show_intervals==0)
       {fill(60/360,1,1,alphaval);
       }
+      
 
       ellipse(this.loc.x,this.loc.y,40*x_scale,40*x_scale);
       if(show_intervals==1)
@@ -239,15 +235,14 @@ class  fretclass{
   class chordclass{
     constructor()
     {
-     this.chordnotes=[];
-     this.total_chordnotes=0;
-     this.inputnotes=[];
-     this.fretobj=[];
-     this.create_fretboard();
+     this.chordnotes=[];//this array stores int values of all inputed notes
+     this.inputnotes=[];//this Vector array stores the i,j (string&fret no) values of inputed noted
+     this.total_chordnotes=0; //total number of inputed notes. repeated noted are counted
+     this.fretobj=[];  //2D array indexed by i,j (string,fret no), each element is an object of class fretclass
      this.chordname;
-     this.ch_formula=[];
-     this.bars=1;
-      
+     this.ch_formula=[];  //stores the intervallic formula, represented by int value (0-root,1:b2,2:M2,3:b3...etc)
+     this.bars=1;         //bar length of each chord
+     this.create_fretboard(); 
     }
     create_fretboard(){
     colorMode(RGB);
@@ -369,13 +364,15 @@ class  fretclass{
       {  for(let j=0;j<=18;j++)
          { this.fretobj[i][j].present=0;
             for(let k=0;k<this.total_chordnotes;k++)
-           { if(this.inputnotes[k].x==i && this.inputnotes[k].y==j)
+           { 
+            if(this.fretobj[i][j].note_intval==this.chordnotes[k])
+              this.fretobj[i][j].present=1;
+
+              if(this.inputnotes[k].x==i && this.inputnotes[k].y==j)
             { //this.fretobj[i][j].input_pos();
                
               this.fretobj[i][j].display(this.chordnotes[0],this.fretobj[i][j].loc);
             } 
-            if(this.fretobj[i][j].note_intval==this.chordnotes[k])
-              this.fretobj[i][j].present=1;
             
            }
           
@@ -404,6 +401,8 @@ class  fretclass{
               this.fretobj[i][j].collapse_b=0;
               this.fretobj[i][j].constant_b=0;
               this.fretobj[i][j].noaction_b=1;
+              //if(this.fretobj[i][j].present==)
+              //this.fretobj[i][j].isdisable=0;
             }
         }
     }
@@ -467,7 +466,7 @@ class  fretclass{
           }
           if(i==c.length-1)
           { this.chordname=assign_notename(this.chordnotes[0])+c[c.length-1];
-           // console.log(" the chord is :"+this.chordname);
+           console.log(" the chord is :"+this.chordname);
             found=1;
             break loop1;
           }
@@ -475,8 +474,9 @@ class  fretclass{
       }
 
       if(found==0)
-      {
-        this.chordname="input valid \n chord";
+      { this.chordname=""; //to prevent infinite loop of note display
+        for(i of this.chordnotes)
+        this.chordname=this.chordname+' '+assign_notename(i);
       }
 
      // console.log(ch_formula)
@@ -646,7 +646,8 @@ let chordbase=[
 [0,3,7,10,'min7'],
 [0,2,3,7,10,'min9'],
 [0,2,3,5,7,10,'min11'],
-[0,3,5,7,10,'min7/11'],
+[0,3,5,7,10,'min \n pentatonic'],
+[0,3,5,7,9,'min6 \n pentatonic'],
 [0,2,3,7,'-Add9'],
 [0,2,3,7,9,'min6/9'],
 [0,3,7,11,'minMaj7'],
@@ -677,27 +678,27 @@ let chordbase=[
 [0,4,8,'aug'],
 
 [0,2,4,5,7,9,11,' ionion'],
-[0,2,3,5,7,8,10,' dor'],
+[0,2,3,5,7,9,10,' dor'],
 [0,1,3,5,7,8,10,' phry'],
 [0,2,4,6,7,9,11,' lyd'],
 [0,2,4,5,7,9,10,' mixolyd'],
 [0,2,3,5,7,8,10,' Aeolian'],
 [0,1,3,5,6,8,10,' loc'],
 
-[0,2,3,5,7,9,11,' melodic-'],
-[0,1,3,5,7,9,10,' Dor b2'],
+[0,2,3,5,7,9,11,' melodic \n minor'],
+[0,1,3,5,7,9,10,' Dorian b2'],
 [0,2,4,6,8,9,11,' Lyd Aug'],
 [0,2,4,6,7,9,10,' Lyd Dom'],
-[0,2,4,5,7,8,10,' Mixo b6'],
-[0,2,3,5,6,8,10,' Aeol b5'],
+[0,2,4,5,7,8,10,' Mixolyd b6'],
+[0,2,3,5,6,8,10,' Aeolian b5'],
 [0,1,3,4,6,8,10,' superloc'],
 
-[0,2,3,5,7,8,11,' Harmonic-'],
-[0,1,3,5,6,9,10,' locr nat6'],
-[0,2,4,5,8,9,11,' ion #5'],
-[0,2,3,6,7,9,10,' Dor #4'],
-[0,1,4,5,7,8,10,' phry maj'],
-[0,3,4,6,7,9,11,' lyd #9'],
+[0,2,3,5,7,8,11,' Harmonic \n minor'],
+[0,1,3,5,6,9,10,' locrian \n natural6'],
+[0,2,4,5,8,9,11,' ionian #5'],
+[0,2,3,6,7,9,10,' Dorian b5'],
+[0,1,4,5,7,8,10,' phrygian \n maj'],
+[0,3,4,6,7,9,11,' lydian#9'],
 [0,1,3,4,6,8,9,' alt Dombb7'],
 
 

@@ -209,16 +209,16 @@ for(let i=0;i<50;i++)             //similarly we create 50 paintcanvas and bar-l
   paintcanvas[i].whitebutton.hide();
   paintcanvas[i].whitebutton.position(wd/1.08,0);
   paintcanvas[i].whitebutton.style('border-radius','50%');
-  paintcanvas[i].whitebutton.style('background-color','white')
+  paintcanvas[i].whitebutton.style('background-color','pink')
   
   paintcanvas[i].checkbox = createCheckbox('Eraser', false);
   paintcanvas[i].checkbox.position(wd/1.15,40)
   paintcanvas[i].checkbox.style('color','white')
   paintcanvas[i].checkbox.hide();
   
-  colorMode(RGB);
+  colorMode(RGB),1;
     
-  c_canv=color(255,255,255);
+  c_canv=color(255/255,140/255,0/255);
   paintcanvas[i].colorMode(RGB);
   paintcanvas[i].background(255,255,255,0); //alpha value=0 as overlaying paint canvas should be transparent. only strokes are opaque
   
@@ -1019,25 +1019,25 @@ function togglemetronome()
 function redpaint()
 {
   push()
-  colorMode(RGB);
- c_canv=color(255,140,0);
+  colorMode(RGB,1);
+ c_canv=color(255/255,140/255,0/255);
   pop();
 }
 
 function bluepaint()
 {
   push();
-  colorMode(RGB);
-  c_canv=color(255,0,255);
+  colorMode(RGB,1);
+  c_canv=color(102/255,178/255,255/255);
   pop();
 
 }
 
-function whitepaint()
+function whitepaint()  //actually pink paint
 {
   push();
-  colorMode(RGB);
-  c_canv=color(255,255,255);
+  colorMode(RGB,1);
+  c_canv=color(255/255,51/255,153/255);
   pop();
 }
 

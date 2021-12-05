@@ -55,15 +55,16 @@ function preload() {
 
 }
 
-function setup() {
+function setup() 
+{
  createCanvas(wd,ht*1.5);
  back_col=color(0,0,0)   //color of background 
  frameRate(60);
-if(wd<800)
-alert("This App is meant to be used on laptop/desktop and not your mobile phone/tablet.If you still wish to continue with the ugly mobile UI, make sure you rotate your mobile to landscape mode and reload the page");
-scale(x_scale,y_scale);
+ if(wd<800)
+ alert("This App is meant to be used on laptop/desktop and not your mobile phone/tablet.If you still wish to continue with the ugly mobile UI, make sure you rotate your mobile to landscape mode and reload the page");
+ scale(x_scale,y_scale);
  
-for(let i=0;i<50;i++)        //creates 50 EMPTY chords initially, so maximum chords in progression can only be 50
+ for(let i=0;i<50;i++)        //creates 50 EMPTY chords initially, so maximum chords in progression can only be 50
   {
     chords[i]=new chordclass();
   }
@@ -222,9 +223,85 @@ for(let i=0;i<50;i++)             //similarly we create 50 paintcanvas and bar-l
   paintcanvas[i].colorMode(RGB);
   paintcanvas[i].background(255,255,255,0); //alpha value=0 as overlaying paint canvas should be transparent. only strokes are opaque
   
-   }
-}
+   } //for loop
 
+   ////
+  //Setting up MIDI
+  ////
+  
+	WebMidi.enable(function (err) { //check if WebMidi.js is enabled
+
+    if (err) {
+        console.log("WebMidi could not be enabled.", err);
+      } else {
+        console.log("WebMidi enabled!");
+      }
+  
+      
+    //name our visible MIDI input and output ports
+    console.log("---");
+    console.log("Inputs Ports: ");
+    for(i = 0; i< WebMidi.inputs.length; i++){
+       console.log(i + ": " + WebMidi.inputs[i].name);
+    }
+    
+    console.log("---");
+    console.log("Output Ports: ");
+    for(i = 0; i< WebMidi.outputs.length; i++){
+        console.log(i + ": " + WebMidi.outputs[i].name);
+        
+      }  
+
+    //Choose an input port
+  inputSoftware = WebMidi.inputs[0];
+  //The 0 value is the first value in the array
+  //Meaning that we are going to use the first MIDI input we see
+  //This can be changed to a different number,
+  //or given a string to select a specific port
+  
+///
+//listen to all incoming "note on" input events
+inputSoftware.addListener('noteon', "all",
+  function (e) {
+      //Show what we are receiving
+    console.log("Received 'noteon' message (" + e.note.name + e.note.octave + ") "+ e.note.number +"."+e.velocity);
+    for(let i=0;i<6;i++)
+    {
+      for(let j=0;j<=18;j++)
+      { let temp=chords[c].fretobj[i][j];
+        if(temp.midival==e.note.number && dist(temp.loc.x,temp.loc.y,mouseX,mouseY)<200)
+        { temp.midion=1;
+          console.log(temp.loc.x);
+          
+        }
+      }
+    }      
+}
+);
+
+  //The note off functionality will need its own event listener
+    //You don't need to pair every single note on with a note off
+    
+    inputSoftware.addListener('noteoff', "all",
+  	function (e) {
+ 		 	//Show what we are receiving
+  		console.log("Received 'noteoff' message (" + e.note.name + e.note.octave + ") "+ e.note.number +".");
+      for(let i=0;i<6;i++)
+      {
+        for(let j=0;j<=18;j++)
+        { let temp=chords[c].fretobj[i][j];
+          if(temp.midival==e.note.number)
+          { temp.midion=0;
+           // console.log(temp.loc.x);
+            
+          }
+        }
+      }      
+    	
+  	}
+  );
+})
+}
 
 
 
@@ -286,6 +363,7 @@ if(mapmode!=1)  //edit mode
 { 
    chords[c].display_fretboard(); 
    chords[c].display_inputchord();
+   chords[c].display_trackednotes(); //for midi tracking
    chords[c].chordanalyze(); 
      
 }
@@ -293,6 +371,7 @@ else       //map mode
 {
     chords[c].display_fretboard();
     mapanimation();
+    chords[c].display_trackednotes(); //for midi tracking
     chords[c].chordanalyze();   
 }
     chords[c].bars=inputbars[c].value();
@@ -536,7 +615,7 @@ function stampRectangle(c_canv,c_=c){
 
 
 function mapanimation(){
-  
+  chords[c].display_trackednotes();
   if(ismetronome==1)
   amount=amount+1/(frameRate()*30/tempoSlider.value());   //incrementing amount in order to fit perfectly between transition from end of last bar to to start of next
   else 

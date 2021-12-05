@@ -64,6 +64,41 @@ class  fretclass{
       this.collapse_b=0;
       this.constant_b=0;
       this.noaction_b=1;
+      this.midion=0;    //to check if the note is being played by user
+      this.midifade=0;  //alphavalue of note fading after it turns off
+
+      //Assigning midi values
+      switch(this.i)
+      {
+        case 5:   this.midival=40+this.j+1;
+                  if(this.j==18)
+                  this.midival=40
+                  break;
+
+        case 4:   this.midival=45+this.j+1;
+                   if(this.j==18)
+                  this.midival=45
+                  break;
+
+        case 3:   this.midival=50+this.j+1;
+                  if(this.j==18)
+                  this.midival=50
+                  break;
+        
+        case 2: this.midival=55+this.j+1;
+                  if(this.j==18)
+                  this.midival=55
+                break;
+        
+        case 1:   this.midival=59+this.j+1;
+                  if(this.j==18)
+                  this.midival=59
+                  break;
+        case 0:   this.midival=64+this.j+1;
+                   if(this.j==18)
+                  this.midival=64
+                  break;
+      }
     }
     
     fretline()
@@ -220,6 +255,31 @@ class  fretclass{
       
 
     }
+
+    mididisplay(){
+      push();
+      colorMode(HSB,1)
+      noFill();
+      strokeWeight(3);
+      
+      if(this.midion){
+        this.midifade=1
+      stroke(180/360,1,1,this.midifade);
+      ellipse(this.loc.x,this.loc.y,55*x_scale,55*x_scale);
+      }
+      else{
+        if(this.midifade>0)
+        {this.midifade=this.midifade-0.03;
+        stroke(180/360,1,1,this.midifade);
+        ellipse(this.loc.x,this.loc.y,55*x_scale,55*x_scale);
+        }
+      }
+      pop();
+
+
+    }
+
+    
     
     get_noteval(){
     return this.note_intval;}
@@ -352,10 +412,19 @@ class  fretclass{
                this.fretobj[i][j].display(this.chordnotes[0],this.fretobj[i][j].loc);
              } 
            }
-          
+           
          }
       }
       
+    }
+
+    display_trackednotes()
+    {
+      for(let i=0;i<6;i++)
+      {  for(let j=0;j<=18;j++)
+         {this.fretobj[i][j].mididisplay()
+         }
+      }
     }
     
     display_inputchord(){
@@ -375,6 +444,8 @@ class  fretclass{
             } 
             
            }
+
+           
           
          }
       }
@@ -401,6 +472,7 @@ class  fretclass{
               this.fretobj[i][j].collapse_b=0;
               this.fretobj[i][j].constant_b=0;
               this.fretobj[i][j].noaction_b=1;
+              this.fretobj[i][j].midion=0;
               //if(this.fretobj[i][j].present==)
               //this.fretobj[i][j].isdisable=0;
             }

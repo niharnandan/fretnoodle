@@ -30,7 +30,8 @@ let shownote=1;   //displays note names, C,C#,D etc
 var radius;       //radius of paintbrush stroke
 var c_canv;       //color of paintbrush
 let paintmode=0;     //double left click toggles paintmode
-
+let eraserflag=0;    //flag to tell if erasor is activated
+let eraserwidth=10; //thickness of erasor
 let button, button2,button3,button4,button5;
 
 //variables concerning metronome
@@ -569,21 +570,23 @@ function mouseClicked() {
 function mouseDragged() {  //this function is for drawing on paintcanvas
 if(paintmode==1)
 {
-   
+  eraserwidth=paintcanvas[c].slider.value()
 if(!keyIsDown(SHIFT))
 {  //universal paint,holding down shift and drawing ensures the drawing is universal for all canvas and not only for current canvas
  
   if(paintcanvas[c].checkbox.checked())
   {
     paintcanvas[c].erase();
-    paintcanvas[c].rect(mouseX,mouseY,paintcanvas[c].slider.value(),paintcanvas[c].slider.value());
+    
+    paintcanvas[c].rect(mouseX,mouseY,eraserwidth,eraserwidth);
     paintcanvas[c].noErase();
     
-  }else{
+  }else if(mouseButton!=CENTER){
       paintcanvas[c].stroke(c_canv)
-    }
-    paintcanvas[c].strokeWeight(paintcanvas[c].slider.value());
+      paintcanvas[c].strokeWeight(eraserwidth);
     paintcanvas[c].line(mouseX, mouseY, pmouseX, pmouseY);
+    }
+    
 }
 
    else if(keyIsDown(SHIFT))
@@ -592,14 +595,16 @@ if(!keyIsDown(SHIFT))
      {
      // if (paintcanvas[p].checkbox.checked() || keyIsDown(CONTROL)){
       if (paintcanvas[p].checkbox.checked()){ 
+       
         paintcanvas[p].erase();
         paintcanvas[p].rect(mouseX,mouseY,paintcanvas[p].slider.value(),paintcanvas[p].slider.value());
         paintcanvas[p].noErase();
-      }else{
+      }else if(mouseButton!=CENTER){
         paintcanvas[p].stroke(c_canv)
-      }
         paintcanvas[p].strokeWeight(paintcanvas[p].slider.value());
         paintcanvas[p].line(mouseX, mouseY, pmouseX, pmouseY);
+      }
+        
     
      }
    }
@@ -988,7 +993,7 @@ function keyPressed() {
      }
    
   
-     if (keyCode===32)
+     if (keyCode===32) //key is SPACE
      {
        mapmode_funct();
        
@@ -1008,9 +1013,22 @@ function keyPressed() {
      if (key=='b')
      showbars=(showbars+1)%2;
 
-     if(keyCode==13)
+     if(keyCode==13) //Key is ENTER
      {if(mapmode==0)
       inputnextchord();
+     }
+
+     if(key=='e')
+     {
+       eraserflag=(eraserflag+1)%2;
+       if(eraserflag==1)
+       {eraserwidth=paintcanvas[c].slider.value(20);
+        paintcanvas[c].checkbox.checked(true)
+      }
+       else
+       {eraserwidth=paintcanvas[c].slider.value(3)
+        paintcanvas[c].checkbox.checked(false) 
+      }
      }
 
      

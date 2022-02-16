@@ -68,6 +68,8 @@ function setup()
   {
     chords[i]=new chordclass();
   }
+
+  midiobj=new chordclass();
  
   colorMode(HSB,1)
   colorMode(RGB,255);  
@@ -217,7 +219,7 @@ for(let i=0;i<50;i++)             //similarly we create 50 paintcanvas and bar-l
   paintcanvas[i].checkbox.style('color','white')
   paintcanvas[i].checkbox.hide();
   
-  colorMode(RGB),1;
+  colorMode(RGB,1);
     
   c_canv=color(255/255,140/255,0/255);
   paintcanvas[i].colorMode(RGB);
@@ -253,7 +255,8 @@ for(let i=0;i<50;i++)             //similarly we create 50 paintcanvas and bar-l
       }  
 
     //Choose an input port
-  inputSoftware = WebMidi.inputs[0];
+  //inputSoftware = WebMidi.inputs[0];
+  inputSoftware=WebMidi.inputs[0];
   //The 0 value is the first value in the array
   //Meaning that we are going to use the first MIDI input we see
   //This can be changed to a different number,
@@ -261,37 +264,42 @@ for(let i=0;i<50;i++)             //similarly we create 50 paintcanvas and bar-l
   
 ///
 //listen to all incoming "note on" input events
-inputSoftware.addListener('noteon', "all",
+for(p = 0; p< WebMidi.inputs.length; p++){
+WebMidi.inputs[p].addListener('noteon', "all",
   function (e) {
       //Show what we are receiving
     console.log("Received 'noteon' message (" + e.note.name + e.note.octave + ") "+ e.note.number +"."+e.velocity);
     for(let i=0;i<6;i++)
     {
       for(let j=0;j<=18;j++)
-      { let temp=chords[c].fretobj[i][j];
+      { //let temp=chords[c].fretobj[i][j];
+        let temp=midiobj.fretobj[i][j];
         if(temp.midival==e.note.number && dist(temp.loc.x,temp.loc.y,mouseX,mouseY)<200)
-        { temp.midion=1;
+        { temp.midion =1;
           console.log(temp.loc.x);
           
         }
       }
     }      
 }
+
 );
 
   //The note off functionality will need its own event listener
     //You don't need to pair every single note on with a note off
     
-    inputSoftware.addListener('noteoff', "all",
+    WebMidi.inputs[p].addListener('noteoff', "all",
   	function (e) {
  		 	//Show what we are receiving
   		console.log("Received 'noteoff' message (" + e.note.name + e.note.octave + ") "+ e.note.number +".");
       for(let i=0;i<6;i++)
       {
         for(let j=0;j<=18;j++)
-        { let temp=chords[c].fretobj[i][j];
+        { //let temp=chords[c].fretobj[i][j];
+          let temp=midiobj.fretobj[i][j];
           if(temp.midival==e.note.number)
           { temp.midion=0;
+            //temp.midifade=0;
            // console.log(temp.loc.x);
             
           }
@@ -300,7 +308,8 @@ inputSoftware.addListener('noteon', "all",
     	
   	}
   );
-})
+} //for loop iterating through different midi devices
+  }) //webmidi enable condition close bracket
 }
 
 
@@ -363,7 +372,8 @@ if(mapmode!=1)  //edit mode
 { 
    chords[c].display_fretboard(); 
    chords[c].display_inputchord();
-   chords[c].display_trackednotes(); //for midi tracking
+  //chords[c].display_trackednotes(); //for midi tracking
+  midiobj.display_trackednotes(); //for midi tracking
    chords[c].chordanalyze(); 
      
 }
@@ -371,7 +381,7 @@ else       //map mode
 {
     chords[c].display_fretboard();
     mapanimation();
-    chords[c].display_trackednotes(); //for midi tracking
+    midiobj.display_trackednotes(); //for midi tracking
     chords[c].chordanalyze();   
 }
     chords[c].bars=inputbars[c].value();
@@ -466,7 +476,7 @@ function mouseClicked() {
     if (paintcanvas[c].checkbox.checked()) //if eraser is activated
      { 
        paintcanvas[c].erase();
-      stampRectangle(255);
+      //stampRectangle(255);
       paintcanvas[c].noErase();
      }
    
@@ -559,14 +569,16 @@ function mouseClicked() {
 function mouseDragged() {  //this function is for drawing on paintcanvas
 if(paintmode==1)
 {
-
+   
 if(!keyIsDown(SHIFT))
 {  //universal paint,holding down shift and drawing ensures the drawing is universal for all canvas and not only for current canvas
+ 
   if(paintcanvas[c].checkbox.checked())
   {
     paintcanvas[c].erase();
     paintcanvas[c].rect(mouseX,mouseY,paintcanvas[c].slider.value(),paintcanvas[c].slider.value());
     paintcanvas[c].noErase();
+    
   }else{
       paintcanvas[c].stroke(c_canv)
     }
@@ -578,8 +590,8 @@ if(!keyIsDown(SHIFT))
    {
      for(let p=0;p<=50;p++)
      {
-      if (paintcanvas[p].checkbox.checked()){
-        
+     // if (paintcanvas[p].checkbox.checked() || keyIsDown(CONTROL)){
+      if (paintcanvas[p].checkbox.checked()){ 
         paintcanvas[p].erase();
         paintcanvas[p].rect(mouseX,mouseY,paintcanvas[p].slider.value(),paintcanvas[p].slider.value());
         paintcanvas[p].noErase();
@@ -635,7 +647,14 @@ function mapanimation(){
 
 function shownextchord(){
  
-  
+  /*for(let i=0;i<6;i++)
+        {
+          for(let j=0;j<18;j++)
+            { chords[c].fretobj[i][j].midion=0;
+              chords[c].fretobj[i][j].midifade=0;
+            }
+          }
+*/
   if(mapmode==1) //we want nav to change only during map mode
    nav=1;
    amount=0;
@@ -646,7 +665,16 @@ function shownextchord(){
 
 function showpreviouschord()
 {
-   if(mapmode==1)
+   
+   /*for(let i=0;i<6;i++)
+   {
+     for(let j=0;j<18;j++)
+       { chords[c].fretobj[i][j].midion=0;
+         chords[c].fretobj[i][j].midifade=0;
+       }
+     }
+    */
+  if(mapmode==1)
    nav=-1;
    amount=0;
    prevc=c;

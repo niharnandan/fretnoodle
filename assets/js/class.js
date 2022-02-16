@@ -269,7 +269,7 @@ class  fretclass{
       }
       else{
         if(this.midifade>0)
-        {this.midifade=this.midifade-0.03;
+        {this.midifade=this.midifade-0.07;
         stroke(180/360,1,1,this.midifade);
         ellipse(this.loc.x,this.loc.y,55*x_scale,55*x_scale);
         }
@@ -472,7 +472,8 @@ class  fretclass{
               this.fretobj[i][j].collapse_b=0;
               this.fretobj[i][j].constant_b=0;
               this.fretobj[i][j].noaction_b=1;
-              this.fretobj[i][j].midion=0;
+              //this.fretobj[i][j].midion=0;
+             // this.fretobj[i][j].midifade=0;
               //if(this.fretobj[i][j].present==)
               //this.fretobj[i][j].isdisable=0;
             }

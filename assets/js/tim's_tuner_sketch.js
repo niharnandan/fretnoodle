@@ -10,11 +10,24 @@ let freq = 0;
 let threshold = 1;
 let img;
 let button=[8];
-let bgColor;
+
 let basefreq=0;
-let currentnote;
+let currentnote=6; //a number outside the scope of 6 strings initially so that user gets prompted to select a string
 let width;
 let height;
+let tuner_button_size=50;
+let isBasefreq_set=0;
+let startTime;
+let elapsedTime = 0;
+let stablefreq=1000.00;
+let detected_freq;
+let newfrequencies=[6];
+let tuner_buttons=[6];
+let prompt_message;
+
+//color variables
+let bgColor;
+
 
 class button_class{
     constructor()
@@ -26,52 +39,124 @@ class button_class{
   this.y_pos;
   this.type;
   this.button_ID;
+  this.size;
     }
 
   string_buttonclicked(string_no){
+    freq=0;
+    stablefreq=1000;
     currentnote=string_no-1;
+    this.isclicked=true;
+    this.isactive=true;
+ }
+
+ resetbasefrequency()
+ {
+  for(let i=0;i<6;i++)
+    {
+      newfrequencies[i]=0.00;
+    }
+    this.isactive=false;
+    isBasefreq_set=0;
+    currentnote=6; //resetting the note out of the scope 0-5
+
  }
 
  setbasefrequency()
  {
+   
+    if(stablefreq.toFixed(2)<110)
     
-    if(freq.toFixed(2)<100)
-    { basefreq=freq.toFixed(2);
+    { 
+      this.isactive=true;
+      basefreq=stablefreq.toFixed(2);
      newfrequencies[5]=basefreq;
      newfrequencies[4]=basefreq*1.5;
      newfrequencies[3]=basefreq*2;
      newfrequencies[2]=basefreq*2;
      newfrequencies[1]=basefreq*3;
      newfrequencies[0]=basefreq*4;
+     prompt_message="now select the string you want to tune!";
+     for(let i=0;i<6;i++)
+     { let tempfreq=parseFloat(newfrequencies[i]);
+       newfrequencies[i]=parseFloat(tempfreq.toFixed(1)); //toFixed() converts it inot string, we need to convert it back to float
+     }
+      console.log(newfrequencies);
+      isBasefreq_set=1;
     }
-     console.log(newfrequencies);
+    // this.string_buttonclicked(6);
 
+     console.log(newfrequencies);
+     
+  
+  
  }
 
- displaybutton(button_ID_,x_pos_,y_pos_)
+ displaybutton(button_ID_,x_pos_,y_pos_,size_)
  {this.x_pos=x_pos_;
   this.y_pos=y_pos_;
   this.button_ID=button_ID_;
+  this.size=size_;
   colorMode(RGB,1);
-    stroke(1,1,1,1);
+    stroke(strokecolor);
     strokeWeight(2);
-    fill(0.2,0.4,0.5,1);
-  if(this.button_ID<6)
-  {
+
     
-    ellipse(x_pos_,y_pos_,50,50);
+    if(this.isactive==false)
+    fill(btn_color)
     
-  }
-  else
-  {
-      rect(x_pos_,y_pos_,200,100);
+    else
+    fill(btn_active_col)
+    this.hover();
+  
+  
+    
+    ellipse(x_pos_,y_pos_,this.size,this.size);
+
+    if(button_ID_<6)
+    {
+    textSize(this.size/4);
+    fill(text_col_bright);
+    noStroke();
+    text(6-button_ID_,this.x_pos,this.y_pos);
+    if(newfrequencies[5-button_ID_]!=0)
+    text(newfrequencies[5-button_ID_],this.x_pos,this.y_pos-35 )
+    }
+    else if(button_ID_==6)
+    {
+      textSize(this.size/8);
+    fill(text_col_dark);
+    noStroke();
+    if(isBasefreq_set==0)
+    text("SET BASE \n FREQ",this.x_pos,this.y_pos);
+    else if(isBasefreq_set==1)
+    text("RESET BASE \n FREQ",this.x_pos,this.y_pos);
+    }
+ }
+
+ hover()
+ {
+  let x=mouseX;
+   let y=mouseY;
+   let vector1=createVector(x,y);
+   //console.log(vector1);
+   
+   for(let i=0;i<6;i++)
+   {
+  
+     let vector2=createVector(this.x_pos,this.y_pos);
+    
+     if(dist(vector1.x,vector1.y,vector2.x,vector2.y)<this.size/2) //we have to devide by 2 sence the argumnt parameter takes in diameter
+     {fill(btn_hover_col);
+       console.log("hovering");
+    }
   }
  }
 
 
 }
 
-let tuner_buttons=[4];
+/*
 let set_frequencybutton;
 let notes = [{
     note: 'A',
@@ -90,15 +175,14 @@ let notes = [{
     freq: 391.9954
   }
 ];
-
-let newfrequencies=[6];
-
-function preload() {
-  //mg = loadImage('download.png');
-}
+*/
 
 
 
+
+
+
+/*
 function createbuttons(){
   for(i=0;i<8;i++)
     {
@@ -156,21 +240,16 @@ function createbuttons(){
   button[i].style('border-radius', '50%'); 
     }
 }
-
+*/
+/*
 function setcurrentnote(string_no)
 {
+  freq=0;
   currentnote=string_no-1;
   
 }
-
-
-function changeBackgroundColor() {
-  
-  bgColor=color(random(255), random(255), random(255));
-  console.log(bgColor);
-  
-}
-
+*/
+/*
 function finalize_basefreq()
 {
   if(freq.toFixed(2)<100)
@@ -184,22 +263,57 @@ function finalize_basefreq()
  }
   console.log(newfrequencies);
 }
+*/
+
+
+
+
 
 function setup() {
+
+
   scale_factor=1 ;
-  width=600*scale_factor;
+  width=380*scale_factor;
   height= 800*scale_factor;
-  createCanvas(width, height);
+  let canvas=createCanvas(width, height);
+  canvas.parent('sketch-holder');
+
+  for(let i=0;i<6;i++)
+    {
+      newfrequencies[i]=0;
+    }
+
 
   colorMode(RGB,1);
-  bgColor=color( 0.19,0.37, 0.44);
+  bgColor=color(0/255, 66/255, 90/255);
+  btn_color=color(31/255,138/255,112/255);
+  btn_active_col=color(252/255,115/255,0/255);
+  btn_hover_col=color(252/255,115/255,0/255);
+  meterbox_col=color(191/255,219/255,56/255);
+  meterbox_correct_col=color(252/255,115/255,0/255);
+  meter_color=(1,1,1,0.3)
+  text_col_bright=(1,1,1,1);
+  text_col_dark=color(0,0,0,1);
+  strokecolor=color(1,1,1,1);
+
+
   background(bgColor);
-  createbuttons();
+  //createbuttons();
   audioContext = getAudioContext();
   mic = new p5.AudioIn();
   mic.start(listening);
+
+  let testbutton=createButton('test mic');
+  testbutton.position(150, 180);
+  testbutton.mousePressed(mictest);    
  
 }
+function mictest()
+{
+  mic.start(listening);
+
+}
+
 //creating the buttons
 for(i=0;i<6;i++)
 {
@@ -219,73 +333,108 @@ function listening() {
 
 function draw() {
  background(bgColor);
+ colorMode(RGB,1);
+ console.log(isBasefreq_set);
  
-  //image(img,-80,120);
-  textAlign(CENTER, CENTER);
-  fill(255);
-  textSize(32);
-  text(freq.toFixed(2), width / 2, height/2);
-  
-/*
-  let closestNote = -1;
-  let recordDiff = Infinity;
-  for (let i = 0;i < notes.length; i++) {
-    let diff = freq-notes[i].freq;
-    if (abs(diff) < abs(recordDiff)) {
-      
-      closestNote = notes[i];      
-      recordDiff = diff;
-      
-    }
+  //algorith to ensure fairly stable frequency output
+ if(freq!=0 && freq<1.9*stablefreq)
+  {
+    stablefreq=freq;   //to ensure the meter is smooth
   }
-  */
+  if(freq==detected_freq)
+  { stablefreq=freq;
+  }
+
+  let diff;
+  if(currentnote<6)
+  diff=stablefreq-newfrequencies[currentnote]
   
-  let diff=freq-newfrequencies[currentnote]
   
-  console.log(freq.toFixed(2));
+  
   textSize(64);
-  //text(closestNote.note, width / 2, height - 50);
+  
 
 
-  //let diff = recordDiff;
-  // let amt = map(diff, -100, 100, 0, 1);
-  // let r = color(255, 0, 0);
-  // let g = color(0, 255, 0);
-  // let col = lerpColor(g, r, amt);
 
-
-  let alpha = map(abs(diff), 0, 100, 255, 0);
+  let alpha = map(abs(diff), 0, 100, 1, 0);
   rectMode(CENTER);
-  fill(255, alpha);
-  stroke(255);
-  strokeWeight(1);
+  fill(meterbox_col);
+  stroke(strokecolor);
+  strokeWeight(2);
   if (abs(diff) < threshold) {
-    fill(0, 255, 0);
+    fill(meterbox_correct_col);
   }
-  rect(200, 100, 200, 50);
+  rect(200, 50, 200, 50); 
 
-  stroke(255);
+//meter midpoint line
+  stroke(strokecolor);
   strokeWeight(4);
-  line(200, 0, 200, 200);
-
+  line(200, 0, 200, 80);
+  
+  //stable frequency text
+  textAlign(CENTER, CENTER);
   noStroke();
-  fill(255, 0, 0);
+  fill(text_col_dark);
+  textSize(32);
+  text(stablefreq.toFixed(2), 200, 50);
+
+  
+  //moving meter color
+  noStroke();
+  fill(meter_color);
   if (abs(diff) < threshold) {
-    fill(0, 255, 0);
+    fill(meter_color);
   }
-  rect(200 + diff / 2, 100, 10, 75);
-  fill(0.5,0.5,1,1);
-  ellipse(button[0].x+15,button[0].y+20,50,50)
-  tuner_buttons[0].displaybutton(0,200,600);
-  tuner_buttons[1].displaybutton(1,200,450);
-  tuner_buttons[2].displaybutton(2,200,300);
-  tuner_buttons[3].displaybutton(3,500,600);
-  tuner_buttons[4].displaybutton(4,500,450);
-  tuner_buttons[5].displaybutton(5,500,300);
+  //color of moving meter set manually since meter color is not showing transparency
+  fill(1,1,1,0.5);
+
+  //displaying moving meter
+  let meter_xpos=200+diff*5
+  if(meter_xpos<10)
+  meter_xpos=10;
+  else if(meter_xpos>width)
+  meter_xpos=width-10;
+  if(currentnote<6) //only show the bar when a string is selected
+  rect(meter_xpos, 50, 10, 75);
+
+
+ // fill(0.5,0.5,1,1);
+ // ellipse(button[0].x+15,button[0].y+20,50,50)
+  tuner_buttons[0].displaybutton(0,30,540,tuner_button_size);
+  tuner_buttons[1].displaybutton(1,30,430,tuner_button_size);
+  tuner_buttons[2].displaybutton(2,30,320,tuner_button_size);
+  tuner_buttons[3].displaybutton(3,350,320,tuner_button_size);
+  tuner_buttons[4].displaybutton(4,350,430,tuner_button_size);
+  tuner_buttons[5].displaybutton(5,350,540,tuner_button_size);
+  set_frequencybutton.displaybutton(6,200,190,tuner_button_size*2);
+  let prompt_xpos=200;
+  let prompt_ypos=115;
+  fill(text_col_bright);
+  textSize(18);
+  noStroke();
+  textAlign(CENTER, CENTER);
+  if(isBasefreq_set==0)
+  prompt_message="set base frequency on sixth string!"
+  else if(isBasefreq_set==1 && currentnote<6)  //to ensure these messages dont occur before a string is pressed
+  {
+    if (abs(diff) < threshold)
+    prompt_message="PERFECT!";
+    else if(diff>5)
+    prompt_message="GO LOWER";
+    else if(diff<5 && diff>0)
+    prompt_message="GO A LITTLE LOWER";
+    else if(diff<0 && diff>-5)
+    prompt_message="GO A LITTLE HIGHER";
+    else if(diff<-5)
+    prompt_message="GO HIGHER"
+
+
+  }
+  text(prompt_message,prompt_xpos,prompt_ypos);
 
  
 }
-
+  
 function modelLoaded() {
   console.log('model loaded');
   pitch.getPitch(gotPitch);
@@ -295,11 +444,66 @@ function gotPitch(error, frequency) {
   if (error) {
     console.error(error);
   } else {
-    //console.log(frequency);
+    detected_freq=frequency;
     if (frequency) {
-
-      freq = frequency;
+      if(frequency>freq*7.8 && freq!=0)  //to prevent displaying the jump in harmonics, freq is reset to 0 everytime we change strings, we calculating up to 8 harmonics
+      freq = frequency/8;
+      if(frequency>freq*6.8 && freq!=0)
+      freq = frequency/7;
+      if(frequency>freq*5.8 && freq!=0)
+      freq = frequency/6;
+      if(frequency>freq*4.8 && freq!=0)
+      freq = frequency/5;
+      if(frequency>freq*3.8 && freq!=0)
+      freq = frequency/4;  
+      else if(frequency>freq*2.8 && freq!=0)
+      freq=frequency/3;
+      else if(frequency>freq*1.8 && freq!=0)
+      freq=frequency/2;
+      else 
+      freq=frequency;
     }
+    else if(frequency==null)
+    freq=0;
     pitch.getPitch(gotPitch);
+   // console.log("act f:"+frequency+"   "+"fr:"+freq+"   "+"stablefr:"+stablefreq);
   }
+}
+
+function mouseClicked()
+{
+   let x=mouseX;
+   let y=mouseY;
+   let vector1=createVector(x,y);
+   //console.log(vector1);
+   if(isBasefreq_set==1)
+   {
+   for(let i=0;i<6;i++)
+   {
+    //console.l
+    tuner_buttons[i].isactive=false; //resets the buttons
+     let vector2=createVector(tuner_buttons[i].x_pos,tuner_buttons[i].y_pos);
+    
+     if(dist(vector1.x,vector1.y,vector2.x,vector2.y)<tuner_buttons[i].size/2)
+     { 
+       
+      console.log("button pressed");
+      tuner_buttons[i].string_buttonclicked(6-i);
+     }
+   
+   }
+  }
+   let vector2=createVector(set_frequencybutton.x_pos,set_frequencybutton.y_pos);
+   if(dist(vector1.x,vector1.y,vector2.x,vector2.y)<set_frequencybutton.size/2)
+   {
+     set_frequencybutton.isclicked=true; 
+       set_frequencybutton.isactive=true;
+       //isBasefreq_set=(isBasefreq_set+1)%2;
+       if(isBasefreq_set==0)
+       set_frequencybutton.setbasefrequency();
+       else
+       set_frequencybutton.resetbasefrequency();
+   }
+    
+
 }

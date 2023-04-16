@@ -24,7 +24,9 @@ let detected_freq;
 let newfrequencies=[6];
 let tuner_buttons=[6];
 let prompt_message;
-
+let freq_record=[60] //keeps a record of the frequencies
+let frame_counter=0; // keep track of the frame
+let COUNTER_LIMIT=60;
 //color variables
 let bgColor;
 
@@ -45,6 +47,7 @@ class button_class{
   string_buttonclicked(string_no){
     freq=0;
     stablefreq=1000;
+    detected_freq=0;
     currentnote=string_no-1;
     this.isclicked=true;
     this.isactive=true;
@@ -302,17 +305,9 @@ function setup() {
   audioContext = getAudioContext();
   mic = new p5.AudioIn();
   mic.start(listening);
-
-  let testbutton=createButton('test mic');
-  testbutton.position(150, 180);
-  testbutton.mousePressed(mictest);    
  
 }
-function mictest()
-{
-  mic.start(listening);
 
-}
 
 //creating the buttons
 for(i=0;i<6;i++)
@@ -335,15 +330,33 @@ function draw() {
  background(bgColor);
  colorMode(RGB,1);
  console.log(isBasefreq_set);
+ frame_counter=(frame_counter+1)%COUNTER_LIMIT;
+ 
  
   //algorith to ensure fairly stable frequency output
  if(freq!=0 && freq<1.9*stablefreq)
   {
     stablefreq=freq;   //to ensure the meter is smooth
   }
-  if(freq==detected_freq)
-  { stablefreq=freq;
-  }
+ // if(freq==detected_freq)
+ // { //stablefreq=freq;
+ // }
+  
+ freq_record[frame_counter]=stablefreq;
+ let all_equal=true;
+
+ for(let i=0;i<COUNTER_LIMIT;i++)
+ { if(freq_record[i]!=freq_record[0])
+   {all_equal=false;   
+    break;
+   }
+ }
+ if(all_equal)
+ {
+  freq=0;
+  stablefreq=1000;
+  detected_freq=0;
+ }
 
   let diff;
   if(currentnote<6)
@@ -400,12 +413,12 @@ function draw() {
 
  // fill(0.5,0.5,1,1);
  // ellipse(button[0].x+15,button[0].y+20,50,50)
-  tuner_buttons[0].displaybutton(0,30,540,tuner_button_size);
-  tuner_buttons[1].displaybutton(1,30,430,tuner_button_size);
-  tuner_buttons[2].displaybutton(2,30,320,tuner_button_size);
-  tuner_buttons[3].displaybutton(3,350,320,tuner_button_size);
-  tuner_buttons[4].displaybutton(4,350,430,tuner_button_size);
-  tuner_buttons[5].displaybutton(5,350,540,tuner_button_size);
+  tuner_buttons[0].displaybutton(0,40,540,tuner_button_size);
+  tuner_buttons[1].displaybutton(1,40,430,tuner_button_size);
+  tuner_buttons[2].displaybutton(2,40,320,tuner_button_size);
+  tuner_buttons[3].displaybutton(3,345,320,tuner_button_size);
+  tuner_buttons[4].displaybutton(4,345,430,tuner_button_size);
+  tuner_buttons[5].displaybutton(5,345,540,tuner_button_size);
   set_frequencybutton.displaybutton(6,200,190,tuner_button_size*2);
   let prompt_xpos=200;
   let prompt_ypos=115;

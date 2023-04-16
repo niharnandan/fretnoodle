@@ -3734,10 +3734,12 @@
 			-webkit-transform: scale(1.0);
 			-ms-transform: scale(1.0);
 			transform: scale(1.0);
+			/*
 			-moz-transition: opacity 1s ease, -moz-transform 1s ease;
 			-webkit-transition: opacity 1s ease, -webkit-transform 1s ease;
 			-ms-transition: opacity 1s ease, -ms-transform 1s ease;
 			transition: opacity 1s ease, transform 1s ease;
+			*/
 			opacity: 1;
 			position: relative;
 			z-index: 2;
@@ -3797,6 +3799,7 @@
 	}
 
 		#banner:before {
+			/*
 			-moz-transition: opacity 3s ease;
 			-webkit-transition: opacity 3s ease;
 			-ms-transition: opacity 3s ease;
@@ -3805,6 +3808,7 @@
 			-webkit-transition-delay: 1.25s;
 			-ms-transition-delay: 1.25s;
 			transition-delay: 1.25s;
+			*/
 			content: '';
 			display: block;
 			background-color: #000;
@@ -3950,9 +3954,9 @@
 	float: left;
 	color: #f2f2f2;
 	text-align: center;
-	padding: 7px 8px;
+	padding: 6px 7px;
 	text-decoration: none;
-	font-size: 16px;
+	font-size: 14px;
   }
   
   /* Change the color of links on hover */

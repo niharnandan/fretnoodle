@@ -155,7 +155,7 @@ class  fretclass{
       noStroke();
       
       if(this.isdisable==1&&this.present==1)
-      alphaval=0.1;
+      alphaval=0.3;
       else
       alphaval=1;
         if(this.note_intval-x==0)

@@ -20,6 +20,7 @@ let isBasefreq_set=0;
 let startTime;
 let elapsedTime = 0;
 let stablefreq=1000.00;
+let prev_stablefreq=1000;
 let detected_freq;
 let newfrequencies=[6];
 let tuner_buttons=[6];
@@ -27,6 +28,7 @@ let prompt_message;
 let freq_record=[60] //keeps a record of the frequencies
 let frame_counter=0; // keep track of the frame
 let COUNTER_LIMIT=60;
+let amplitude_threshold=0.01; //the minimum amplitude below which reading will not show
 //color variables
 let bgColor;
 
@@ -46,6 +48,7 @@ class button_class{
 
   string_buttonclicked(string_no){
     freq=0;
+    prev_stablefreq=1000;
     stablefreq=1000;
     detected_freq=0;
     currentnote=string_no-1;
@@ -68,11 +71,11 @@ class button_class{
  setbasefrequency()
  {
    
-    if(stablefreq.toFixed(2)<110)
+    if(stablefreq.toFixed(0)<110)
     
     { 
       this.isactive=true;
-      basefreq=stablefreq.toFixed(2);
+      basefreq=stablefreq.toFixed(0);
      newfrequencies[5]=basefreq;
      newfrequencies[4]=basefreq*1.5;
      newfrequencies[3]=basefreq*2;
@@ -82,7 +85,7 @@ class button_class{
      prompt_message="now select the string you want to tune!";
      for(let i=0;i<6;i++)
      { let tempfreq=parseFloat(newfrequencies[i]);
-       newfrequencies[i]=parseFloat(tempfreq.toFixed(1)); //toFixed() converts it inot string, we need to convert it back to float
+       newfrequencies[i]=parseFloat(tempfreq.toFixed(0)); //toFixed() converts it inot string, we need to convert it back to float
      }
       console.log(newfrequencies);
       isBasefreq_set=1;
@@ -305,9 +308,31 @@ function setup() {
   audioContext = getAudioContext();
   mic = new p5.AudioIn();
   mic.start(listening);
+
+  button = createButton('Allow Mic');
+  button.position(380, 850);
+  button.mousePressed(initMic);
  
 }
 
+function initMic() {
+  // stop the current microphone
+  mic.stop();
+  
+  // initialize a new microphone
+  mic = new p5.AudioIn();
+  /*
+  mic.start(function() {
+    // prompt the user to allow microphone permission
+    if (mic.enabled) {
+      console.log('Mic is enabled.');
+    } else {
+      console.log('Mic is not enabled.');
+    }
+  });*/
+  mic.start(listening);
+
+}
 
 //creating the buttons
 for(i=0;i<6;i++)
@@ -334,18 +359,27 @@ function draw() {
  
  
   //algorith to ensure fairly stable frequency output
- if(freq!=0 && freq<1.9*stablefreq)
+ if(freq!=0 && freq<1.9*stablefreq &&mic.getLevel()>amplitude_threshold) //to prevent jumps in harmocs. comparison with prev_stablefreq is required to prevent the edge case when freq readings got to 0 and then suddenly go to the harmonics value immiditely after 0
   {
+
+    amplitude_threshold=0.006; //intial threshold must be high to prevent jump in harmonics.the pattern of harmonic jump is like this (stablefreq=x->1000->2x).but jump only occurs when amplitude<0.007. when stablefreq resets to 1000, we will reset amplitude threshold to high value 0.01 so that the reading doesnt pick up the higher harmoics at low amplitude.
+   // if(stablefreq==1000 && freq>1.9*prev_stablefreq)
+    //stablefreq=prev_stablefreq;
+   // else
+    //{
+    //prev_stablefreq=stablefreq;
     stablefreq=freq;   //to ensure the meter is smooth
-  }
+   // }
+    
+  } 
  // if(freq==detected_freq)
  // { //stablefreq=freq;
  // }
   
  freq_record[frame_counter]=stablefreq;
  let all_equal=true;
-
- for(let i=0;i<COUNTER_LIMIT;i++)
+//taking a record of frequency values for more reliable readings. this prevents the edge case scenario where the stable frequency detects a harmony lower than the fundamental frequency and locks on to that value. since freq value are continuously fluctuating, a constant value should indicate error in reading and reset itself
+ for(let i=0;i<COUNTER_LIMIT;i++)   
  { if(freq_record[i]!=freq_record[0])
    {all_equal=false;   
     break;
@@ -354,7 +388,9 @@ function draw() {
  if(all_equal)
  {
   freq=0;
+  amplitude_threshold=0.01;
   stablefreq=1000;
+
   detected_freq=0;
  }
 
@@ -389,7 +425,10 @@ function draw() {
   noStroke();
   fill(text_col_dark);
   textSize(32);
-  text(stablefreq.toFixed(2), 200, 50);
+  if(stablefreq!=1000)
+  text(stablefreq.toFixed(0), 200, 50);
+  else
+  text("-",200,50)
 
   
   //moving meter color
@@ -440,7 +479,9 @@ function draw() {
     prompt_message="GO A LITTLE HIGHER";
     else if(diff<-5)
     prompt_message="GO HIGHER"
-
+ 
+    if(stablefreq==1000)
+    prompt_message="PLAY THE STRING";
 
   }
   text(prompt_message,prompt_xpos,prompt_ypos);
@@ -475,11 +516,14 @@ function gotPitch(error, frequency) {
       freq=frequency/2;
       else 
       freq=frequency;
+     // console.log(freq);
     }
     else if(frequency==null)
     freq=0;
     pitch.getPitch(gotPitch);
-   // console.log("act f:"+frequency+"   "+"fr:"+freq+"   "+"stablefr:"+stablefreq);
+
+    //if(keyIsDown(SHIFT))
+    console.log("act f:"+frequency+"   "+"fr:"+freq+"   "+"stablefr:"+stablefreq+"amplitude: "+mic.getLevel());
   }
 }
 

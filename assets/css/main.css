@@ -3954,9 +3954,9 @@
 	float: left;
 	color: #f2f2f2;
 	text-align: center;
-	padding: 6px 7px;
+	padding: 10px 11px;
 	text-decoration: none;
-	font-size: 14px;
+	font-size: 19px;
   }
   
   /* Change the color of links on hover */
@@ -3969,4 +3969,19 @@
   .topnav a.active {
 	background-color: #04AA6D;
 	color: white;
+  }
+  @media screen and (max-width: 768px) {
+	/* Style for screens up to 768px wide */
+	.topnav a {
+	  font-size: 16px;
+	  padding: 8px 9px;
+	}
+  }
+  
+  @media screen and (max-width: 400px) {
+	/* Style for screens up to 480px wide */
+	.topnav a {
+	  font-size: 14px;
+	  padding: 6px 7px;
+	}
   }

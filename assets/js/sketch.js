@@ -309,6 +309,22 @@ WebMidi.inputs[p].addListener('noteon', "all",
     	
   	}
   );
+
+ 
+    WebMidi.inputs[p].addListener(
+      "controlchange",
+      "all",
+      function (e) {
+        // Show what we are receiving
+        console.log(
+          "Received 'controlchange' message (" +
+            e.controller.number +
+            ") " +
+            e.value +
+            ".");
+      }
+        );
+
 } //for loop iterating through different midi devices
   }) //webmidi enable condition close bracket
 }

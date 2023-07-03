@@ -64,6 +64,7 @@ class  fretclass{
       this.collapse_b=0;
       this.constant_b=0;
       this.noaction_b=1;
+      
       this.midion=0;    //to check if the note is being played by user
       this.midifade=0;  //alphavalue of note fading after it turns off
 

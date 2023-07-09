@@ -65,8 +65,10 @@ class  fretclass{
       this.constant_b=0;
       this.noaction_b=1;
       
-      this.midion=0;    //to check if the note is being played by user
+      this.midion=0;    //to check if the midi note is being played by user
+      this.midi_string_combo=0;  //takes into account the string number thats being played after reading CC message Data
       this.midifade=0;  //alphavalue of note fading after it turns off
+      this.midistring=6;  //keep it out of range initially. 0-E,1B,2-G,3-D,4-A,5-E
 
       //Assigning midi values
       switch(this.i)
@@ -263,12 +265,12 @@ class  fretclass{
       noFill();
       strokeWeight(3);
       
-      if(this.midion){
+      if(this.midi_string_combo){
         this.midifade=1
       stroke(180/360,1,1,this.midifade);
       ellipse(this.loc.x,this.loc.y,55*x_scale,55*x_scale);
       }
-      else{
+      else {
         if(this.midifade>0)
         {this.midifade=this.midifade-0.07;
         stroke(180/360,1,1,this.midifade);

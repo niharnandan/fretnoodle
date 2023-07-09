@@ -48,6 +48,9 @@ let x_barpos;
 let y_barpos;
 let showbars=1;  //showbar=0 hides the animation incase user wants more space for drawing
 
+
+
+
 function preload() {
   klack = loadSound('assets/klack.wav');
   pling=loadSound('assets/pling.wav');
@@ -266,12 +269,17 @@ for(let i=0;i<50;i++)             //similarly we create 50 paintcanvas and bar-l
 ///
 //listen to all incoming "note on" input events
 for(p = 0; p< WebMidi.inputs.length; p++){
+ 
+
+  let current_midi_note;
+
 WebMidi.inputs[p].addListener('noteon', "all",
   function (e) {
       //Show what we are receiving
     console.log("Received 'noteon' message (" + e.note.name + e.note.octave + ") "+ e.note.number +"."+e.velocity);
     for(let i=0;i<6;i++)
     {
+      /*
       for(let j=0;j<=18;j++)
       { //let temp=chords[c].fretobj[i][j];
         let temp=midiobj.fretobj[i][j];
@@ -281,6 +289,17 @@ WebMidi.inputs[p].addListener('noteon', "all",
           
         }
       }
+      */
+
+      for(let j=0;j<=18;j++)
+      { //let temp=chords[c].fretobj[i][j];
+        let temp=midiobj.fretobj[i][j];
+        if(temp.midival==e.note.number)
+        { temp.midion =1;
+          current_midi_note=temp.midival;      
+        }
+      }
+
     }      
 }
 
@@ -300,6 +319,7 @@ WebMidi.inputs[p].addListener('noteon', "all",
           let temp=midiobj.fretobj[i][j];
           if(temp.midival==e.note.number)
           { temp.midion=0;
+            temp.midi_string_combo=0;
             //temp.midifade=0;
            // console.log(temp.loc.x);
             
@@ -309,21 +329,65 @@ WebMidi.inputs[p].addListener('noteon', "all",
     	
   	}
   );
-
  
-    WebMidi.inputs[p].addListener(
-      "controlchange",
-      "all",
-      function (e) {
-        // Show what we are receiving
-        console.log(
-          "Received 'controlchange' message (" +
-            e.controller.number +
-            ") " +
-            e.value +
-            ".");
-      }
-        );
+  
+  
+  WebMidi.inputs[p].addListener(
+    "controlchange",
+    "all",
+    function (e) {
+      let midistring;
+      // Show what we are receiving
+      console.log(
+        "Received 'controlchange' message (" +
+          e.controller.number +
+          ") " +
+          e.value +
+          ".");
+
+          if(e.controller.number==30)
+          {
+            for(let i=0;i<6;i++)
+            {
+              for(let j=0;j<=18;j++)
+              { //let temp=chords[c].fretobj[i][j];
+                let temp=midiobj.fretobj[i][j];
+                if(e.value>=0 && e.value<=15)
+                midistring=0;
+                else if(e.value>16 && e.value<=31)
+                midistring=1;
+                else if(e.value>32 && e.value<=47)
+                midistring=2;
+                else if(e.value>48 && e.value<=63)
+                midistring=3;
+                else if(e.value>64 && e.value<=79)
+                midistring=4;
+                else if(e.value>80 && e.value<=95)
+                midistring=5;
+               
+                if(temp.midion==1 && temp.i==midistring)
+                {
+                  temp.midi_string_combo=1;
+                  for(let p=0;p<6;p++)
+                  {
+                    for(let q=0;q<=18;q++)
+                    {
+                      midiobj.fretobj[p][q].midion=0;
+
+                      
+                    }
+                  }
+                }
+               
+
+              }
+            }
+
+          }
+    }
+      );
+
+
 
 } //for loop iterating through different midi devices
   }) //webmidi enable condition close bracket

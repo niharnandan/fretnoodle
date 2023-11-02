@@ -3,6 +3,9 @@
 let fret_pos=50; //marker to keep track of the fret beginnings and ending
 let orig_width=120; //fretwidth of first fret, fret width progressively decreases as fret no. increases
 
+let transposed_strings=[0,0,0,0,0,0];
+
+
 ht=window.outerHeight;
 wd=window.outerWidth;
 
@@ -123,7 +126,7 @@ class  fretclass{
       line(this.loc_f.x, this.loc_f.y, this.loc_f.x+this.f_width, this.loc_f.y);
       strokeWeight(1);
       stroke(255,255,255,1);
-      ellipse(this.loc_f.x+this.f_width,this.loc_f.y,6*x_scale,6*x_scale);
+      //ellipse(this.loc_f.x+this.f_width,this.loc_f.y,6*x_scale,6*x_scale);
       if(shownote==1){
       push()
       textFont('Georgia');
@@ -318,14 +321,17 @@ class  fretclass{
       let f_pos=50*x_scale;
       this.fretobj[i]=[];
       var j;
-      for( j=0;j<18;j++)
-      {                                      //making the fret-string objects
-         this.fretobj[i].push(new fretclass(assign_noteval(i,j),i,j,f_width,f_pos));
+      for( j=0;j<=18;j++)
+      { 
+          if(j==18)    //for open strings
+          f_pos=0;                                    //making the fret-string objects
+         
+        this.fretobj[i].push(new fretclass(assign_noteval(i,j),i,j,f_width,f_pos));
          f_pos=f_pos+f_width;
          f_width=f_width-3*x_scale;       
       }
-      if(j==18)    //for open strings
-      this.fretobj[i].push(new fretclass(assign_noteval(i,11),i,j,f_width,0));
+     // if(j==18)    //for open strings
+     // this.fretobj[i].push(new fretclass(assign_noteval(i,11),i,j,f_width,0));
         
     }
   }
@@ -333,10 +339,13 @@ class  fretclass{
     { colorMode(RGB);
       background(back_col);
       for(let i=0;i<6;i++)
-        {  for(let j=0;j<18;j++)
+        {  for(let j=0;j<=18;j++)
           {this.fretobj[i][j].fretline();                                 
          stroke(255,255,255,1);
          strokeWeight(1);
+         if(j==0)
+         strokeWeight(2);
+         if(j<18)
          line(this.fretobj[i][j].f_pos,300*y_scale,this.fretobj[i][j].f_pos,550*y_scale);  //drawing the fret lines
            push();
            textFont('Georgia');
@@ -580,23 +589,26 @@ class  fretclass{
   
   function assign_noteval(i_temp,j_temp)
   {
+    if(j_temp==18)
+    j_temp=11;     //j=18 corresponds to open strings we just want to set open string value same as 12th fret
+
    if (i_temp==0)
-     noteval_temp=(8+j_temp)%12;
+     noteval_temp=(8+j_temp+transposed_strings[0])%12;
     
     else if (i_temp==1)
-    noteval_temp=(3+j_temp)%12;
+    noteval_temp=(3+j_temp+transposed_strings[1])%12;
     
      else if (i_temp==2)
-    noteval_temp=(11+j_temp)%12;
+    noteval_temp=(11+j_temp+transposed_strings[2])%12;
     
      else if (i_temp==3)
-    noteval_temp=(6+j_temp)%12;
+    noteval_temp=(6+j_temp+transposed_strings[3])%12;
     
      else if (i_temp==4)
-    noteval_temp=(1+j_temp)%12;
+    noteval_temp=(1+j_temp+transposed_strings[4])%12;
     
      else if (i_temp==5)
-    noteval_temp=(8+j_temp)%12;
+    noteval_temp=(8+j_temp+transposed_strings[5])%12;
     
     return noteval_temp;
     

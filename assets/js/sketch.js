@@ -6,6 +6,7 @@ let totalchords=0; //total chords inputed by user
 let inputbars=[]; // bar-length values of respective chords   
 let paintcanvas=[];  //array of paint canvas, each chord has a corresponding private canvas,navigation is same for canvas and chords
 
+let transpose_counter=0; //for debugging
 
 x_scale=0.85*window.outerWidth/1536; 
 y_scale=x_scale;                // canvas scaling variables so that canvas accomodates to any screen size 
@@ -178,10 +179,19 @@ function setup()
   trans_speed_slider.position(xoff+130,yoff+300);
   //trans_speed_slider.hide();
 
+  button9=createButton('Transpose');
+  button9.size(50,50);
+  button9.style('background-color', col);
+  button9.style('font-size','20px');
+  button9.style('font-family','lato');
+  button9.style('color','white');
+  button9.position(570+xoff,19+yoff);
+  button9.style('border-radius','12px');
+
   
   
   //PAINT CANVAS
-for(let i=0;i<50;i++)             //similarly we create 50 paintcanvas and bar-length input bars that correspond to the 50 chords
+for(let i=0;i<chords.length;i++)             //similarly we create 50 paintcanvas and bar-length input bars that correspond to the 50 chords
 { 
   inputbars[i]=createInput(1,float);
   inputbars[i].position(0, 0);
@@ -406,7 +416,7 @@ function draw() {
   }, false);   //prevent default behavior of arrow keys
   pling.setVolume(metronomevol.value());
    klack.setVolume(metronomevol.value());
-   for(let i=0;i<chords.length;i++) //50 is the number of intial chords, initally hide all the unnecessary buttons
+   for(let i=0;i<paintcanvas.length;i++) //50 is the number of intial chords, initally hide all the unnecessary buttons
     {
       paintcanvas[i].slider.hide();
       paintcanvas[i].eraser.hide();
@@ -446,6 +456,7 @@ function draw() {
   button6.mousePressed(stream_mode);
   button7.mousePressed(togglemetronome)
   button8.mousePressed(deletechord_global)
+  button9.mousePressed(transpose);
 
   
  timeNow=millis();
@@ -582,7 +593,7 @@ function mouseClicked() {
                   if(keyIsDown(UP_ARROW))
                   { for(let m=0;m<6;m++)
                     {
-                      for(let n=0;n<=18;n++)
+                      for(let n=0;n<=18;n++)   //we need the m,n loop so that we disable all nodes of that note and not that the pressed node
                       {
                         if(chords[c].fretobj[i][j].note_intval==chords[c].fretobj[m][n].note_intval)
                         {
@@ -592,7 +603,7 @@ function mouseClicked() {
                     }
                     
                   }
-                else
+                   else
                 {
                   
                   loop3:
@@ -623,7 +634,7 @@ function mouseClicked() {
                   chords[c].chordnotes.push(chords[c].fretobj[i][j].note_intval);
                   chords[c].total_chordnotes++;
                             
-                 }//when d is not held down
+                 }//when UP_ARROW is not held down
 
                 }//condition for left mouse click
                 else if(keyIsDown(SHIFT)){
@@ -645,6 +656,86 @@ function mouseClicked() {
 
 
 
+
+function transpose()
+{
+  transpose_counter++;
+  for(let i=0;i<2;i++)
+  {
+    transposed_strings[i]++;
+
+  }
+  let oldinputnotes=[];  //this is a 2D array containg all the chords and their input notes
+  
+  for(let i=0;i<=totalchords;i++)
+{
+  if(chords[i].inputnotes.length>0)
+  {
+    oldinputnotes[i]=chords[i].inputnotes;  
+  }
+}
+
+  
+  console.log(transpose_counter)
+  console.log(oldinputnotes);
+  
+  startover();
+  console.log(oldinputnotes);
+
+  
+  for(let i=0;i<oldinputnotes.length;i++)        //creates 50 EMPTY chords initially, so maximum chords in progression can only be 50
+  {
+    
+    if(oldinputnotes[i])
+    {
+      inputnextchord();
+      console.log(i);
+
+    for( let q of oldinputnotes[i])
+    { 
+
+    
+      switch(q.x)
+      {
+        case 0: q.y=q.y-transposed_strings[0];
+        console.log("reached here1");
+                break;
+
+       case 1: q.y=q.y-transposed_strings[1]
+       console.log("reached here2");
+                break;
+      
+        case 2: q.y=q.y-transposed_strings[2]
+                break;
+
+       case 3: q.y=q.y-transposed_strings[3]
+                break;
+
+       case 4: q.y=q.y-transposed_strings[4]
+                break;
+
+      case 5: q.y=q.y-transposed_strings[5]
+                break;
+      }
+
+      chords[i].inputnotes[chords[i].total_chordnotes]= q;
+
+      chords[i].fretobj[q.x][q.y].input_chordnote=1;
+      chords[i].chordnotes.push(chords[i].fretobj[q.x][q.y].note_intval);
+      chords[i].total_chordnotes++;
+      
+    }
+
+    
+  }
+  
+}
+//chords=chords.filter(chord => chord.id !== c)
+deletechord_global();
+console.log(chords);
+
+
+}
 
 
 function mouseDragged() {  //this function is for drawing on paintcanvas
@@ -671,7 +762,7 @@ if(!keyIsDown(SHIFT))
 
    else if(keyIsDown(SHIFT))
    {
-     for(let p=0;p<=50;p++)
+     for(let p=0;p<=paintcanvas.length;p++)
      {
      // if (paintcanvas[p].checkbox.checked() || keyIsDown(CONTROL)){
       if (paintcanvas[p].checkbox.checked()){ 
@@ -719,6 +810,7 @@ function mapanimation(){
   amount=amount+trans_speed_slider.value()/1000;
   if(amount>1)
   chords[c].display_fullchord();
+
   else
   { 
     if(beats>=0 && ismetronome==1)             //to ensure that transition animation does not happen during count in
@@ -1134,9 +1226,9 @@ function doubleClicked()
 function inputnextchord()
 { 
   if(c!=totalchords)
-  {chords.splice(c+1,0,chords[40])
-   paintcanvas.splice(c+1,0,paintcanvas[40])
-   inputbars.splice(c+1,0,inputbars[40])
+  {chords.splice(c+1,0,chords[chords.length])
+   paintcanvas.splice(c+1,0,paintcanvas[paintcanvas.length])
+   inputbars.splice(c+1,0,inputbars[inputbars.length])
    totalchords++;
    c=c+1
   }
@@ -1150,6 +1242,7 @@ function deletechord_global()
 { if(totalchords!=0)
   {//chords[c].deletechord();
     chords.splice(c,1);
+    
     paintcanvas[c].slider.hide();
     paintcanvas[c].eraser.hide();
     paintcanvas[c].checkbox.hide();
@@ -1157,6 +1250,7 @@ function deletechord_global()
     paintcanvas[c].bluebutton.hide();
     paintcanvas[c].whitebutton.hide();
     inputbars[c].hide();
+    
     paintcanvas.splice(c,1);
     inputbars.splice(c,1);
   if(c==totalchords)
@@ -1178,7 +1272,7 @@ function myInputEvent() {
 
 function startover()
 {
-  for(let i=0;i<10;i++)
+  for(let i=0;i<paintcanvas.length;i++)
     {
       paintcanvas[i].clear();
       inputbars[i].value(1);
@@ -1189,7 +1283,7 @@ function startover()
   beats=-4;
   c=0;
   prevc=0;
-  for(let i=0;i<15;i++)
+  for(let i=0;i<50;i++)
   {
     chords[i]=new chordclass();
   }

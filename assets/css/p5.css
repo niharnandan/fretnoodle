@@ -52,7 +52,7 @@ html, body {
     .dialog-box {
       display: block;
       position: absolute;
-      top: 70%;
+      top: 20%;
       left: 50%;
       transform: translate(-50%, -50%);
       background: #f0f0f0;

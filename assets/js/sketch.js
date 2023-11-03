@@ -6,8 +6,15 @@ let totalchords=0; //total chords inputed by user
 let inputbars=[]; // bar-length values of respective chords   
 let paintcanvas=[];  //array of paint canvas, each chord has a corresponding private canvas,navigation is same for canvas and chords
 
-let transpose_counter=0; //for debugging
+//variables for transpose buttons
 
+let transpose_counter=0; //for debugging
+let valuesDisplay = [];
+let increaseButtons = [];
+let decreaseButtons = [];
+let currentTuning=[7,2,10,5,0,7]
+let inputnotes_transpose=[0,0,0,0,0,0];
+ 
 x_scale=0.85*window.outerWidth/1536; 
 y_scale=x_scale;                // canvas scaling variables so that canvas accomodates to any screen size 
 let xoff=15;       //offset values from x and y axis for buttons (SHOW MAP,<,>,+,-)
@@ -401,6 +408,39 @@ WebMidi.inputs[p].addListener('noteon', "all",
 
 } //for loop iterating through different midi devices
   }) //webmidi enable condition close bracket
+
+    // Select all values, increase and decrease buttons for transpose function
+    valuesDisplay = selectAll(".value");
+    increaseButtons = selectAll(".increase");
+    decreaseButtons = selectAll(".decrease");
+    closetransposediaogbutton=select(".close-dialog-class");
+  //  closeDialog=select(".close-dialog");
+/*
+    closeDialog.mousePressed(()=>{
+      closeTransposeDialogue();
+    });
+    */
+  closetransposediaogbutton.mousePressed(()=>{closeTransposeDialogue();});
+    for (let i = 0; i < increaseButtons.length; i++) {
+      increaseButtons[i].mousePressed(() => {
+        transposed_strings[i]++;
+        inputnotes_transpose[i]=1;
+        currentTuning[i]=(currentTuning[i]+1)%12
+        updateDisplay(i);
+        transpose();
+      });
+      decreaseButtons[i].mousePressed(() => {
+        inputnotes_transpose[i]=-1;
+        transposed_strings[i]--;
+        if(currentTuning[i]==0)
+        currentTuning[i]=11;
+      else
+        currentTuning[i]=(currentTuning[i]-1);
+        updateDisplay(i);
+        transpose();
+      });
+    }
+    
 }
 
 
@@ -456,7 +496,7 @@ function draw() {
   button6.mousePressed(stream_mode);
   button7.mousePressed(togglemetronome)
   button8.mousePressed(deletechord_global)
-  button9.mousePressed(transpose);
+  button9.mousePressed(openTransposeDialogue);
 
   
  timeNow=millis();
@@ -638,7 +678,8 @@ function mouseClicked() {
 
                 }//condition for left mouse click
                 else if(keyIsDown(SHIFT)){
-                chords[c].rootchange(chords[c].fretobj[i][j].note_intval);
+              
+                chords[c].rootchange(chords[c].fretobj[i][j].note_intval,i,j);
                 //console.log("right mouse clicked");
                 }
          
@@ -655,18 +696,28 @@ function mouseClicked() {
 }
 
 
+function openTransposeDialogue()
+{
+  
+    let dialogueBox = select("#dialog");
+    dialogueBox.style("display", "block");
+  
+}
+
+function closeTransposeDialogue() {
+  let dialogueBox = select("#dialog");
+  dialogueBox.style("display", "none");
+}
+
+function updateDisplay(index) {
+  valuesDisplay[index].html(transposed_strings[index]);
+}
 
 
 function transpose()
 {
-  transpose_counter++;
-  for(let i=0;i<2;i++)
-  {
-    transposed_strings[i]++;
-
-  }
-  let oldinputnotes=[];  //this is a 2D array containg all the chords and their input notes
   
+ let oldinputnotes=[];  //this is a 2D array containg all the chords and their input notes
   for(let i=0;i<=totalchords;i++)
 {
   if(chords[i].inputnotes.length>0)
@@ -674,15 +725,14 @@ function transpose()
     oldinputnotes[i]=chords[i].inputnotes;  
   }
 }
-
+  //}
   
   console.log(transpose_counter)
-  console.log(oldinputnotes);
+  
   
   startover();
-  console.log(oldinputnotes);
 
-  
+
   for(let i=0;i<oldinputnotes.length;i++)        //creates 50 EMPTY chords initially, so maximum chords in progression can only be 50
   {
     
@@ -697,24 +747,54 @@ function transpose()
     
       switch(q.x)
       {
-        case 0: q.y=q.y-transposed_strings[0];
+        case 0: q.y=q.y-inputnotes_transpose[0] ;
+                if(q.y==-1) q.y=18;
+                else if(q.y==18) q.y=6;
+                else if(q.y==17 && inputnotes_transpose[0]==1)q.y=10;  
+                else if(q.y==19 && inputnotes_transpose[0]==-1) q.y=0; 
+                 
+                
+
         console.log("reached here1");
                 break;
 
-       case 1: q.y=q.y-transposed_strings[1]
-       console.log("reached here2");
+      case 1: q.y=q.y-inputnotes_transpose[1]
+                if(q.y==-1) q.y=18;
+                else if(q.y==18) q.y=6;
+                else if(q.y==17 && inputnotes_transpose[0]==1)
+                q.y=10;   
+              //  else if(q.y==19) q.remove();   
+                console.log("reached here2");
                 break;
       
-        case 2: q.y=q.y-transposed_strings[2]
-                break;
+      case 2: q.y=q.y-inputnotes_transpose[2]
+                if(q.y==-1) q.y=18;   
+                else if(q.y==18) q.y=6;
+                else if(q.y==17 && inputnotes_transpose[0]==1)
+                q.y=10;   
+               // else if(q.y==19) q.remove();        
+                 break;
 
-       case 3: q.y=q.y-transposed_strings[3]
-                break;
+       case 3: q.y=q.y-inputnotes_transpose[3]
+                 if(q.y==-1) q.y=18; 
+                 else if(q.y==18) q.y=6;
+                 else if(q.y==17 && inputnotes_transpose[0]==1)
+                 q.y=10;   
+                // else if(q.y==19) q.remove();           
+                 break;
 
-       case 4: q.y=q.y-transposed_strings[4]
-                break;
+      case 4: q.y=q.y-inputnotes_transpose[4]
+                  if(q.y==-1) q.y=18;  
+                  else if(q.y==18) q.y=6;
+                  else if(q.y==17 && inputnotes_transpose[0]==1)
+                  q.y=10;         
+                  break;
 
-      case 5: q.y=q.y-transposed_strings[5]
+      case 5: q.y=q.y-inputnotes_transpose[5]
+                if(q.y==-1) q.y=18;                   
+                else if(q.y==18) q.y=6;
+                else if(q.y==17 && inputnotes_transpose[0]==1)
+                q.y=10;            
                 break;
       }
 
@@ -734,6 +814,9 @@ function transpose()
 deletechord_global();
 console.log(chords);
 
+midiobj=new chordclass();
+transpose_counter++;
+inputnotes_transpose=[0,0,0,0,0,0];
 
 }
 
@@ -1226,9 +1309,9 @@ function doubleClicked()
 function inputnextchord()
 { 
   if(c!=totalchords)
-  {chords.splice(c+1,0,chords[chords.length])
-   paintcanvas.splice(c+1,0,paintcanvas[paintcanvas.length])
-   inputbars.splice(c+1,0,inputbars[inputbars.length])
+  {chords.splice(c+1,0,chords[chords.length-1])
+   paintcanvas.splice(c+1,0,paintcanvas[paintcanvas.length-1])
+   inputbars.splice(c+1,0,inputbars[inputbars.length-1])
    totalchords++;
    c=c+1
   }
@@ -1242,6 +1325,7 @@ function deletechord_global()
 { if(totalchords!=0)
   {//chords[c].deletechord();
     chords.splice(c,1);
+   
     
     paintcanvas[c].slider.hide();
     paintcanvas[c].eraser.hide();

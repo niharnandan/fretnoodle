@@ -76,31 +76,31 @@ class  fretclass{
       //Assigning midi values
       switch(this.i)
       {
-        case 5:   this.midival=40+this.j+1;
+        case 5:   this.midival=40+this.j+1+transposed_strings[5];
                   if(this.j==18)
                   this.midival=40
                   break;
 
-        case 4:   this.midival=45+this.j+1;
+        case 4:   this.midival=45+this.j+1+transposed_strings[4];
                    if(this.j==18)
                   this.midival=45
                   break;
 
-        case 3:   this.midival=50+this.j+1;
+        case 3:   this.midival=50+this.j+1+transposed_strings[3];
                   if(this.j==18)
                   this.midival=50
                   break;
         
-        case 2: this.midival=55+this.j+1;
+        case 2: this.midival=55+this.j+1+transposed_strings[2];
                   if(this.j==18)
                   this.midival=55
                 break;
         
-        case 1:   this.midival=59+this.j+1;
+        case 1:   this.midival=59+this.j+1+transposed_strings[1];
                   if(this.j==18)
                   this.midival=59
                   break;
-        case 0:   this.midival=64+this.j+1;
+        case 0:   this.midival=64+this.j+1+transposed_strings[0];
                    if(this.j==18)
                   this.midival=64
                   break;
@@ -492,7 +492,7 @@ class  fretclass{
         }
     }
 
-    rootchange(note_intval_){
+    rootchange(note_intval_,i_,j_){
      for(let p=0;p<this.chordnotes.length;p++)
      {
        if(this.chordnotes[p]==note_intval_)
@@ -500,6 +500,16 @@ class  fretclass{
          let temp=this.chordnotes[0];
          this.chordnotes[0]=note_intval_;
          this.chordnotes[p]=temp;
+
+         let temp2_x=this.inputnotes[0].x;
+         let temp2_y=this.inputnotes[0].y;
+         this.inputnotes[0].x=i_;
+         this.inputnotes[0].y=j_;
+
+         this.inputnotes[p].x=temp2_x;
+         this.inputnotes[p].y=temp2_y;
+
+      
 
        }
      }

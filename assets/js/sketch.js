@@ -748,55 +748,69 @@ function transpose()
       switch(q.x)
       {
         case 0: q.y=q.y-inputnotes_transpose[0] ;
-                if(q.y==-1) q.y=18;
+        /*
+                if(q.y==-1) q.y=11;
                 else if(q.y==18) q.y=6;
                 else if(q.y==17 && inputnotes_transpose[0]==1)q.y=10;  
                 else if(q.y==19 && inputnotes_transpose[0]==-1) q.y=0; 
-                 
+          */       
                 
 
         console.log("reached here1");
                 break;
 
       case 1: q.y=q.y-inputnotes_transpose[1]
-                if(q.y==-1) q.y=18;
+      /*      
+      if(q.y==-1) q.y=18;
                 else if(q.y==18) q.y=6;
                 else if(q.y==17 && inputnotes_transpose[0]==1)
                 q.y=10;   
               //  else if(q.y==19) q.remove();   
                 console.log("reached here2");
+        */
                 break;
       
       case 2: q.y=q.y-inputnotes_transpose[2]
-                if(q.y==-1) q.y=18;   
+          /*      if(q.y==-1) q.y=18;   
                 else if(q.y==18) q.y=6;
                 else if(q.y==17 && inputnotes_transpose[0]==1)
                 q.y=10;   
                // else if(q.y==19) q.remove();        
-                 break;
+            */
+               break;
 
        case 3: q.y=q.y-inputnotes_transpose[3]
-                 if(q.y==-1) q.y=18; 
+                /* if(q.y==-1) q.y=18; 
                  else if(q.y==18) q.y=6;
                  else if(q.y==17 && inputnotes_transpose[0]==1)
                  q.y=10;   
                 // else if(q.y==19) q.remove();           
-                 break;
+              */
+                break;
 
       case 4: q.y=q.y-inputnotes_transpose[4]
-                  if(q.y==-1) q.y=18;  
+      /*            
+      if(q.y==-1) q.y=18;  
                   else if(q.y==18) q.y=6;
                   else if(q.y==17 && inputnotes_transpose[0]==1)
                   q.y=10;         
+        */
                   break;
 
       case 5: q.y=q.y-inputnotes_transpose[5]
-                if(q.y==-1) q.y=18;                   
+      /*    
+      if(q.y==-1) q.y=18;                   
                 else if(q.y==18) q.y=6;
                 else if(q.y==17 && inputnotes_transpose[0]==1)
                 q.y=10;            
+        */
                 break;
       }
+      
+      if(q.y==-1)
+      q.y=11;
+    else if (q.y==19)
+      q.y=7;
 
       chords[i].inputnotes[chords[i].total_chordnotes]= q;
 
@@ -805,8 +819,7 @@ function transpose()
       chords[i].total_chordnotes++;
       
     }
-
-    
+   
   }
   
 }
@@ -955,7 +968,7 @@ function transition(tempamount){
   let radii=40*x_scale;
 
   for(let i=0;i<6;i++)
-    { for(let j=0;j<18;j++)
+    { for(let j=0;j<=18;j++)
       {  
         
 
@@ -1073,7 +1086,7 @@ nav=0;
    temp2_b=temp1-1;
 
   for(let i=0;i<6;i++)
-    { for(let j=0;j<18;j++)
+    { for(let j=0;j<=18;j++)
       {                
         if(chords[temp1].fretobj[i][j].present==1&&chords[temp2_f].fretobj[i][j].present==1&&chords[temp1].fretobj[i][j].isdisable==0&&chords[temp2_f].fretobj[i][j].isdisable==0)
         { //constant bubbles   
@@ -1093,7 +1106,7 @@ nav=0;
    temp2_b=temp1-1;
 
   for(let i=0;i<6;i++)
-    { for(let j=0;j<18;j++)
+    { for(let j=0;j<=18;j++)
       {  
 
         
@@ -1103,7 +1116,7 @@ nav=0;
         let prionum=[]; 
         prionum.push(5); //default assumes node collapse
 
-        for(let k=0;k<18;k++)
+        for(let k=0;k<=18;k++)
         {
           if(k==j)continue;
 
@@ -1203,7 +1216,7 @@ nav=0;
    temp2_b=temp1-1;
 
   for(let i=0;i<6;i++)
-    { for(let j=0;j<18;j++)
+    { for(let j=0;j<=18;j++)
       {                
 
         if((chords[temp1].fretobj[i][j].present==1)&&(chords[temp1].fretobj[i][j].islerpto==0)&&chords[temp1].fretobj[i][j].isdisable==0)

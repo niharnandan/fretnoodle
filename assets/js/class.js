@@ -76,33 +76,33 @@ class  fretclass{
       //Assigning midi values
       switch(this.i)
       {
-        case 5:   this.midival=40+this.j+1+transposed_strings[5];
-                  if(this.j==18)
-                  this.midival=40
+        case 5:   this.midival=40+this.j+transposed_strings[5];
+                 // if(this.j==18)
+                 // this.midival=40
                   break;
 
-        case 4:   this.midival=45+this.j+1+transposed_strings[4];
-                   if(this.j==18)
-                  this.midival=45
+        case 4:   this.midival=45+this.j+transposed_strings[4];
+                   //if(this.j==18)
+                  //this.midival=45
                   break;
 
-        case 3:   this.midival=50+this.j+1+transposed_strings[3];
-                  if(this.j==18)
-                  this.midival=50
+        case 3:   this.midival=50+this.j+transposed_strings[3];
+                  //if(this.j==18)
+                  //this.midival=50
                   break;
         
-        case 2: this.midival=55+this.j+1+transposed_strings[2];
-                  if(this.j==18)
-                  this.midival=55
+        case 2: this.midival=55+this.j+transposed_strings[2];
+                  //if(this.j==18)
+                 // this.midival=55
                 break;
         
-        case 1:   this.midival=59+this.j+1+transposed_strings[1];
-                  if(this.j==18)
-                  this.midival=59
+        case 1:   this.midival=59+this.j+transposed_strings[1];
+                  //if(this.j==18)
+                  //this.midival=59
                   break;
-        case 0:   this.midival=64+this.j+1+transposed_strings[0];
-                   if(this.j==18)
-                  this.midival=64
+        case 0:   this.midival=64+this.j+transposed_strings[0];
+                  // if(this.j==18)
+                  //this.midival=64
                   break;
       }
     }
@@ -318,20 +318,26 @@ class  fretclass{
     for (let i=0;i<6;i++)
     {
       let f_width=orig_width*x_scale;
-      let f_pos=50*x_scale;
+      let f_pos=0;
+     //let f_pos=0;
       this.fretobj[i]=[];
       var j;
       for( j=0;j<=18;j++)
       { 
-          if(j==18)    //for open strings
-          f_pos=0;                                    //making the fret-string objects
-         
+        //  if(j==18)    //for open strings
+       //   f_pos=0;                                    //making the fret-string objects
+         if(j==0)
+         this.fretobj[i].push(new fretclass(assign_noteval(i,j),i,j,f_width/2,f_width/2));
+        else
         this.fretobj[i].push(new fretclass(assign_noteval(i,j),i,j,f_width,f_pos));
+    
          f_pos=f_pos+f_width;
          f_width=f_width-3*x_scale;       
-      }
-     // if(j==18)    //for open strings
-     // this.fretobj[i].push(new fretclass(assign_noteval(i,11),i,j,f_width,0));
+        
+        }
+      //this is just for the open strings
+      //this.fretobj[i].push(new fretclass(assign_noteval(i,0),i,0,f_width,0));
+    
         
     }
   }
@@ -345,7 +351,7 @@ class  fretclass{
          strokeWeight(1);
          if(j==0)
          strokeWeight(2);
-         if(j<18)
+         if(j>0)
          line(this.fretobj[i][j].f_pos,300*y_scale,this.fretobj[i][j].f_pos,550*y_scale);  //drawing the fret lines
            push();
            textFont('Georgia');
@@ -353,16 +359,17 @@ class  fretclass{
            textStyle(NORMAL);
            strokeWeight(1);
            if(j!=0)
-         text(j,this.fretobj[i][j].f_pos-this.fretobj[i][j].f_width/2,590*y_scale);
+         text(j,this.fretobj[i][j].f_pos+this.fretobj[i][j].f_width/2,590*y_scale);
          else
-         text(j,this.fretobj[i][j].f_pos-this.fretobj[i][j].f_width/3.5,590*y_scale);
+         text(j,this.fretobj[i][j].f_pos+this.fretobj[i][j].f_width/3.5,590*y_scale);
 
            pop();
-           if( j==2||j==4||j==6||j==8||j==11||j==13)
+           if( j==3||j==5||j==7||j==9||j==12||j==15)
         { colorMode(RGB,255);  
           fill(255,200,100,10);
             noStroke();
             rect(this.fretobj[i][j].f_pos+this.fretobj[i][j].f_width/4,325*y_scale,this.fretobj[i][j].f_width/2,200*y_scale);
+          
           }
 
         
@@ -467,7 +474,7 @@ class  fretclass{
     {
       for(let i=0;i<6;i++)
         {
-          for(let j=0;j<18;j++)
+          for(let j=1;j<=18;j++)
             {
               
               this.fretobj[i][j].islerpfrom=0;       //flag to determine whether given ellipse will lerp or not
@@ -599,26 +606,26 @@ class  fretclass{
   
   function assign_noteval(i_temp,j_temp)
   {
-    if(j_temp==18)
-    j_temp=11;     //j=18 corresponds to open strings we just want to set open string value same as 12th fret
+   // if(j_temp==18)
+   // j_temp=11;     //j=18 corresponds to open strings we just want to set open string value same as 12th fret
 
    if (i_temp==0)
-     noteval_temp=(8+j_temp+transposed_strings[0])%12;
+     noteval_temp=(7+j_temp+transposed_strings[0])%12;
     
     else if (i_temp==1)
-    noteval_temp=(3+j_temp+transposed_strings[1])%12;
+    noteval_temp=(2+j_temp+transposed_strings[1])%12;
     
      else if (i_temp==2)
-    noteval_temp=(11+j_temp+transposed_strings[2])%12;
+    noteval_temp=(10+j_temp+transposed_strings[2])%12;
     
      else if (i_temp==3)
-    noteval_temp=(6+j_temp+transposed_strings[3])%12;
+    noteval_temp=(5+j_temp+transposed_strings[3])%12;
     
      else if (i_temp==4)
-    noteval_temp=(1+j_temp+transposed_strings[4])%12;
+    noteval_temp=(0+j_temp+transposed_strings[4])%12;
     
      else if (i_temp==5)
-    noteval_temp=(8+j_temp+transposed_strings[5])%12;
+    noteval_temp=(7+j_temp+transposed_strings[5])%12;
     
     return noteval_temp;
     

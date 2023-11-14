@@ -17,6 +17,8 @@ class  fretclass{
     constructor(x,i,j,f_width,f_pos)
     {   
      this.note_intval=x;     //intval stores the note names as integer values to make calculations easier(A=0,A#=1,B=2,C=3,C#=4...etc)
+    this.note=assign_notename(this.note_intval);
+     /*
      if (this.note_intval==0)
      this.note='A';
      else if (this.note_intval==1)
@@ -42,7 +44,7 @@ class  fretclass{
      else if (this.note_intval==11)
      this.note='Ab';
 
-     
+     */
      
      this.i=i;  //string number
      this.j=j;  //fret number

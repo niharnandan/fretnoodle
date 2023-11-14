@@ -50,7 +50,7 @@ html, body {
 
     /* styles.css */
     .dialog-box {
-      display: block;
+      display: none;
       position: absolute;
       top: 20%;
       left: 50%;

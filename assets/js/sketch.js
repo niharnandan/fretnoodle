@@ -426,8 +426,9 @@ WebMidi.inputs[p].addListener('noteon', "all",
         transposed_strings[i]++;
         inputnotes_transpose[i]=1;
         currentTuning[i]=(currentTuning[i]+1)%12
-        updateDisplay(i);
+       
         transpose();
+        updateTransposeDisplay(i);
       });
       decreaseButtons[i].mousePressed(() => {
         inputnotes_transpose[i]=-1;
@@ -436,8 +437,9 @@ WebMidi.inputs[p].addListener('noteon', "all",
         currentTuning[i]=11;
       else
         currentTuning[i]=(currentTuning[i]-1);
-        updateDisplay(i);
+       
         transpose();
+        updateTransposeDisplay(i);
       });
     }
     
@@ -709,8 +711,13 @@ function closeTransposeDialogue() {
   dialogueBox.style("display", "none");
 }
 
-function updateDisplay(index) {
-  valuesDisplay[index].html(transposed_strings[index]);
+function updateTransposeDisplay(index) {
+ /* let displayvalue_int;
+  displayvalue_int=(chords[0].fretobj[index][0].note_intval+transposed_strings[index])%12;
+  if(displayvalue_int==-1)
+  displayvalue_int=10;
+ */
+  valuesDisplay[index].html(chords[0].fretobj[index][0].note);
 }
 
 

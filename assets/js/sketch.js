@@ -192,7 +192,7 @@ function setup()
   button9.style('font-size','20px');
   button9.style('font-family','lato');
   button9.style('color','white');
-  button9.position(570+xoff,19+yoff);
+  button9.position(570+xoff,109+yoff);
   button9.style('border-radius','12px');
 
   

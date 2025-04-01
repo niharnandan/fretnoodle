@@ -72,7 +72,7 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
     }
   }, [onNoteClick]);
   
-  // Create the p5 sketch with all necessary references
+  // Create the p5 sketch with all necessary references and the fullscreen flag
   const memoizedSketch = React.useMemo(() => {
     return createFretboardSketch(
       fretboardStateRef,
@@ -82,7 +82,7 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
       handleNoteClick,
       width,
       height,
-      isFullscreen
+      isFullscreen // Pass the fullscreen flag to control spacing in the sketch
     );
   }, [width, height, isFullscreen, handleNoteClick]);
 
@@ -101,20 +101,22 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
         overflow: 'hidden',
         boxShadow: isFullscreen ? 'none' : 2,
         bgcolor: 'background.default', // Uses theme's background color for container
+        px: 0.75,
+        py: 1
       }}
     >
       {isFullscreen && (
         <Box sx={{ 
           position: 'absolute', 
-          top: '10px', 
-          right: '10px', 
+          top: '5px', // Reduced from 10px
+          right: '5px', // Reduced from 10px
           zIndex: 1001,
           backgroundColor: 'background.paper', // Theme-aware background
-          padding: '5px',
+          padding: '3px', // Reduced from 5px
           borderRadius: '5px',
           display: 'flex',
           flexDirection: 'column',
-          gap: 1,
+          gap: 0.5, // Reduced from 1
           boxShadow: 2,
         }}>
           <FormControlLabel
@@ -123,19 +125,22 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
                 checked={isFullscreen} 
                 onChange={toggleFullscreen} 
                 color="primary"
+                size="small" // Smaller checkbox in fullscreen
               />
             }
             label="Fullscreen Mode"
+            sx={{ margin: '0px', fontSize: '0.85rem' }} // Compact label
           />
           <Button 
-      variant="outlined" 
-      startIcon={<ClearIcon />} 
-      onClick={clearDrawing}
-      color="secondary"
-      size="small"
-    >
-      Clear Drawing
-    </Button>
+            variant="outlined" 
+            startIcon={<ClearIcon />} 
+            onClick={clearDrawing}
+            color="secondary"
+            size="small"
+            sx={{ padding: '2px 8px' }} // Compact button
+          >
+            Clear Drawing
+          </Button>
         </Box>
       )}
       

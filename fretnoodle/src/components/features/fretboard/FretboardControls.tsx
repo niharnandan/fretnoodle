@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { 
   Box, 
   Paper, 
@@ -22,6 +22,7 @@ interface FretboardControlsProps {
   onOpenTuningDialog: () => void;
   onSetCapo: (position: number) => void;
   onHighlightNotes: (notes: string[]) => void;
+  onClearSelectedNotes: () => void; // Added this prop for clearing all selected notes
 }
 
 const FretboardControls: React.FC<FretboardControlsProps> = ({
@@ -29,13 +30,19 @@ const FretboardControls: React.FC<FretboardControlsProps> = ({
   onToggleOption,
   onOpenTuningDialog,
   onSetCapo,
-  onHighlightNotes
+  onHighlightNotes,
+  onClearSelectedNotes
 }) => {
   const { showNotes, showOctaves, showDots, capo } = fretboardState;
   
   const handleCapoChange = (_event: Event, value: number | number[]) => {
     onSetCapo(value as number);
   };
+
+  const clearSelection = useCallback(() => {
+    onHighlightNotes([]);
+    onClearSelectedNotes();
+  }, [])
   
   return (
     <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
@@ -126,7 +133,7 @@ const FretboardControls: React.FC<FretboardControlsProps> = ({
             borderRadius: 1,
             mb: 2
           }}>
-            {fretboardState.tuning.map((note, index) => (
+            {fretboardState.tuning.slice().reverse().map((note, index) => (
               <Chip 
                 key={index} 
                 label={note} 
@@ -162,10 +169,10 @@ const FretboardControls: React.FC<FretboardControlsProps> = ({
               variant="outlined"
               size="small"
               color="warning"
-              onClick={() => onHighlightNotes([])}
+              onClick={clearSelection}
               sx={{ mb: 1 }}
             >
-              Clear Highlights
+              Clear All Selections
             </Button>
           </Box>
         </Grid>

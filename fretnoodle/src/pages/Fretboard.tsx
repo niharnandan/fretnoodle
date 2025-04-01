@@ -86,18 +86,13 @@ const Fretboard: React.FC = () => {
       )}
       
       {(!isMobile || activeTab === 0) && (
-        <Paper elevation={3} sx={{ p: 2, mb: 3, overflowX: 'auto' }}>
-          <Box sx={{ 
-            minWidth: '900px', 
-            maxWidth: '100%'
-          }}>
+        <Paper elevation={3} sx={{ p: 1, mb: 3, overflowX: 'auto' }}>
             <FretboardVisualizer 
               fretboardState={fretboardState}
               width={isMobile ? 900 : 1200}
               height={isMobile ? 250 : 300}
               onNoteClick={toggleNoteSelection}
             />
-          </Box>
         </Paper>
       )}
       
@@ -108,6 +103,7 @@ const Fretboard: React.FC = () => {
           onOpenTuningDialog={handleOpenTuningDialog}
           onSetCapo={setCapo}
           onHighlightNotes={highlightNotes}
+          onClearSelectedNotes={clearSelectedNotes}
         />
       )}
       

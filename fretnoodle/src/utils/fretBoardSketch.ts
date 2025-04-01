@@ -31,6 +31,14 @@ export const createFretboardSketch = (
     let isDrawing = false;
     let currentDrawingPoints: DrawingPoint[] = [];
     
+    // Margins and dimensions
+    let horizontalMargin: number;
+    let verticalMargin: number;
+    let fretboardWidth: number;
+    let fretboardHeight: number;
+    let fretWidth: number;
+    let stringSpacing: number;
+    
     // Create a function to get current theme-aware colors
     const getColors = (): FretboardColors => {
       const isDark = themeRef.current;
@@ -109,19 +117,34 @@ export const createFretboardSketch = (
     // Create colors object
     let colors = getColors();
     
-    // Calculate dimensions
-    let fretboardWidth: number;
-    let fretboardHeight: number;
-    let fretWidth: number;
-    let stringSpacing: number;
-    let margin: number;
-    
     const setupDimensions = () => {
-      margin = p.width * 0.05;
-      fretboardWidth = p.width - margin * 2;
-      fretboardHeight = p.height - margin * 2;
-      fretWidth = fretboardWidth / numFrets;
-      stringSpacing = fretboardHeight / (numStrings - 1);
+      // Set horizontal margin
+      horizontalMargin = isFullscreen ? p.width * 0.04 : p.width * 0.05;
+      
+      // Set number of frets based on mode
+      const displayFrets = isFullscreen ? 24 : config.numFrets; // 24 frets in fullscreen, default in normal mode
+      
+      // Calculate width
+      fretboardWidth = p.width - horizontalMargin * 2;
+      fretWidth = fretboardWidth / displayFrets;
+      
+      // Calculate height and string spacing based on mode
+      if (isFullscreen) {
+        // In fullscreen, compress the strings to 40% of canvas height
+        const effectiveHeight = p.height * 0.3;
+        stringSpacing = effectiveHeight / (numStrings - 1);
+        
+        // Calculate actual fretboard height based on string spacing
+        fretboardHeight = stringSpacing * (numStrings - 1);
+        
+        // Center vertically
+        verticalMargin = (p.height - fretboardHeight) / 2;
+      } else {
+        // Normal mode - use standard spacing
+        verticalMargin = horizontalMargin; // Same margin all around in normal mode
+        fretboardHeight = p.height - verticalMargin * 2;
+        stringSpacing = fretboardHeight / (numStrings - 1);
+      }
     };
     
     p.setup = () => {
@@ -130,11 +153,12 @@ export const createFretboardSketch = (
       } else {
         p.createCanvas(width, height);
       }
+      
+      setupDimensions();
       p.background(colors.background);
       p.textAlign(p.CENTER, p.CENTER);
-      setupDimensions();
       
-      // Initialize with current drawing points - work with a copy to avoid state issues
+      // Initialize with current drawing points
       currentDrawingPoints = [...drawingPointsRef.current];
     };
     
@@ -155,28 +179,32 @@ export const createFretboardSketch = (
       // Update colors in case theme changed
       colors = getColors();
       
+      // Set number of frets based on mode
+      const displayFrets = isFullscreen ? 24 : config.numFrets; // 24 frets in fullscreen
+      
       p.background(colors.background);
       
       // Draw fretboard background
       p.fill(colors.fretboard);
-      p.rect(margin, margin, fretboardWidth, fretboardHeight);
+      p.rect(horizontalMargin, verticalMargin, fretboardWidth, fretboardHeight);
       
       // Draw frets
       p.stroke(colors.fret);
       p.strokeWeight(2);
-      for (let i = 0; i <= numFrets; i++) {
-        const x = margin + i * fretWidth;
-        p.line(x, margin, x, margin + fretboardHeight);
+      for (let i = 0; i <= displayFrets; i++) {
+        const x = horizontalMargin + i * fretWidth;
+        p.line(x, verticalMargin, x, verticalMargin + fretboardHeight);
       }
       
       // Draw fret numbers below the fretboard
       p.noStroke();
       p.fill(colors.text);
-      p.textSize(fretWidth * 0.3);
+      p.textSize(isFullscreen ? fretWidth * 0.25 : fretWidth * 0.3);
       p.textAlign(p.CENTER, p.TOP);
-      for (let i = 1; i <= numFrets; i++) {
-        const x = margin + i * fretWidth;
-        p.text(i.toString(), x - fretWidth/2, margin + fretboardHeight + 25);
+      for (let i = 1; i <= displayFrets; i++) {
+        const x = horizontalMargin + i * fretWidth - fretWidth/2;
+        const textYOffset = isFullscreen ? 15 : 25;
+        p.text(i.toString(), x, verticalMargin + fretboardHeight + textYOffset);
       }
       
       // Reset text alignment
@@ -187,24 +215,42 @@ export const createFretboardSketch = (
         p.fill(colors.dot);
         p.noStroke();
         
-        // Single dots
-        for (const position of config.dotPositions) {
-          if (position <= numFrets) {
-            const x = margin + (position - 0.5) * fretWidth;
-            const y = margin + fretboardHeight / 2;
-            p.ellipse(x, y, fretWidth * 0.4, fretWidth * 0.4);
-          }
+        const dotSize = isFullscreen ? fretWidth * 0.35 : fretWidth * 0.4;
+        
+        // Get extended dot positions for 24 frets
+        const allDotPositions = [...config.dotPositions];
+        if (isFullscreen && !allDotPositions.includes(21)) {
+          allDotPositions.push(21);
+        }
+        if (isFullscreen && !allDotPositions.includes(24)) {
+          allDotPositions.push(24);
         }
         
-        // Double dots
-        for (const position of config.doubleDotPositions) {
-          if (position <= numFrets) {
-            const x = margin + (position - 0.5) * fretWidth;
-            const y1 = margin + fretboardHeight / 3;
-            const y2 = margin + fretboardHeight * 2/3;
-            p.ellipse(x, y1, fretWidth * 0.4, fretWidth * 0.4);
-            p.ellipse(x, y2, fretWidth * 0.4, fretWidth * 0.4);
-          }
+        // Single dots
+        for (const position of allDotPositions) {
+          // Skip positions beyond our display frets
+          if (position > (isFullscreen ? 24 : config.numFrets)) continue;
+          
+          const x = horizontalMargin + (position - 0.5) * fretWidth;
+          const y = verticalMargin + fretboardHeight / 2;
+          p.ellipse(x, y, dotSize, dotSize);
+        }
+        
+        // Double dots - including 24th fret in fullscreen mode
+        const doubleDotPositions = [...config.doubleDotPositions];
+        if (isFullscreen && !doubleDotPositions.includes(24)) {
+          doubleDotPositions.push(24);
+        }
+        
+        for (const position of doubleDotPositions) {
+          // Skip positions beyond our display frets
+          if (position > (isFullscreen ? 24 : config.numFrets)) continue;
+          
+          const x = horizontalMargin + (position - 0.5) * fretWidth;
+          const y1 = verticalMargin + fretboardHeight / 3;
+          const y2 = verticalMargin + fretboardHeight * 2/3;
+          p.ellipse(x, y1, dotSize, dotSize);
+          p.ellipse(x, y2, dotSize, dotSize);
         }
       }
       
@@ -212,34 +258,26 @@ export const createFretboardSketch = (
       if (capo > 0 && capo <= numFrets) {
         p.fill(colors.capo);
         p.noStroke();
-        const capoX = margin + (capo - 0.5) * fretWidth;
-        p.rect(capoX - fretWidth * 0.2, margin - 10, fretWidth * 0.4, fretboardHeight + 20, 5);
+        const capoX = horizontalMargin + (capo - 0.5) * fretWidth;
+        p.rect(capoX - fretWidth * 0.2, verticalMargin - 10, fretWidth * 0.4, fretboardHeight + 20, 5);
       }
       
       // Draw strings
       for (let i = 0; i < numStrings; i++) {
-        const y = margin + i * stringSpacing;
+        const y = verticalMargin + i * stringSpacing;
         
         // String thickness varies (thickest at the bottom)
         const thickness = p.map(i, 0, numStrings - 1, 1, 3);
         p.stroke(colors.string);
         p.strokeWeight(thickness);
-        p.line(margin, y, margin + fretboardWidth, y);
-        
-        // Draw open string note names
-        if (showNotes) {
-          p.fill(colors.text);
-          p.noStroke();
-          p.textSize(fretWidth * 0.3);
-          p.text(tuning[i], margin - fretWidth * 0.5, y);
-        }
+        p.line(horizontalMargin, y, horizontalMargin + fretboardWidth, y);
       }
       
       // Function to draw notes on the fretboard
       const drawNotes = () => {
         if (!showNotes) return;
         
-        p.textSize(fretWidth * 0.25);
+        p.textSize(isFullscreen ? fretWidth * 0.2 : fretWidth * 0.25);
         
         // Get mouse position to detect hover
         const mouseX = p.mouseX;
@@ -249,20 +287,36 @@ export const createFretboardSketch = (
         clickedString = -1;
         clickedFret = -1;
         
+        // Use displayFrets based on mode
+        const displayFrets = isFullscreen ? 24 : config.numFrets;
+        
         for (let string = 0; string < numStrings; string++) {
           const openNote = tuning[string];
-          const stringY = margin + string * stringSpacing;
+          const stringY = verticalMargin + string * stringSpacing;
           
-          for (let fret = 0; fret <= numFrets; fret++) {
-            // Skip the open string notes (already drawn)
-            if (fret === 0) continue;
+          // Loop through all frets including 0 (open notes)
+          for (let fret = 0; fret <= displayFrets; fret++) {
+            // For fretted notes, apply capo logic
+            if (fret > 0) {
+              // Calculate actual fret number considering capo
+              const effectiveFret = fret - capo;
+              if (effectiveFret <= 0) continue;
+            }
             
-            // Calculate actual fret number considering capo
-            const effectiveFret = fret - capo;
-            if (effectiveFret <= 0) continue;
+            // Calculate position and note based on whether it's an open note or fretted note
+            let fretX, note, effectiveFret;
             
-            const fretX = margin + (fret - 0.5) * fretWidth;
-            const note = getNoteAtFret(openNote, effectiveFret);
+            if (fret === 0) {
+              // Position open notes slightly to the left of the fretboard
+              fretX = horizontalMargin - fretWidth * 0.4;
+              note = openNote; // Open note is just the tuning note
+              effectiveFret = 0;
+            } else {
+              // Regular notes on the fretboard
+              fretX = horizontalMargin + (fret - 0.5) * fretWidth;
+              effectiveFret = fret - capo;
+              note = getNoteAtFret(openNote, effectiveFret);
+            }
             
             // Check if this note is already selected
             const isSelected = selectedNotes.some(
@@ -271,18 +325,29 @@ export const createFretboardSketch = (
             
             // Determine if this note should be highlighted
             const isHighlighted = highlightedNotes.includes(note) || 
-                                highlightedFrets.includes(fret);
+                               (fret > 0 && highlightedFrets.includes(fret));
             
-            // Check if mouse is hovering over this note (only when not in drawing mode)
-            // Adjust hover detection radius to match the smaller circle size
-            // Define the area between frets for this string
-            const fretStartX = margin + (fret - 1) * fretWidth;
-            const fretEndX = margin + fret * fretWidth;
-            const isHovered = !drawingModeRef.current &&
-                             mouseY >= stringY - 10 &&
-                             mouseY <= stringY + 10 &&
-                             mouseX >= fretStartX &&
-                             mouseX <= fretEndX;
+            // Adjust hover detection settings
+            const hoverRadius = isFullscreen ? 8 : 10;
+            let isHovered = false;
+            
+            if (fret === 0) {
+              // Hover detection for open notes
+              isHovered = !drawingModeRef.current &&
+                         mouseY >= stringY - hoverRadius &&
+                         mouseY <= stringY + hoverRadius &&
+                         mouseX >= fretX - hoverRadius &&
+                         mouseX <= fretX + hoverRadius;
+            } else {
+              // Hover detection for regular notes
+              const fretStartX = horizontalMargin + (fret - 1) * fretWidth;
+              const fretEndX = horizontalMargin + fret * fretWidth;
+              isHovered = !drawingModeRef.current &&
+                         mouseY >= stringY - hoverRadius &&
+                         mouseY <= stringY + hoverRadius &&
+                         mouseX >= fretStartX &&
+                         mouseX <= fretEndX;
+            }
             
             // If mouse is hovering and not in drawing mode, store the string and fret for potential clicks
             if (isHovered && !drawingModeRef.current) {
@@ -290,7 +355,7 @@ export const createFretboardSketch = (
               clickedFret = fret;
             }
             
-            // Draw note circle with appropriate color - smaller size
+            // Draw note circle with appropriate color
             if (isSelected) {
               p.fill(colors.selected);
             } else if (isHovered) {
@@ -303,19 +368,30 @@ export const createFretboardSketch = (
             }
             
             p.noStroke();
-            // Decrease circle size from 0.7 to 0.5
-            p.ellipse(fretX, stringY, fretWidth * 0.6, fretWidth * 0.6);
+            const noteSize = isFullscreen ? fretWidth * 0.5 : fretWidth * 0.6;
+            p.ellipse(fretX, stringY, noteSize, noteSize);
             
-            // Draw note name to the left of the circle
+            // Draw note name with adjusted position based on fret
             p.fill(isSelected || isHovered ? colors.hover : colors.text);
-            p.text(note, fretX - fretWidth * 0.4, stringY);
+            
+            if (fret === 0) {
+              // For open notes, position the text to the left of the circle
+              const textOffset = fretWidth * 0.35;
+              // Use regular text alignment but adjust the position
+              p.text(note, fretX - textOffset, stringY);
+            } else {
+              // For regular notes, position as before
+              const noteTextOffset = isFullscreen ? fretWidth * 0.35 : fretWidth * 0.4;
+              p.text(note, fretX - noteTextOffset, stringY);
+            }
             
             // Draw octave if enabled
-            if (showOctaves) {
+            if (showOctaves && fret > 0) { // Only show octaves for fretted notes
               const octave = 4 - Math.floor(string / 2); // Simplified octave calculation
-              p.textSize(fretWidth * 0.2);
-              p.text(octave.toString(), fretX, stringY + fretWidth * 0.25);
-              p.textSize(fretWidth * 0.4); // Reset text size
+              p.textSize(isFullscreen ? fretWidth * 0.15 : fretWidth * 0.2);
+              const octaveOffset = isFullscreen ? fretWidth * 0.2 : fretWidth * 0.25;
+              p.text(octave.toString(), fretX, stringY + octaveOffset);
+              p.textSize(isFullscreen ? fretWidth * 0.2 : fretWidth * 0.4);
             }
           }
         }
@@ -324,18 +400,15 @@ export const createFretboardSketch = (
       // Draw chord name if detected
       const drawChordName = () => {
         if (detectedChord && selectedNotes.length >= 3 && !drawingModeRef.current && isFullscreen) {
-          // Adjust background color based on theme
           p.fill(themeRef.current ? 50 : 0, themeRef.current ? 50 : 0, themeRef.current ? 50 : 0, 200);
           p.noStroke();
-          p.rect(p.width - 400, 10, 190, 40, 5);
+          p.rect(p.width - 370, 10, 190, 30, 5);
           
-          // Text is white in both modes for contrast
           p.fill(255);
-          p.textSize(18);
+          p.textSize(16);
           p.textAlign(p.CENTER, p.CENTER);
-          p.text(detectedChord, p.width - 305, 30);
+          p.text(detectedChord, p.width - 275, 25);
           
-          // Reset text alignment
           p.textAlign(p.CENTER, p.CENTER);
         }
       };
@@ -367,30 +440,30 @@ export const createFretboardSketch = (
       }
       
       if (isFullscreen){
-        // Theme-aware UI elements
+        // Theme-aware UI elements - smaller and more compact in fullscreen
         const bgColor = themeRef.current ? 
           p.color(50, 50, 50, 200) : p.color(0, 0, 0, 200);
         
         if (drawingModeRef.current) {
           p.fill(bgColor);
           p.noStroke();
-          p.rect(10, 10, 160, 40, 5);
+          p.rect(10, 10, 140, 30, 5);
           
           p.fill(255);
-          p.textSize(16);
+          p.textSize(14);
           p.textAlign(p.LEFT, p.CENTER);
-          p.text("Drawing Mode On", 20, 30);
+          p.text("Drawing Mode On", 15, 25);
           p.textAlign(p.CENTER, p.CENTER);
         }
         else {
           p.fill(bgColor);
           p.noStroke();
-          p.rect(10, 10, 250, 40, 5);
+          p.rect(10, 10, 220, 30, 5);
           
           p.fill(255);
-          p.textSize(16);
+          p.textSize(14);
           p.textAlign(p.LEFT, p.CENTER);
-          p.text("Press d to enter Drawing Mode", 20, 30);
+          p.text("Press d to enter Drawing Mode", 15, 25);
           p.textAlign(p.CENTER, p.CENTER);
         }
       }
@@ -415,8 +488,8 @@ export const createFretboardSketch = (
         drawingPointsRef.current = [...drawingPointsRef.current, newPoint];
         
         return false; // Prevent default behavior
-      } else if (!isDrawingModeActive && clickedString >= 0 && clickedFret > 0) {
-        // Only allow note clicking when not in drawing mode
+      } else if (!isDrawingModeActive && clickedString >= 0 && clickedFret >= 0) {
+        // Allow note clicking when not in drawing mode - now including open notes (fret = 0)
         // Call the handler directly instead of using the prop
         handleNoteClick(clickedString, clickedFret);
         return false; // Prevent default behavior

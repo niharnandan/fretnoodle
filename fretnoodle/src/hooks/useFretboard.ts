@@ -7,7 +7,7 @@ import {
   getPrevNote,
   getNoteAtFret
 } from '../types/fretboard';
-import { commonChords } from '../types/commonChords';
+import allChords from '../types/allChords';
 
 const useFretboard = () => {
   const [fretboardState, setFretboardState] = useState<FretboardState>({
@@ -19,7 +19,7 @@ const useFretboard = () => {
     detectedChord: null,
     showNotes: true,
     showOctaves: false,
-    showDots: true
+    showDots: false
   });
 
   // Change the tuning of a specific string
@@ -119,7 +119,7 @@ const useFretboard = () => {
     const uniqueNotes = Array.from(new Set(notes)).sort();
     
     // Check against common chords
-    for (const chord of commonChords) {
+    for (const chord of allChords) {
       // Check if the selected notes match the chord notes
       const allChordNotesPresent = chord.notes.every(note => 
         uniqueNotes.includes(note)

@@ -161,7 +161,7 @@ const FretboardControls: React.FC<FretboardControlsProps> = ({
             <Button
               variant="outlined"
               size="small"
-              color="secondary"
+              color="warning"
               onClick={() => onHighlightNotes([])}
               sx={{ mb: 1 }}
             >

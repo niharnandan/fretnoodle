@@ -1,3 +1,5 @@
+import p5 from "p5";
+
 // Types for fretboard and guitar
 export interface Note {
   name: string;
@@ -11,9 +13,23 @@ export interface GuitarString {
   notes: Note[];   // Notes along the fretboard for this string
 }
 
+export interface DrawingPoint {
+  x: number;
+  y: number;
+  isDragging: boolean;
+  inFullscreen: boolean;
+}
+
 export interface Chord {
   name: string;
   positions: number[];  // Fret positions for each string (-1 means don't play)
+}
+
+export interface FretboardVisualizerProps {
+  fretboardState: FretboardState;
+  width?: number;
+  height?: number;
+  onNoteClick?: (stringIndex: number, fret: number) => void;
 }
 
 export interface FretboardState {
@@ -73,3 +89,18 @@ export const detectChord = (notes: string[]): string | null => {
   // This function will be used by the hook
   return null;
 };
+
+export interface FretboardColors {
+  background: p5.Color;
+  fretboard: p5.Color;
+  fret: p5.Color;
+  string: p5.Color;
+  dot: p5.Color;
+  capo: p5.Color;
+  note: p5.Color;
+  highlight: p5.Color;
+  selected: p5.Color;
+  hover: p5.Color;
+  text: p5.Color;
+  drawLine: p5.Color;
+}

@@ -58,18 +58,18 @@ const Fretboard: React.FC = () => {
         Explore the guitar fretboard, visualize notes, and experiment with different tunings
       </Typography>
       
-      {/* Display detected chord if any */}
-      {fretboardState.detectedChord && (
         <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
           <Chip 
-            label={`Detected Chord: ${fretboardState.detectedChord}`} 
+            label={
+              fretboardState.detectedChord
+              ? `Detected Chord: ${fretboardState.detectedChord}`
+              : 'If notes match up to a chord, it\'ll show up here!'} 
             color="primary" 
             variant="filled" 
             size='medium'
             sx={{ fontSize: '1.1rem', py: 1 }}
           />
         </Box>
-      )}
       
       {isMobile && (
         <Tabs

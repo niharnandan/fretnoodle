@@ -80,47 +80,54 @@ const TuningDialog: React.FC<TuningDialogProps> = ({
           Individual String Tuning
         </Typography>
         
-        {tuning.map((note, index) => (
-          <Grid 
-            container 
-            spacing={2} 
-            alignItems="center" 
-            key={index} 
-            sx={{ mb: 1 }}
-          >
-            <Grid>
-              <Typography variant="body1">
-                String {6 - index}: {index === 0 ? '(thickest)' : index === 5 ? '(thinnest)' : ''}
-              </Typography>
+        {/* Reverse the mapping order to have thinnest string at top */}
+        {[...tuning].reverse().map((note, index) => {
+          // Calculate the actual string number (1-6) and the actual index in the tuning array
+          const stringNumber = index + 1; // String 1 (thinnest) to String 6 (thickest)
+          const actualIndex = tuning.length - 1 - index; // Convert to original array index
+          
+          return (
+            <Grid 
+              container 
+              spacing={2} 
+              alignItems="center" 
+              key={actualIndex} 
+              sx={{ mb: 1 }}
+            >
+              <Grid>
+                <Typography variant="body1">
+                  String {stringNumber}: {stringNumber === 1 ? '(thinnest)' : stringNumber === 6 ? '(thickest)' : ''}
+                </Typography>
+              </Grid>
+              
+              <Grid>
+                <Button 
+                  variant="outlined" 
+                  size="small"
+                  onClick={() => onChangeTuning(actualIndex, 'down')}
+                >
+                  <RemoveIcon />
+                </Button>
+              </Grid>
+              
+              <Grid>
+                <Typography variant="h6" align="center">
+                  {note}
+                </Typography>
+              </Grid>
+              
+              <Grid>
+                <Button 
+                  variant="outlined" 
+                  size="small"
+                  onClick={() => onChangeTuning(actualIndex, 'up')}
+                >
+                  <AddIcon />
+                </Button>
+              </Grid>
             </Grid>
-            
-            <Grid>
-              <Button 
-                variant="outlined" 
-                size="small"
-                onClick={() => onChangeTuning(index, 'down')}
-              >
-                <RemoveIcon />
-              </Button>
-            </Grid>
-            
-            <Grid>
-              <Typography variant="h6" align="center">
-                {note}
-              </Typography>
-            </Grid>
-            
-            <Grid>
-              <Button 
-                variant="outlined" 
-                size="small"
-                onClick={() => onChangeTuning(index, 'up')}
-              >
-                <AddIcon />
-              </Button>
-            </Grid>
-          </Grid>
-        ))}
+          );
+        })}
       </DialogContent>
       
       <DialogActions>

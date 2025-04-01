@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Box } from '@mui/material';
 import p5 from 'p5';
 
@@ -9,35 +9,48 @@ interface P5CanvasProps {
   id: string;
 }
 
-const P5Canvas: React.FC<P5CanvasProps> = ({ 
+const P5Canvas: React.FC<P5CanvasProps> = React.memo(({ 
   sketch, 
   width = '100%', 
   height = 'auto',
   id
 }) => {
-  // Use useEffect to create the p5 instance after the component is mounted
-  React.useEffect(() => {
-    // Initialize p5 instance
-    let p5Instance: p5 | null = null;
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const sketchInstance = useRef<p5 | null>(null);
+  
+  useEffect(() => {
+    const container = containerRef.current;
     
-    // Get the container element
-    const container = document.getElementById(id);
-    
-    if (container) {
-      p5Instance = new p5(sketch, container);
+    if (container && !sketchInstance.current) {
+      sketchInstance.current = new p5(sketch, container);
     }
     
-    // Cleanup function
     return () => {
-      if (p5Instance) {
-        p5Instance.remove();
+      if (sketchInstance.current) {
+        sketchInstance.current.remove();
+        sketchInstance.current = null;
       }
     };
-  }, [sketch, id]); // Dependencies: sketch function and container id
+  }, [sketch]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (sketchInstance.current) {
+        sketchInstance.current.windowResized();
+      }
+    };
+    
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   return (
     <Box
       id={id}
+      ref={containerRef}
       sx={{
         width,
         height,
@@ -47,6 +60,6 @@ const P5Canvas: React.FC<P5CanvasProps> = ({
       }}
     />
   );
-};
+});
 
 export default P5Canvas;

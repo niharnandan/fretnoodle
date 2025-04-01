@@ -12,9 +12,19 @@ import Fretboard from './pages/Fretboard';
 const App: React.FC = () => {
   return (
     <Router>
-      <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+        {/* Fixed Navbar */}
         <Navbar />
-        <Box component="main" sx={{ flexGrow: 1 }}>
+
+        {/* Scrollable content below the navbar */}
+        <Box
+          component="main"
+          sx={{
+            flexGrow: 1,
+            overflowY: 'auto', // Enables scrolling only in this section
+            mt: '64px', // Ensures content starts below the navbar
+          }}
+        >
           <Routes>
             <Route path="/" element={<></>} />
             <Route path="/tuner" element={<></>} />
@@ -23,10 +33,12 @@ const App: React.FC = () => {
             <Route path="/fretboard" element={<Fretboard />} />
           </Routes>
         </Box>
+
         <Footer />
       </Box>
     </Router>
   );
 };
+
 
 export default App;

@@ -96,7 +96,7 @@ const TuningDialog: React.FC<TuningDialogProps> = ({
             >
               <Grid>
                 <Typography variant="body1">
-                  String {stringNumber}: {stringNumber === 1 ? '(thinnest)' : stringNumber === 6 ? '(thickest)' : ''}
+                  String {7-stringNumber}: {stringNumber === 1 ? '(thickest)' : stringNumber === 6 ? '(thinnest)' : ''}
                 </Typography>
               </Grid>
               

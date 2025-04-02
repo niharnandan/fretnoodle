@@ -118,8 +118,16 @@ const FretboardControls: React.FC<FretboardControlsProps> = ({
             {capo === 0 ? 'No Capo' : `Capo on fret ${capo}`}
           </Typography>
         </Grid>
-        
         <Grid>
+        <Button
+              variant="outlined"
+              size="small"
+              color="warning"
+              onClick={clearSelection}
+              sx={{ mb: 1 }}
+            >
+              Clear All Selections
+            </Button>
           <Typography variant="subtitle1" gutterBottom>
             Current Tuning
           </Typography>
@@ -164,16 +172,6 @@ const FretboardControls: React.FC<FretboardControlsProps> = ({
                 {chord.name}
               </Button>
             ))}
-            
-            <Button
-              variant="outlined"
-              size="small"
-              color="warning"
-              onClick={clearSelection}
-              sx={{ mb: 1 }}
-            >
-              Clear All Selections
-            </Button>
           </Box>
         </Grid>
       </Grid>

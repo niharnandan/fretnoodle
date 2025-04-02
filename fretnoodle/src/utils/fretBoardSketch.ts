@@ -5,6 +5,7 @@ import {
   DrawingPoint,
   FretboardColors
 } from '../types/fretboard';
+import { getIntervalName } from '../utils/interval-utils';
 
 // Create a sketch factory function that accepts refs and handlers
 export const createFretboardSketch = (
@@ -99,6 +100,9 @@ export const createFretboardSketch = (
           isDark ? 245 : 243
         ),
         
+        // Root note: bright red for visibility
+        root: p.color(255, 0, 0, 255),
+        
         // Hover: uses theme's orange/amber accent
         hover: p.color(255, 152, 0, 150),
         
@@ -170,6 +174,8 @@ export const createFretboardSketch = (
         highlightedNotes,
         highlightedFrets,
         selectedNotes,
+        rootNote,
+        showIntervals,
         detectedChord,
         showNotes,
         showOctaves,
@@ -323,6 +329,14 @@ export const createFretboardSketch = (
               (n: { string: number; fret: number; }) => n.string === string && n.fret === fret
             );
             
+            // Check if this note is the root note
+            const isRoot = rootNote && rootNote.string === string && rootNote.fret === fret;
+            
+            // Determine if this is the reference note for intervals
+            const isReferenceForIntervals = rootNote ? 
+                (rootNote.string === string && rootNote.fret === fret) :
+                (selectedNotes.length > 0 && selectedNotes[0].string === string && selectedNotes[0].fret === fret);
+            
             // Determine if this note should be highlighted
             const isHighlighted = highlightedNotes.includes(note) || 
                                (fret > 0 && highlightedFrets.includes(fret));
@@ -356,7 +370,10 @@ export const createFretboardSketch = (
             }
             
             // Draw note circle with appropriate color
-            if (isSelected) {
+            if (isReferenceForIntervals) {
+              // Use root color for both designated root and first selected note if no root is set
+              p.fill(colors.root);
+            } else if (isSelected) {
               p.fill(colors.selected);
             } else if (isHovered) {
               p.fill(colors.hover);
@@ -371,18 +388,38 @@ export const createFretboardSketch = (
             const noteSize = isFullscreen ? fretWidth * 0.5 : fretWidth * 0.6;
             p.ellipse(fretX, stringY, noteSize, noteSize);
             
-            // Draw note name with adjusted position based on fret
-            p.fill(isSelected || isHovered ? colors.hover : colors.text);
+            // Always draw the note name first
+            p.fill(colors.text);
             
             if (fret === 0) {
               // For open notes, position the text to the left of the circle
               const textOffset = fretWidth * 0.35;
-              // Use regular text alignment but adjust the position
               p.text(note, fretX - textOffset, stringY);
             } else {
               // For regular notes, position as before
               const noteTextOffset = isFullscreen ? fretWidth * 0.35 : fretWidth * 0.4;
               p.text(note, fretX - noteTextOffset, stringY);
+            }
+            
+            // If showing intervals and the note is selected, draw the interval inside the circle
+            if (showIntervals && isSelected) {
+              p.fill(p.color(255, 255, 255));
+              
+              // Determine what interval text to display
+              let intervalText = "R";
+              if (!isReferenceForIntervals) {
+                // Get the reference note (root note or first selected note)
+                const referenceNote = rootNote ? 
+                  rootNote.note : 
+                  (selectedNotes.length > 0 ? selectedNotes[0].note : null);
+                
+                if (referenceNote) {
+                  intervalText = getIntervalName(referenceNote, note);
+                }
+              }
+              
+              // Draw interval text in the center of the circle
+              p.text(intervalText, fretX, stringY);
             }
             
             // Draw octave if enabled
@@ -391,7 +428,7 @@ export const createFretboardSketch = (
               p.textSize(isFullscreen ? fretWidth * 0.15 : fretWidth * 0.2);
               const octaveOffset = isFullscreen ? fretWidth * 0.2 : fretWidth * 0.25;
               p.text(octave.toString(), fretX, stringY + octaveOffset);
-              p.textSize(isFullscreen ? fretWidth * 0.2 : fretWidth * 0.4);
+              p.textSize(isFullscreen ? fretWidth * 0.2 : fretWidth * 0.25);
             }
           }
         }
@@ -412,12 +449,33 @@ export const createFretboardSketch = (
           p.textAlign(p.CENTER, p.CENTER);
         }
       };
+
+      // Draw intervals mode UI element if intervals are shown and in fullscreen
+      const drawIntervalsUI = () => {
+        if (showIntervals && isFullscreen) {
+          const bgColor = themeRef.current ? 
+            p.color(50, 50, 50, 200) : p.color(0, 0, 0, 200);
+          
+          p.fill(bgColor);
+          p.noStroke();
+          p.rect(10, 50, 140, 30, 5);
+          
+          p.fill(255);
+          p.textSize(14);
+          p.textAlign(p.LEFT, p.CENTER);
+          p.text("Intervals Mode On", 15, 65);
+          p.textAlign(p.CENTER, p.CENTER);
+        }
+      };
       
       // Draw notes on the fretboard if enabled
       drawNotes();
       
       // Draw detected chord name
       drawChordName();
+
+      // Draw intervals mode UI
+      drawIntervalsUI();
       
       // Draw all saved drawing points - ONLY IN FULLSCREEN MODE
       if (isFullscreen && currentDrawingPoints.length > 0) {

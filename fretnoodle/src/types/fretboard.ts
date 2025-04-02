@@ -13,6 +13,22 @@ export interface GuitarString {
   notes: Note[];   // Notes along the fretboard for this string
 }
 
+export interface FretboardColors {
+  background: p5.Color;
+  fretboard: p5.Color;
+  fret: p5.Color;
+  string: p5.Color;
+  dot: p5.Color;
+  capo: p5.Color;
+  note: p5.Color;
+  highlight: p5.Color;
+  selected: p5.Color;
+  hover: p5.Color;
+  text: p5.Color;
+  drawLine: p5.Color;
+  root: p5.Color; // Added for root note color
+}
+
 export interface DrawingPoint {
   x: number;
   y: number;
@@ -38,6 +54,8 @@ export interface FretboardState {
   highlightedNotes: string[];
   highlightedFrets: number[];
   selectedNotes: {string: number, fret: number, note: string}[];
+  rootNote: { string: number, fret: number, note: string } | null; // Add root note tracking
+  showIntervals: boolean; // Add flag to toggle between note names and intervals
   detectedChord: string | null;
   showNotes: boolean;
   showOctaves: boolean;
@@ -103,4 +121,5 @@ export interface FretboardColors {
   hover: p5.Color;
   text: p5.Color;
   drawLine: p5.Color;
+  root: p5.Color; // Added for root note color
 }

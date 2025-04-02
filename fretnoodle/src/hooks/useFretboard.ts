@@ -16,6 +16,8 @@ const useFretboard = () => {
     highlightedNotes: [],
     highlightedFrets: [],
     selectedNotes: [],
+    rootNote: null, // Initialize root note as null
+    showIntervals: true, // Default to showing intervals
     detectedChord: null,
     showNotes: true,
     showOctaves: false,
@@ -104,7 +106,7 @@ const useFretboard = () => {
   }, []);
 
   // Toggle display options
-  const toggleOption = useCallback((option: 'showNotes' | 'showOctaves' | 'showDots') => {
+  const toggleOption = useCallback((option: 'showNotes' | 'showOctaves' | 'showDots' | 'showIntervals') => {
     setFretboardState(prevState => ({
       ...prevState,
       [option]: !prevState[option]
@@ -153,18 +155,30 @@ const useFretboard = () => {
       );
       
       let newSelectedNotes;
+      let newRootNote = prevState.rootNote;
+      
       if (existingIndex >= 0) {
         // Remove the note if already selected
         newSelectedNotes = [
           ...prevState.selectedNotes.slice(0, existingIndex),
           ...prevState.selectedNotes.slice(existingIndex + 1)
         ];
+        
+        // If we're removing the root note, reset it to null
+        if (prevState.rootNote && 
+            prevState.rootNote.string === stringIndex && 
+            prevState.rootNote.fret === fret) {
+          newRootNote = null;
+        }
       } else {
         // Add the note if not selected
-        newSelectedNotes = [
-          ...prevState.selectedNotes,
-          { string: stringIndex, fret, note }
-        ];
+        const newNote = { string: stringIndex, fret, note };
+        newSelectedNotes = [...prevState.selectedNotes, newNote];
+        
+        // Only set this as root if there are no notes selected yet
+        if (prevState.selectedNotes.length === 0) {
+          newRootNote = newNote;
+        }
       }
       
       // Get unique notes for chord detection
@@ -176,6 +190,7 @@ const useFretboard = () => {
       return {
         ...prevState,
         selectedNotes: newSelectedNotes,
+        rootNote: newRootNote,
         detectedChord
       };
     });
@@ -186,8 +201,34 @@ const useFretboard = () => {
     setFretboardState(prevState => ({
       ...prevState,
       selectedNotes: [],
+      rootNote: null,
       detectedChord: null
     }));
+  }, []);
+
+  // Set a specific note as the root note
+  const setRootNote = useCallback((stringIndex: number, fret: number) => {
+    setFretboardState(prevState => {
+      // Get the actual note at this position
+      const openNote = prevState.tuning[stringIndex];
+      const effectiveFret = Math.max(0, fret - prevState.capo);
+      const note = getNoteAtFret(openNote, effectiveFret);
+      
+      // Make sure this note is already selected
+      const isSelected = prevState.selectedNotes.some(
+        selection => selection.string === stringIndex && selection.fret === fret
+      );
+      
+      // Only set as root if it's selected
+      if (isSelected) {
+        return {
+          ...prevState,
+          rootNote: { string: stringIndex, fret, note }
+        };
+      }
+      
+      return prevState;
+    });
   }, []);
 
   return {
@@ -200,7 +241,8 @@ const useFretboard = () => {
     highlightFrets,
     toggleOption,
     toggleNoteSelection,
-    clearSelectedNotes
+    clearSelectedNotes,
+    setRootNote
   };
 };
 

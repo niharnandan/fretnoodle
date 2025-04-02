@@ -121,7 +121,7 @@ roots.forEach(root => {
       return;
     }
     
-    const chordName = suffix === 'Minor' ? `${root} m` : `${root} ${suffix}`;
+    const chordName = `${root} ${suffix}`;
     allChords.push({
       name: chordName,
       notes: generateChordNotes(root, intervals)

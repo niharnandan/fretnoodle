@@ -16,12 +16,14 @@ import FretboardVisualizer from '../components/features/fretboard/FretboardVisua
 import FretboardControls from '../components/features/fretboard/FretboardControls';
 import TuningDialog from '../components/features/fretboard/TuningDialog';
 import useFretboard from '../hooks/useFretboard';
+import { FretboardState } from '../types/fretboard';
 
 const Fretboard: React.FC = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [tuningDialogOpen, setTuningDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
+  const [lastLoadedState, setLastLoadedState] = useState<FretboardState | null>(null);
   
   const {
     fretboardState,
@@ -46,6 +48,54 @@ const Fretboard: React.FC = () => {
   
   const handleCloseTuningDialog = () => {
     setTuningDialogOpen(false);
+  };
+  
+  // Handle loading a state from the fullscreen visualizer
+  const handleStateLoad = (loadedState: FretboardState) => {
+    // Store the loaded state
+    setLastLoadedState(loadedState);
+    
+    // Apply the loaded state to the current fretboard
+    // This will update all required state properties at once
+    Object.keys(loadedState).forEach(key => {
+      const typedKey = key as keyof FretboardState;
+      switch(typedKey) {
+        case 'tuning':
+          // Apply each tuning note individually to ensure full sync
+          loadedState.tuning.forEach((note, index) => {
+            while (fretboardState.tuning[index] !== note) {
+              changeTuning(index, 'up');
+            }
+          });
+          break;
+        case 'capo':
+          setCapo(loadedState.capo);
+          break;
+        case 'highlightedNotes':
+          highlightNotes(loadedState.highlightedNotes);
+          break;
+        case 'highlightedFrets':
+          highlightFrets(loadedState.highlightedFrets);
+          break;
+        case 'selectedNotes':
+          // Clear existing notes and add new ones
+          clearSelectedNotes();
+          loadedState.selectedNotes.forEach(note => {
+            toggleNoteSelection(note.string, note.fret);
+          });
+          break;
+        case 'showIntervals':
+        case 'showNotes':
+        case 'showOctaves':
+        case 'showDots':
+          // Only toggle if the current value doesn't match the loaded state
+          if (fretboardState[typedKey] !== loadedState[typedKey]) {
+            toggleOption(typedKey);
+          }
+          break;
+        // Root note and detectedChord are derived from selectedNotes, so we don't need to set them
+      }
+    });
   };
   
   return (
@@ -92,6 +142,7 @@ const Fretboard: React.FC = () => {
               width={isMobile ? 900 : 1200}
               height={isMobile ? 250 : 300}
               onNoteClick={toggleNoteSelection}
+              onStateLoad={handleStateLoad}
             />
         </Paper>
       )}

@@ -449,33 +449,12 @@ export const createFretboardSketch = (
           p.textAlign(p.CENTER, p.CENTER);
         }
       };
-
-      // Draw intervals mode UI element if intervals are shown and in fullscreen
-      const drawIntervalsUI = () => {
-        if (showIntervals && isFullscreen) {
-          const bgColor = themeRef.current ? 
-            p.color(50, 50, 50, 200) : p.color(0, 0, 0, 200);
-          
-          p.fill(bgColor);
-          p.noStroke();
-          p.rect(10, 50, 140, 30, 5);
-          
-          p.fill(255);
-          p.textSize(14);
-          p.textAlign(p.LEFT, p.CENTER);
-          p.text("Intervals Mode On", 15, 65);
-          p.textAlign(p.CENTER, p.CENTER);
-        }
-      };
       
       // Draw notes on the fretboard if enabled
       drawNotes();
       
       // Draw detected chord name
       drawChordName();
-
-      // Draw intervals mode UI
-      drawIntervalsUI();
       
       // Draw all saved drawing points - ONLY IN FULLSCREEN MODE
       if (isFullscreen && currentDrawingPoints.length > 0) {

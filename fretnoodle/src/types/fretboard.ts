@@ -123,3 +123,11 @@ export interface FretboardColors {
   drawLine: p5.Color;
   root: p5.Color; // Added for root note color
 }
+
+export interface FretboardVisualizerProps {
+  fretboardState: FretboardState;
+  width?: number;
+  height?: number;
+  onNoteClick?: (stringIndex: number, fret: number) => void;
+  onStateLoad?: (state: FretboardState) => void; // New prop for loading saved states
+}

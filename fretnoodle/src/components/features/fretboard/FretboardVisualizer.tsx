@@ -1,11 +1,14 @@
+// FILE: components/features/fretboard/FretboardVisualizer.tsx
 import React, { useCallback, useEffect, useRef } from 'react';
 import { Box, Button, Checkbox, FormControlLabel, useTheme } from '@mui/material';
 import ClearIcon from '@mui/icons-material/Clear';
 import P5Canvas from '../../layout/common/P5Canvas';
 import { useFullscreen } from '../../../hooks/useFullscreen';
 import { useDrawingMode } from '../../../hooks/useDrawingMode';
+import useFretboardStates from '../../../hooks/useFretboardStates';
 import { createFretboardSketch } from '../../../utils/fretBoardSketch';
 import { FretboardVisualizerProps } from '../../../types/fretboard';
+import FretboardStates from './FretboardStates';
 
 /**
  * Main FretboardVisualizer component
@@ -15,7 +18,8 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
   fretboardState,
   width = 1000,
   height = 300,
-  onNoteClick
+  onNoteClick,
+  onStateLoad
 }) => {
   const theme = useTheme(); // Access MUI theme
   const isDarkMode = theme.palette.mode === 'dark';
@@ -36,9 +40,22 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
     clearDrawing
   } = useDrawingMode(false, false); // Initially pass false for fullscreen
   
-  // Get fullscreen functionality (passing drawing mode to ensure proper toggling)
-  const { isFullscreen, toggleFullscreen } = useFullscreen(false, isDrawingMode, setIsDrawingMode);
+  // State management hook
+  const { savedStates, addState, deleteState, loadState, getLastLoadedState, lastLoadedStateId } = useFretboardStates();
   
+  const { isFullscreen, toggleFullscreen } = useFullscreen(false, isDrawingMode, setIsDrawingMode);
+
+  const handleToggleFullscreen = useCallback(() => {
+    if (isFullscreen) {
+      // We're exiting fullscreen, check if we need to apply the last loaded state
+      const lastState = getLastLoadedState();
+      if (lastState && onStateLoad) {
+        onStateLoad(lastState);
+      }
+    }
+    toggleFullscreen();
+  }, [isFullscreen, getLastLoadedState, onStateLoad, toggleFullscreen]);
+    
   // Update refs when state changes
   useEffect(() => {
     fretboardStateRef.current = fretboardState;
@@ -51,19 +68,19 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape" && isFullscreen) {
-        toggleFullscreen();
+        handleToggleFullscreen();
       }
       if (event.key === "d" && isFullscreen) {
         toggleDrawingMode();
       }
       if (event.key === "f") {
-        toggleFullscreen();
+        handleToggleFullscreen();
       }
     };
   
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isFullscreen, toggleFullscreen]);
+  }, [isFullscreen, handleToggleFullscreen, toggleDrawingMode]);
   
   // Create a custom note click handler that doesn't trigger re-renders
   const handleNoteClick = useCallback((stringIndex: number, fret: number) => {
@@ -71,6 +88,19 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
       onNoteClick(stringIndex, fret);
     }
   }, [onNoteClick]);
+  
+  // Handle adding current state
+  const handleAddState = useCallback(() => {
+    addState(fretboardState);
+  }, [addState, fretboardState]);
+  
+  // Handle loading a saved state
+  const handleLoadState = useCallback((stateId: string) => {
+    const stateToLoad = loadState(stateId);
+    if (stateToLoad && onStateLoad) {
+      onStateLoad(stateToLoad);
+    }
+  }, [loadState, onStateLoad]);
   
   // Create the p5 sketch with all necessary references and the fullscreen flag
   const memoizedSketch = React.useMemo(() => {
@@ -123,7 +153,7 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
             control={
               <Checkbox
                 checked={isFullscreen} 
-                onChange={toggleFullscreen} 
+                onChange={handleToggleFullscreen} 
                 color="primary"
                 size="small" // Smaller checkbox in fullscreen
               />
@@ -158,7 +188,7 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
             control={
               <Checkbox 
                 checked={isFullscreen} 
-                onChange={toggleFullscreen} 
+                onChange={handleToggleFullscreen} 
                 color="primary"
               />
             }
@@ -173,6 +203,16 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
         width={isFullscreen ? '100%' : width}
         height={isFullscreen ? '100%' : height}
       />
+      
+      {/* State management UI - only visible in fullscreen mode */}
+      {isFullscreen && (
+        <FretboardStates
+          savedStates={savedStates}
+          onAddState={handleAddState}
+          onDeleteState={deleteState}
+          onLoadState={handleLoadState}
+        />
+      )}
     </Box>
   );
 });

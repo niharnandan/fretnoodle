@@ -9,6 +9,7 @@ import useFretboardStates, { SavedFretboardState } from '../../../hooks/useFretb
 import FretboardStates from './FretboardStates';
 import { createFretboardSketch } from '../../../utils/fretBoardSketch';
 import { FretboardVisualizerProps, FretboardState } from '../../../types/fretboard';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 
 /**
  * Main FretboardVisualizer component
@@ -373,6 +374,63 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
           >
             Clear Drawing
           </Button>
+          <Button 
+      variant="outlined" 
+      startIcon={<DeleteOutlineIcon />} 
+      onClick={() => {
+        if (onStateLoad) {
+          // Create an empty state copy that keeps tuning and other settings
+          const emptyState = {
+            ...fretboardState,
+            selectedNotes: [],
+            rootNote: null,
+            detectedChord: null
+          };
+          
+          // Apply the state change to the UI
+          onStateLoad(emptyState);
+          
+          // If we have a selected state, update it
+          if (lastLoadedStateId) {
+            // First, update the state data with the empty state
+            updateState(lastLoadedStateId, emptyState, drawingPointsRef.current);
+            
+            // Then, find the current state in saved states
+            const currentState = savedStates.find(state => state.id === lastLoadedStateId);
+            
+            // If the state was named after a chord (not the default State X format)
+            // we need to reset the name by recreating the state
+            if (currentState && 
+                (currentState.state.detectedChord || 
+                !currentState.name.startsWith('State '))) {
+                
+              // First, get the position for the state number
+              const stateIndex = sortedStates.findIndex(state => state.id === lastLoadedStateId);
+              const stateNumber = stateIndex !== -1 ? stateIndex + 1 : savedStates.length;
+              
+              // Delete and recreate the state to rename it
+              // Save the drawings first
+              const currentDrawings = [...drawingPointsRef.current];
+              
+              // Delete current state
+              deleteState(lastLoadedStateId);
+              
+              // Add a new state with the proper name format
+              // The true parameter forces it to use the "State X" naming format
+              const newStateId = addState(emptyState, currentDrawings, true);
+              
+              // Select the new state
+              handleLoadState(newStateId);
+            }
+          }
+        }
+      }}
+      color="warning"
+      size="small"
+      sx={{ padding: '2px 8px' }}
+    >
+      Clear All Selections
+    </Button>
         </Box>
       )}
       

@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import {
   AppBar,
   Box,
@@ -10,23 +10,44 @@ import {
   MenuItem,
   Switch,
   FormControlLabel,
-  useTheme
+  useTheme,
+  Fade
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import HomeIcon from '@mui/icons-material/Home';
 import InfoIcon from '@mui/icons-material/Info';
 import ContactsIcon from '@mui/icons-material/Contacts';
 import MusicNoteIcon from '@mui/icons-material/MusicNote';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { ColorModeContext } from '../../theme/ThemeContext';
 
 const NavBar: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const theme = useTheme();
   const colorMode = useContext(ColorModeContext);
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
+  const [showHowToButton, setShowHowToButton] = useState(false);
+
+  // Check if we're on the fretboard page
+  const isFretboardPage = location.pathname === '/fretboard';
+
+  // Effect to handle the animation timing
+  useEffect(() => {
+    // When navigating to fretboard page, add a small delay before showing the button
+    if (isFretboardPage) {
+      const timer = setTimeout(() => {
+        setShowHowToButton(true);
+      }, 400); // Delay the appearance for a more noticeable effect
+      
+      return () => clearTimeout(timer);
+    } else {
+      setShowHowToButton(false);
+    }
+  }, [isFretboardPage]);
 
   const handleLogoClick = () => {
     navigate('/');
@@ -70,6 +91,9 @@ const NavBar: React.FC = () => {
             <MenuItem onClick={() => handleNavigation('/about')}> <InfoIcon sx={{ mr: 1 }} /> About </MenuItem>
             <MenuItem onClick={() => handleNavigation('/contact')}> <ContactsIcon sx={{ mr: 1 }} /> Contact </MenuItem>
             <MenuItem onClick={() => handleNavigation('/fretboard')}> <MusicNoteIcon sx={{ mr: 1 }} /> FretBoard </MenuItem>
+            {isFretboardPage && (
+              <MenuItem onClick={() => handleNavigation('/howto')}> <HelpOutlineIcon sx={{ mr: 1 }} /> How To Use </MenuItem>
+            )}
             <MenuItem>
               {theme.palette.mode === 'dark' ? <Brightness7Icon sx={{ mr: 1 }} /> : <Brightness4Icon sx={{ mr: 1 }} />}
               <FormControlLabel
@@ -97,6 +121,22 @@ const NavBar: React.FC = () => {
             <Button color="inherit" variant="outlined" onClick={() => navigate('/fretboard')} sx={{ ml: 2 }}>
               FretBoard
             </Button>
+            
+            {/* Animated How To button when on the fretboard page */}
+            <Fade in={isFretboardPage && showHowToButton} timeout={800}>
+              <Box sx={{ display: 'inline-flex', ml: 2 }}>
+                {isFretboardPage && (
+                  <Button 
+                    color="inherit" 
+                    variant="outlined" 
+                    onClick={() => navigate('/howto')} 
+                    startIcon={<HelpOutlineIcon />}
+                  >
+                    How To Use
+                  </Button>
+                )}
+              </Box>
+            </Fade>
           </Box>
         </Toolbar>
       </AppBar>

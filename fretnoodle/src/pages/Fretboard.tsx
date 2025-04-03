@@ -93,7 +93,7 @@ const Fretboard: React.FC = () => {
   };
   
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
+    <Container maxWidth="lg" sx={{ paddingTop: 2 }}>
       <Typography variant="h2" component="h1" gutterBottom align="center">
         Guitar Fretboard Visualizer
       </Typography>
@@ -151,59 +151,7 @@ const Fretboard: React.FC = () => {
           onClearSelectedNotes={clearSelectedNotes}
         />
       )}
-      
-      <Paper elevation={1} sx={{ p: 3, mt: 3 }}>
-        <Typography variant="h5" gutterBottom>
-          How to Use the Fretboard Visualizer
-        </Typography>
-        
-        <Typography variant="body1" paragraph>
-          • Click on individual notes to select them and build chords
-        </Typography>
-        
-        <Typography variant="body1" paragraph>
-          • Explore notes across the fretboard with visual highlighting
-        </Typography>
-        
-        <Typography variant="body1" paragraph>
-          • Change tuning to see how different tunings affect note positions
-        </Typography>
-        
-        <Typography variant="body1" paragraph>
-          • Add a capo to see how it changes the effective notes
-        </Typography>
-        
-        <Divider sx={{ my: 2 }} />
-        
-        <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mt: 2 }}>
-          <Button 
-            variant="outlined" 
-            color="primary"
-            onClick={() => highlightNotes(['C', 'E', 'G'])}
-          >
-            Try C Major
-          </Button>
-          
-          <Button 
-            variant="outlined" 
-            color="primary"
-            onClick={() => setAlternateTuning('drop d')}
-          >
-            Try Drop D Tuning
-          </Button>
-          
-          {fretboardState.selectedNotes.length > 0 && (
-            <Button
-              variant="outlined"
-              color="secondary"
-              onClick={clearSelectedNotes}
-            >
-              Clear Selected Notes
-            </Button>
-          )}
-        </Box>
-      </Paper>
-      
+            
       <TuningDialog
         open={tuningDialogOpen}
         tuning={fretboardState.tuning}

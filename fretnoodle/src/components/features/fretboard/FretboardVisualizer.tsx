@@ -1,7 +1,7 @@
-// FILE: components/features/fretboard/FretboardVisualizer.tsx
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import { Box, Button, Checkbox, FormControlLabel, useTheme } from '@mui/material';
 import ClearIcon from '@mui/icons-material/Clear';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import P5Canvas from '../../layout/common/P5Canvas';
 import { useFullscreen } from '../../../hooks/useFullscreen';
 import { useDrawingMode } from '../../../hooks/useDrawingMode';
@@ -9,7 +9,6 @@ import useFretboardStates, { SavedFretboardState } from '../../../hooks/useFretb
 import FretboardStates from './FretboardStates';
 import { createFretboardSketch } from '../../../utils/fretBoardSketch';
 import { FretboardVisualizerProps, FretboardState } from '../../../types/fretboard';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 
 /**
  * Main FretboardVisualizer component
@@ -36,8 +35,20 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
   // Reference to theme for p5 sketch
   const themeRef = useRef(isDarkMode);
   
+  // Keep the last stable state for faster transitions
+  const lastStableStateRef = useRef<FretboardState | null>(null);
+  
   // Previous fretboard state to detect changes for auto-updating
   const prevFretboardStateRef = useRef<FretboardState | null>(null);
+
+  // Update stable state ref when state stabilizes
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      lastStableStateRef.current = { ...fretboardState };
+    }, 200); // Wait 200ms after last state change
+    
+    return () => clearTimeout(timeoutId);
+  }, [fretboardState]);
   
   // Get drawing mode functionality
   const { 
@@ -58,7 +69,7 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
     savedStates, 
     sortedStates,
     addState, 
-    addAndSelectState, // Add this new function
+    addAndSelectState,
     updateState,
     deleteState, 
     loadState, 
@@ -71,7 +82,15 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
     // Force direct state loading outside of React's normal flow
     const loadedData = loadState(stateId);
     if (loadedData && onStateLoad) {
-      onStateLoad(loadedData.state);
+      // Use a stable state for faster loading
+      if (lastStableStateRef.current) {
+        onStateLoad({
+          ...lastStableStateRef.current,
+          ...loadedData.state
+        });
+      } else {
+        onStateLoad(loadedData.state);
+      }
       
       // For absolutely guaranteed state selection, directly trigger a click on the state button
       setTimeout(() => {
@@ -83,7 +102,7 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
     }
   }, [loadState, onStateLoad]);
 
-  // Handle adding current state
+  // Handle adding current state - memoized to avoid recreating on each render
   const handleAddState = useCallback(() => {
     // Save current state if one is selected
     if (lastLoadedStateId) {
@@ -122,7 +141,7 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
     }, 50);
   }, [addState, updateState, loadState, onStateLoad, fretboardState, drawingPointsRef, lastLoadedStateId, clearDrawing]);
   
-  // Handle loading a saved state
+  // Handle loading a saved state - memoized for performance
   const handleLoadState = useCallback((stateId: string) => {
     // First, save the current drawing to the current state
     if (lastLoadedStateId) {
@@ -133,6 +152,18 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
     // Now load the requested state
     const loadedData = loadState(stateId);
     if (loadedData && onStateLoad) {
+      // Apply a transition effect using CSS class
+      const container = document.getElementById('fretboard-visualizer');
+      if (container) {
+        // First make it slightly transparent
+        container.style.opacity = '0.8';
+        
+        // After a very short delay, start transition back to full opacity
+        setTimeout(() => {
+          container.style.opacity = '1';
+        }, 10);
+      }
+      
       // Load the fretboard state
       onStateLoad(loadedData.state);
       
@@ -156,7 +187,7 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
     fretboardState
   ]);
 
-  // Handle deleting a state
+  // Handle deleting a state - memoized for performance
   const handleDeleteState = useCallback((stateId: string): string | null => {
     const nextStateId = deleteState(stateId);
     
@@ -182,24 +213,24 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
   
   // Effect to handle auto-creation of state when entering fullscreen
   useEffect(() => {
-  // Check if we just entered fullscreen
-  if (isFullscreen && !wasFullscreen.current) {
-    // If there are no states yet, create an empty one regardless of current note selection
-    if (sortedStates.length === 0) {
-      const result = addAndSelectState(fretboardState, [], true);
-      
-      if (result.loadedData && onStateLoad) {
-        onStateLoad(result.loadedData.state);
-        setDrawingPoints([...result.loadedData.drawingPoints]);
+    // Check if we just entered fullscreen
+    if (isFullscreen && !wasFullscreen.current) {
+      // If there are no states yet, create an empty one regardless of current note selection
+      if (sortedStates.length === 0) {
+        const result = addAndSelectState(fretboardState, [], true);
+        
+        if (result.loadedData && onStateLoad) {
+          onStateLoad(result.loadedData.state);
+          setDrawingPoints([...result.loadedData.drawingPoints]);
+        }
+        
+        setAutoUpdateEnabled(true);
       }
-      
-      setAutoUpdateEnabled(true);
     }
-  }
-  
-  // Update the ref to track changes
-  wasFullscreen.current = isFullscreen;
-}, [isFullscreen, fretboardState, sortedStates.length, addAndSelectState, onStateLoad, setDrawingPoints]);
+    
+    // Update the ref to track changes
+    wasFullscreen.current = isFullscreen;
+  }, [isFullscreen, fretboardState, sortedStates.length, addAndSelectState, onStateLoad, setDrawingPoints]);
   
   // Enhanced toggleFullscreen handler
   const handleToggleFullscreen = useCallback(() => {
@@ -276,6 +307,7 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
     themeRef.current = isDarkMode;
   }, [isDarkMode]);
 
+  // Add event listeners for keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape" && isFullscreen) {
@@ -304,9 +336,60 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
       onNoteClick(stringIndex, fret);
     }
   }, [onNoteClick, lastLoadedStateId, isFullscreen]);
+
+  // Handle clearing all selections in fullscreen mode
+  const handleClearAllSelections = useCallback(() => {
+    if (onStateLoad) {
+      // Create an empty state copy that keeps tuning and other settings
+      const emptyState = {
+        ...fretboardState,
+        selectedNotes: [],
+        rootNote: null,
+        detectedChord: null
+      };
+      
+      // Apply the state change to the UI
+      onStateLoad(emptyState);
+      
+      // If we have a selected state, update it
+      if (lastLoadedStateId) {
+        // First, update the state data with the empty state
+        updateState(lastLoadedStateId, emptyState, drawingPointsRef.current);
+        
+        // Then, find the current state in saved states
+        const currentState = savedStates.find(state => state.id === lastLoadedStateId);
+        
+        // If the state was named after a chord (not the default State X format)
+        // we need to reset the name by recreating the state
+        if (currentState && 
+            (currentState.state.detectedChord || 
+            !currentState.name.startsWith('State '))) {
+            
+          // First, get the position for the state number
+          const stateIndex = sortedStates.findIndex(state => state.id === lastLoadedStateId);
+          const stateNumber = stateIndex !== -1 ? stateIndex + 1 : savedStates.length;
+          
+          // Delete and recreate the state to rename it
+          // Save the drawings first
+          const currentDrawings = [...drawingPointsRef.current];
+          
+          // Delete current state
+          deleteState(lastLoadedStateId);
+          
+          // Add a new state with the proper name format
+          // The true parameter forces it to use the "State X" naming format
+          const newStateId = addState(emptyState, currentDrawings, true);
+          
+          // Select the new state
+          handleLoadState(newStateId);
+        }
+      }
+    }
+  }, [fretboardState, onStateLoad, lastLoadedStateId, updateState, savedStates, sortedStates, 
+      drawingPointsRef, deleteState, addState, handleLoadState]);
   
   // Create the p5 sketch with all necessary references and the fullscreen flag
-  const memoizedSketch = React.useMemo(() => {
+  const memoizedSketch = useMemo(() => {
     return createFretboardSketch(
       fretboardStateRef,
       drawingModeRef,
@@ -319,8 +402,14 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
     );
   }, [width, height, isFullscreen, handleNoteClick]);
 
+  // Prepare the CSS class for the container with a transition effect
+  const containerClass = useMemo(() => {
+    return isFullscreen ? 'fretboard-container-fullscreen' : 'fretboard-container';
+  }, [isFullscreen]);
+
   return (
     <Box 
+      className={containerClass}
       sx={{ 
         width: isFullscreen ? '100vw' : '100%', 
         height: isFullscreen ? '100vh' : 'auto',
@@ -335,7 +424,8 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
         boxShadow: isFullscreen ? 'none' : 2,
         bgcolor: 'background.default',
         px: 0.75,
-        py: 1
+        py: 1,
+        transition: 'opacity 0.15s ease-out', // Add transition effect
       }}
     >
       {isFullscreen && (
@@ -375,62 +465,15 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
             Clear Drawing
           </Button>
           <Button 
-      variant="outlined" 
-      startIcon={<DeleteOutlineIcon />} 
-      onClick={() => {
-        if (onStateLoad) {
-          // Create an empty state copy that keeps tuning and other settings
-          const emptyState = {
-            ...fretboardState,
-            selectedNotes: [],
-            rootNote: null,
-            detectedChord: null
-          };
-          
-          // Apply the state change to the UI
-          onStateLoad(emptyState);
-          
-          // If we have a selected state, update it
-          if (lastLoadedStateId) {
-            // First, update the state data with the empty state
-            updateState(lastLoadedStateId, emptyState, drawingPointsRef.current);
-            
-            // Then, find the current state in saved states
-            const currentState = savedStates.find(state => state.id === lastLoadedStateId);
-            
-            // If the state was named after a chord (not the default State X format)
-            // we need to reset the name by recreating the state
-            if (currentState && 
-                (currentState.state.detectedChord || 
-                !currentState.name.startsWith('State '))) {
-                
-              // First, get the position for the state number
-              const stateIndex = sortedStates.findIndex(state => state.id === lastLoadedStateId);
-              const stateNumber = stateIndex !== -1 ? stateIndex + 1 : savedStates.length;
-              
-              // Delete and recreate the state to rename it
-              // Save the drawings first
-              const currentDrawings = [...drawingPointsRef.current];
-              
-              // Delete current state
-              deleteState(lastLoadedStateId);
-              
-              // Add a new state with the proper name format
-              // The true parameter forces it to use the "State X" naming format
-              const newStateId = addState(emptyState, currentDrawings, true);
-              
-              // Select the new state
-              handleLoadState(newStateId);
-            }
-          }
-        }
-      }}
-      color="warning"
-      size="small"
-      sx={{ padding: '2px 8px' }}
-    >
-      Clear All Selections
-    </Button>
+            variant="outlined" 
+            startIcon={<DeleteOutlineIcon />} 
+            onClick={handleClearAllSelections}
+            color="warning"
+            size="small"
+            sx={{ padding: '2px 8px' }}
+          >
+            Clear All Selections
+          </Button>
         </Box>
       )}
       

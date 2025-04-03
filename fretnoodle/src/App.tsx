@@ -6,6 +6,8 @@ import Footer from './components/layout/Footer';
 import About from './pages/About';
 import Visualizer from './pages/Visualizer';
 import Fretboard from './pages/Fretboard';
+import HowTo from './pages/HowToFretBoard';
+import Home from './pages/Home';
 // import Home from './pages/Home';
 // import Tuner from './pages/Tuner';
 
@@ -26,11 +28,12 @@ const App: React.FC = () => {
           }}
         >
           <Routes>
-            <Route path="/" element={<></>} />
             <Route path="/tuner" element={<></>} />
             <Route path="/visualizer" element={<Visualizer />} />
             <Route path="/about" element={<About />} />
             <Route path="/fretboard" element={<Fretboard />} />
+            <Route path="/howto" element={<HowTo />} />
+            <Route path="/" element={<Home />} />
           </Routes>
         </Box>
 

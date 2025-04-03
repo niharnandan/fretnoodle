@@ -23,7 +23,6 @@ const Fretboard: React.FC = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [tuningDialogOpen, setTuningDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
-  const [lastLoadedState, setLastLoadedState] = useState<FretboardState | null>(null);
   
   const {
     fretboardState,
@@ -52,11 +51,6 @@ const Fretboard: React.FC = () => {
   
   // Handle loading a state from the fullscreen visualizer
   const handleStateLoad = (loadedState: FretboardState) => {
-    // Store the loaded state
-    setLastLoadedState(loadedState);
-    
-    // Apply the loaded state to the current fretboard
-    // This will update all required state properties at once
     Object.keys(loadedState).forEach(key => {
       const typedKey = key as keyof FretboardState;
       switch(typedKey) {

@@ -2,7 +2,6 @@ import { useState, useCallback } from 'react';
 import { 
   FretboardState, 
   DEFAULT_TUNING, 
-  NOTE_SEQUENCE, 
   getNextNote, 
   getPrevNote,
   getNoteAtFret

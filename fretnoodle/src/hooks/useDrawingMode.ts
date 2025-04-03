@@ -1,3 +1,4 @@
+// FILE: hooks/useDrawingMode.ts
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { DrawingPoint } from '../types/fretboard';
 
@@ -27,10 +28,9 @@ export function useDrawingMode(initialDrawingMode: boolean = false, isFullscreen
   // Simple function to toggle drawing mode
   const toggleDrawingMode = useCallback(() => {
     setIsDrawingMode(prev => !prev);
-    console.log("Drawing mode toggled:", !isDrawingMode);
-  }, [isDrawingMode]);
+  }, []);
 
-  // Handle keyboard events - simplified approach
+  // Handle keyboard events
   useEffect(() => {
     function handleKeyPress(e: KeyboardEvent) {
       if (e.key === 'd' && isFullscreen) {
@@ -47,19 +47,28 @@ export function useDrawingMode(initialDrawingMode: boolean = false, isFullscreen
     };
   }, [isFullscreen, toggleDrawingMode]);
 
-  const clearDrawing = () => {
+  // Function to update the drawing points
+  const setDrawingPointsWithRefs = useCallback((points: DrawingPoint[]) => {
+    setDrawingPoints(points);
+    drawingPointsRef.current = points;
+  }, []);
+
+  // Function to clear the drawing
+  const clearDrawing = useCallback(() => {
     drawingPointsRef.current = [];
     setDrawingPoints([]);
-  };
+  }, []);
 
   return { 
     isDrawingMode, 
     setIsDrawingMode, 
     drawingPoints, 
-    setDrawingPoints,
+    setDrawingPoints: setDrawingPointsWithRefs,
     drawingModeRef,
     drawingPointsRef,
     toggleDrawingMode,
     clearDrawing
   };
 }
+
+export default useDrawingMode;

@@ -30,7 +30,6 @@ export const createFretboardSketch = (
     
     // Drawing variables
     let isDrawing = false;
-    let currentDrawingPoints: DrawingPoint[] = [];
     
     // Margins and dimensions
     let horizontalMargin: number;
@@ -161,9 +160,6 @@ export const createFretboardSketch = (
       setupDimensions();
       p.background(colors.background);
       p.textAlign(p.CENTER, p.CENTER);
-      
-      // Initialize with current drawing points
-      currentDrawingPoints = [...drawingPointsRef.current];
     };
     
     p.draw = () => {
@@ -328,10 +324,7 @@ export const createFretboardSketch = (
             const isSelected = selectedNotes.some(
               (n: { string: number; fret: number; }) => n.string === string && n.fret === fret
             );
-            
-            // Check if this note is the root note
-            const isRoot = rootNote && rootNote.string === string && rootNote.fret === fret;
-            
+
             // Determine if this is the reference note for intervals
             const isReferenceForIntervals = rootNote ? 
                 (rootNote.string === string && rootNote.fret === fret) :
@@ -457,15 +450,15 @@ export const createFretboardSketch = (
       drawChordName();
       
       // Draw all saved drawing points - ONLY IN FULLSCREEN MODE
-      if (isFullscreen && currentDrawingPoints.length > 0) {
+      if (isFullscreen && drawingPointsRef.current && drawingPointsRef.current.length > 0) {
         p.stroke(colors.drawLine);
         p.strokeWeight(4);
         
-        for (let i = 1; i < currentDrawingPoints.length; i++) {
-          if (currentDrawingPoints[i].isDragging) {
+        for (let i = 1; i < drawingPointsRef.current.length; i++) {
+          if (drawingPointsRef.current[i].isDragging) {
             // Get points
-            const p1 = currentDrawingPoints[i-1];
-            const p2 = currentDrawingPoints[i];
+            const p1 = drawingPointsRef.current[i-1];
+            const p2 = drawingPointsRef.current[i];
             
             // Skip if points aren't connected (e.g., from different drawing sessions)
             if (p1.inFullscreen !== p2.inFullscreen) continue;
@@ -520,9 +513,9 @@ export const createFretboardSketch = (
           inFullscreen: true
         };
         
-        // Update both the local and component state
-        currentDrawingPoints = [...currentDrawingPoints, newPoint];
-        drawingPointsRef.current = [...drawingPointsRef.current, newPoint];
+        // Update both the component state and local ref
+        const updatedPoints = [...drawingPointsRef.current, newPoint];
+        drawingPointsRef.current = updatedPoints;
         
         return false; // Prevent default behavior
       } else if (!isDrawingModeActive && clickedString >= 0 && clickedFret >= 0) {
@@ -545,9 +538,9 @@ export const createFretboardSketch = (
           inFullscreen: true
         };
         
-        // Update both the local and component state
-        currentDrawingPoints = [...currentDrawingPoints, newPoint];
-        drawingPointsRef.current = [...drawingPointsRef.current, newPoint];
+        // Update both the component state and local ref
+        const updatedPoints = [...drawingPointsRef.current, newPoint];
+        drawingPointsRef.current = updatedPoints;
         
         return false; // Prevent default behavior
       }
@@ -556,6 +549,25 @@ export const createFretboardSketch = (
     };
     
     p.mouseReleased = () => {
+      if (isDrawing && drawingModeRef.current) {
+        // When drawing is finished, update the component state
+        // This ensures the component state reflects what we've been drawing
+        const currentPoints = [...drawingPointsRef.current];
+        try {
+          if (typeof window !== 'undefined' && window.requestAnimationFrame) {
+            window.requestAnimationFrame(() => {
+              // This runs after the current frame to avoid conflicts
+              if (drawingPointsRef.current === currentPoints) {
+                // Only update if it hasn't already been updated elsewhere
+                p.loadPixels(); // Force a redraw
+              }
+            });
+          }
+        } catch (e) {
+          console.error("Error updating drawing points:", e);
+        }
+      }
+      
       isDrawing = false;
       return true;
     };

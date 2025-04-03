@@ -42,7 +42,7 @@ const FretboardControls: React.FC<FretboardControlsProps> = ({
   const clearSelection = useCallback(() => {
     onHighlightNotes([]);
     onClearSelectedNotes();
-  }, [])
+  }, [onClearSelectedNotes, onHighlightNotes])
   
   return (
     <Paper elevation={2} sx={{ p: 3, mb: 3 }}>

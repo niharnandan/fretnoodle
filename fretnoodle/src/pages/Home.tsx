@@ -21,8 +21,8 @@ import BuildIcon from '@mui/icons-material/Build';
 import TimelineIcon from '@mui/icons-material/Timeline';
 import KeyboardIcon from '@mui/icons-material/Keyboard';
 
-// Logo image path - update with your actual logo path
-const LOGO_PATH = "/images/logo2.png";
+import LOGO_PATH from "../assets/images/logo2.png";
+
 
 interface FeatureCardProps {
   title: string;

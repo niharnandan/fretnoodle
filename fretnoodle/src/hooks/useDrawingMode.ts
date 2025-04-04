@@ -1,4 +1,3 @@
-// FILE: hooks/useDrawingMode.ts
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { DrawingPoint } from '../types/fretboard';
 

@@ -1,4 +1,3 @@
-// FILE: components/features/fretboard/FretboardStates.tsx
 import React, { useEffect, useState } from 'react';
 import { Box, Button, Stack, useTheme } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';

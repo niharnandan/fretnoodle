@@ -2,13 +2,14 @@ import React, { useCallback, useEffect, useRef, useState, useMemo } from 'react'
 import { Box, Button, Checkbox, FormControlLabel, useTheme } from '@mui/material';
 import ClearIcon from '@mui/icons-material/Clear';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import P5Canvas from '../../layout/common/P5Canvas';
+import P5Canvas from '../../common/P5Canvas';
 import { useFullscreen } from '../../../hooks/useFullscreen';
 import { useDrawingMode } from '../../../hooks/useDrawingMode';
 import useFretboardStates, { SavedFretboardState } from '../../../hooks/useFretboardStates';
 import FretboardStates from './FretboardStates';
 import { createFretboardSketch } from '../../../utils/fretBoardSketch';
 import { FretboardVisualizerProps, FretboardState } from '../../../types/fretboard';
+import AnimatedButton from '../../common/AnimatedButtonDelete';
 
 /**
  * Main FretboardVisualizer component
@@ -455,7 +456,7 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
             sx={{ margin: '0px', fontSize: '0.85rem' }}
           />
           <Button 
-            variant="outlined" 
+            variant="contained" 
             startIcon={<ClearIcon />} 
             onClick={clearDrawing}
             color="secondary"
@@ -464,16 +465,7 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
           >
             Clear Drawing
           </Button>
-          <Button 
-            variant="outlined" 
-            startIcon={<DeleteOutlineIcon />} 
-            onClick={handleClearAllSelections}
-            color="warning"
-            size="small"
-            sx={{ padding: '2px 8px' }}
-          >
-            Clear All Selections
-          </Button>
+          <AnimatedButton clickAction={handleClearAllSelections}/>
         </Box>
       )}
       

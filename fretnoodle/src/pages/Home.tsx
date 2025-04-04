@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { 
   Box, 
   Container, 
@@ -49,9 +49,9 @@ const Home = () => {
   const aboutSectionRef = useRef(null);
   
   // State for viewport visibility
-  const [featuresVisible, setFeaturesVisible] = React.useState(false);
-  const [toolsVisible, setToolsVisible] = React.useState(false);
-  const [aboutVisible, setAboutVisible] = React.useState(false);
+  const [featuresVisible, setFeaturesVisible] = useState(false);
+  const [toolsVisible, setToolsVisible] = useState(false);
+  const [aboutVisible, setAboutVisible] = useState(false);
 
   useEffect(() => {
     // Intersection Observer for scroll animations

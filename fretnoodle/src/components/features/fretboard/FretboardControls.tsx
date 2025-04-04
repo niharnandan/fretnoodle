@@ -120,7 +120,7 @@ const FretboardControls: React.FC<FretboardControlsProps> = ({
         </Grid>
         <Grid>
         <Button
-              variant="outlined"
+              variant="contained"
               size="small"
               color="warning"
               onClick={clearSelection}

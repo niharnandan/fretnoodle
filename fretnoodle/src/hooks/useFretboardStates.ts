@@ -25,7 +25,19 @@ export function useFretboardStates() {
       
       // For empty states, always use the numbered naming scheme
       // For non-empty states, use chord name if available
-      const stateNumber = prevStates.length + 1;
+      
+      // Find the highest state number currently in use to avoid duplicates
+      const stateNumberPattern = /^State (\d+)$/;
+      const highestStateNumber = prevStates.reduce((highest, state) => {
+        const match = state.name.match(stateNumberPattern);
+        if (match) {
+          const stateNum = parseInt(match[1], 10);
+          return Math.max(highest, stateNum);
+        }
+        return highest;
+      }, 0);
+      
+      const stateNumber = highestStateNumber + 1;
       const stateName = emptyState 
         ? `State ${stateNumber}`
         : (currentState.detectedChord 
@@ -152,7 +164,19 @@ export function useFretboardStates() {
   const addAndSelectState = useCallback((currentState: FretboardState, drawingPoints: DrawingPoint[], emptyState: boolean = false) => {
     // First prepare all the data for the new state
     const id = `state-${Date.now()}`;
-    const stateNumber = savedStates.length + 1;
+    
+    // Find the highest state number currently in use to avoid duplicates
+    const stateNumberPattern = /^State (\d+)$/;
+    const highestStateNumber = savedStates.reduce((highest, state) => {
+      const match = state.name.match(stateNumberPattern);
+      if (match) {
+        const stateNum = parseInt(match[1], 10);
+        return Math.max(highest, stateNum);
+      }
+      return highest;
+    }, 0);
+    
+    const stateNumber = highestStateNumber + 1;
     const stateName = emptyState 
       ? `State ${stateNumber}`
       : (currentState.detectedChord 

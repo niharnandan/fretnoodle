@@ -8,7 +8,6 @@ import Visualizer from './pages/Visualizer';
 import Fretboard from './pages/Fretboard';
 import HowTo from './pages/HowToFretBoard';
 import Home from './pages/Home';
-// import Home from './pages/Home';
 // import Tuner from './pages/Tuner';
 
 const App: React.FC = () => {

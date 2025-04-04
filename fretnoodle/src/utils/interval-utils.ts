@@ -1,4 +1,3 @@
-// File: src/utils/interval-utils.ts
 import { NOTE_SEQUENCE } from '../types/fretboard';
 
 // Interval names as they would appear on the fretboard

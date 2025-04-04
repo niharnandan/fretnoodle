@@ -60,7 +60,7 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
     drawingPointsRef,
     toggleDrawingMode,
     clearDrawing,
-    setDrawingPoints
+    setDrawingPoints,
   } = useDrawingMode(false, false); // Initially pass false for fullscreen
   
   // Get fullscreen functionality (passing drawing mode to ensure proper toggling)
@@ -75,7 +75,9 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
     deleteState, 
     loadState, 
     getLastLoadedState, 
-    lastLoadedStateId 
+    lastLoadedStateId,
+    reorderStates,
+    copyState
   } = useFretboardStates();
 
   // Force direct state selection
@@ -233,10 +235,8 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
     wasFullscreen.current = isFullscreen;
   }, [isFullscreen, fretboardState, sortedStates.length, addAndSelectState, onStateLoad, setDrawingPoints]);
   
-  // Enhanced toggleFullscreen handler
   const handleToggleFullscreen = useCallback(() => {
     if (isFullscreen) {
-      // We're exiting fullscreen, save the current state and its drawings
       if (lastLoadedStateId) {
         updateState(lastLoadedStateId, fretboardState, drawingPointsRef.current);
       }
@@ -247,7 +247,6 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
         onStateLoad(lastState.state);
       }
     } else {
-      // We're entering fullscreen
       setAutoUpdateEnabled(false);
       
       // Load the last state if one exists
@@ -275,6 +274,58 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
     sortedStates, 
     handleLoadState,
     toggleFullscreen,
+    drawingPointsRef
+  ]);
+
+  const handleCopyState = useCallback((stateId: string) => {
+    // First, save the current state if one is selected
+    if (lastLoadedStateId) {
+      updateState(lastLoadedStateId, fretboardState, drawingPointsRef.current);
+    }
+    
+    // Create a copy of the state without drawings
+    const newStateId = copyState(stateId);
+    
+    // Animate a smooth transition
+    const container = document.getElementById('fretboard-visualizer');
+    if (container) {
+      container.style.opacity = '0.8';
+      setTimeout(() => {
+        container.style.opacity = '1';
+      }, 10);
+    }
+    
+    // Load the copied state after a short delay
+    setTimeout(() => {
+      // Load the new state
+      const loadedData = loadState(newStateId);
+      if (loadedData && onStateLoad) {
+        onStateLoad(loadedData.state);
+      }
+    }, 50);
+  }, [
+    copyState, 
+    loadState, 
+    onStateLoad, 
+    updateState, 
+    fretboardState, 
+    lastLoadedStateId, 
+    drawingPointsRef
+  ]);
+
+  const handleReorderStates = useCallback((stateIds: string[]) => {
+    // Save the current state before reordering
+    if (lastLoadedStateId) {
+      updateState(lastLoadedStateId, fretboardState, drawingPointsRef.current);
+    }
+    
+    // Apply the new order
+    reorderStates(stateIds);
+  }, [
+    reorderStates,
+    updateState,
+    fretboardState,
+    lastLoadedStateId,
     drawingPointsRef
   ]);
   
@@ -506,6 +557,8 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
           onAddState={handleAddState}
           onDeleteState={handleDeleteState}
           onLoadState={handleLoadState}
+          onCopyState={handleCopyState}
+          onReorderStates={handleReorderStates}
           currentStateId={lastLoadedStateId}
         />
       )}

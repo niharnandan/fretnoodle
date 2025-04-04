@@ -132,7 +132,7 @@ const NavBar: React.FC = () => {
                     onClick={() => navigate('/howto')} 
                     startIcon={<HelpOutlineIcon />}
                   >
-                    How To Use
+                    How To
                   </Button>
                 )}
               </Box>

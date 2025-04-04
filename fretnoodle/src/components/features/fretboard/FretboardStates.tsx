@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Box, Button, Stack, useTheme } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import { SavedFretboardState } from '../../../hooks/useFretboardStates';
 
 interface FretboardStatesProps {
@@ -9,6 +11,8 @@ interface FretboardStatesProps {
   onAddState: () => void;
   onDeleteState: (stateId: string) => string | null;
   onLoadState: (stateId: string) => void;
+  onCopyState: (stateId: string) => void;
+  onReorderStates: (stateIds: string[]) => void;
   currentStateId: string | null;
 }
 
@@ -17,12 +21,20 @@ const FretboardStates: React.FC<FretboardStatesProps> = ({
   onAddState,
   onDeleteState,
   onLoadState,
+  onCopyState,
+  onReorderStates,
   currentStateId
 }) => {
   const theme = useTheme();
   
   // Internal state to track the actually selected state - critical fix
   const [internalSelectedId, setInternalSelectedId] = useState<string | null>(currentStateId);
+  
+  // Track drag state
+  const [isDragging, setIsDragging] = useState(false);
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  const stateContainerRef = useRef<HTMLDivElement>(null);
   
   // Update internal state when prop changes
   useEffect(() => {
@@ -74,6 +86,42 @@ const FretboardStates: React.FC<FretboardStatesProps> = ({
       }, 50);
     }
   };
+  
+  // Copy state function
+  const handleCopyState = (stateId: string) => {
+    onCopyState(stateId);
+  };
+  
+  // Drag and drop handlers
+  const handleDragStart = (index: number) => {
+    setIsDragging(true);
+    setDraggedIndex(index);
+  };
+  
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    setDragOverIndex(index);
+  };
+  
+  const handleDragEnd = () => {
+    if (draggedIndex !== null && dragOverIndex !== null && draggedIndex !== dragOverIndex) {
+      // Create a new array of state IDs in the new order
+      const newOrder = [...savedStates];
+      const [draggedState] = newOrder.splice(draggedIndex, 1);
+      newOrder.splice(dragOverIndex, 0, draggedState);
+      
+      // Get the IDs in the new order
+      const newOrderIds = newOrder.map(state => state.id);
+      
+      // Call the handler to update the parent component
+      onReorderStates(newOrderIds);
+    }
+    
+    // Reset drag state
+    setIsDragging(false);
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
 
   return (
     <Box 
@@ -91,56 +139,102 @@ const FretboardStates: React.FC<FretboardStatesProps> = ({
         alignItems: 'center',
         gap: 2
       }}
+      ref={stateContainerRef}
     >
-      {/* State buttons with delete buttons below them */}
-      {savedStates.map((state) => (
-        <Stack 
-          key={state.id} 
-          alignItems="center" 
-          justifyContent="center"
-          spacing={0.5}
-        >
-          <Button
-            data-state-id={state.id}
-            variant="contained"
-            onClick={() => handleLoadState(state.id)}
-            sx={{ 
-              minWidth: '100px',
-              textTransform: 'none',
-              // Use internal state for highlighting
-              backgroundColor: internalSelectedId === state.id ? 'primary.dark' : 'primary.main',
-              border: internalSelectedId === state.id ? `2px solid ${theme.palette.secondary.main}` : 'none',
-              '&:hover': {
-                backgroundColor: internalSelectedId === state.id ? 'primary.dark' : undefined,
-              }
+      <Box
+        sx={{
+          display: 'flex',
+          gap: 2,
+          overflowX: 'auto',
+          maxWidth: '70vw',
+          pb: 1
+        }}
+      >
+        {/* State buttons with drag handle, delete and copy buttons below them */}
+        {savedStates.map((state, index) => (
+          <Stack 
+            key={state.id} 
+            alignItems="center" 
+            justifyContent="center"
+            spacing={0.5}
+            draggable
+            onDragStart={() => handleDragStart(index)}
+            onDragOver={(e) => handleDragOver(e, index)}
+            onDragEnd={handleDragEnd}
+            sx={{
+              cursor: 'grab',
+              opacity: draggedIndex === index ? 0.5 : 1,
+              borderBottom: dragOverIndex === index ? `2px solid ${theme.palette.primary.main}` : 'none',
+              padding: '4px',
+              backgroundColor: dragOverIndex === index ? 'rgba(0,0,0,0.05)' : 'transparent',
+              transition: 'background-color 0.2s ease'
             }}
           >
-            {state.name}
-          </Button>
-          <Button
-            color="error"
-            size="small"
-            onClick={() => handleDeleteState(state.id)}
-            sx={{ 
-              minWidth: 'unset',
-              width: '24px',
-              height: '24px',
-              padding: 0
-            }}
-          >
-            <DeleteIcon fontSize="small" />
-          </Button>
-        </Stack>
-      ))}
+            <Button
+              data-state-id={state.id}
+              variant="contained"
+              onClick={() => handleLoadState(state.id)}
+              sx={{ 
+                minWidth: '100px',
+                textTransform: 'none',
+                // Use internal state for highlighting
+                backgroundColor: internalSelectedId === state.id ? 'primary.dark' : 'primary.main',
+                border: internalSelectedId === state.id ? `2px solid ${theme.palette.secondary.main}` : 'none',
+                '&:hover': {
+                  backgroundColor: internalSelectedId === state.id ? 'primary.dark' : undefined,
+                }
+              }}
+            >
+              {state.name}
+            </Button>
+            <Box sx={{ display: 'flex', gap: 0.5 }}>
+              <Button
+                color="primary"
+                size="small"
+                onClick={() => handleCopyState(state.id)}
+                sx={{ 
+                  minWidth: 'unset',
+                  width: '24px',
+                  height: '24px',
+                  padding: 0
+                }}
+              >
+                <ContentCopyIcon fontSize="small" />
+              </Button>
+              <Button
+                color="error"
+                size="small"
+                onClick={() => handleDeleteState(state.id)}
+                sx={{ 
+                  minWidth: 'unset',
+                  width: '24px',
+                  height: '24px',
+                  padding: 0
+                }}
+              >
+                <DeleteIcon fontSize="small" />
+              </Button>
+              <DragIndicatorIcon 
+              fontSize="small" 
+              sx={{ 
+                cursor: 'grab',
+                color: 'text.secondary',
+                mb: -0.5
+              }} 
+            />
+            </Box>
+          </Stack>
+        ))}
+      </Box>
       
-      {/* Add State button */}
       <Button
         variant="outlined"
         startIcon={<AddIcon />}
         onClick={handleAddState}
         sx={{ 
           height: '36px', 
-          textTransform: 'none' 
+          textTransform: 'none',
+          flexShrink: 0
         }}
       >
         Add State

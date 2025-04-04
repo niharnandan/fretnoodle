@@ -8,8 +8,6 @@ import {
   useTheme, 
   Tabs, 
   Tab,
-  Button,
-  Divider,
   Chip
 } from '@mui/material';
 import FretboardVisualizer from '../components/features/fretboard/FretboardVisualizer';

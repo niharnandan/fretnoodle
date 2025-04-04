@@ -70,6 +70,62 @@ export function useFretboardStates() {
     return newStateId;
   }, []);
 
+  // Copy an existing state (without drawings)
+  const copyState = useCallback((stateId: string) => {
+    let newStateId = '';
+    
+    setSavedStates(prevStates => {
+      // Find the state to copy
+      const stateToCopy = prevStates.find(state => state.id === stateId);
+      
+      if (!stateToCopy) {
+        return prevStates;
+      }
+      
+      // Create a unique ID
+      const id = `state-${Date.now()}`;
+      newStateId = id;
+      
+      // Find the highest state number for naming
+      const stateNumberPattern = /^State (\d+)$/;
+      const highestStateNumber = prevStates.reduce((highest, state) => {
+        const match = state.name.match(stateNumberPattern);
+        if (match) {
+          const stateNum = parseInt(match[1], 10);
+          return Math.max(highest, stateNum);
+        }
+        return highest;
+      }, 0);
+      
+      // Determine name for copied state
+      let stateName;
+      if (stateToCopy.state.detectedChord) {
+        // If it's a chord, keep the chord name
+        stateName = stateToCopy.state.detectedChord;
+      } else if (stateToCopy.name.startsWith('State')) {
+        // If it's a numbered state, create a new number
+        stateName = `State ${highestStateNumber + 1}`;
+      } else {
+        // For custom named states, append "Copy"
+        stateName = `${stateToCopy.name} Copy`;
+      }
+      
+      // Create the new state with copied data but empty drawings
+      const newState: SavedFretboardState = {
+        id,
+        name: stateName,
+        state: { ...stateToCopy.state },
+        drawingPoints: [], // Empty drawings for copy
+        createdAt: Date.now()
+      };
+      
+      return [...prevStates, newState];
+    });
+    
+    // Return the new state ID
+    return newStateId;
+  }, []);
+
   // Update an existing state
   const updateState = useCallback((stateId: string, currentState: FretboardState, drawingPoints: DrawingPoint[]) => {
     setSavedStates(prevStates => {
@@ -126,6 +182,28 @@ export function useFretboardStates() {
     return nextStateId;
   }, []);
 
+  // Reorder states based on new arrangement
+  const reorderStates = useCallback((stateIds: string[]) => {
+    setSavedStates(prevStates => {
+      // Create a map of states by ID for quick lookup
+      const stateMap = new Map(prevStates.map(state => [state.id, state]));
+      
+      // Create the reordered array
+      const reorderedStates = stateIds
+        .map(id => stateMap.get(id))
+        .filter(state => state !== undefined) as SavedFretboardState[];
+      
+      // Ensure no states were lost during reordering
+      if (reorderedStates.length !== prevStates.length) {
+        // Some states are missing, return original array
+        console.error('Reordering lost some states, aborting reorder');
+        return prevStates;
+      }
+      
+      return reorderedStates;
+    });
+  }, []);
+
   // Load a saved state
   const loadState = useCallback((stateId: string) => {
     const stateToLoad = savedStates.find(state => state.id === stateId);
@@ -156,8 +234,8 @@ export function useFretboardStates() {
 
   // Get sorted states (ensures consistent ordering)
   const getSortedStates = useCallback(() => {
-    // Sort states by creation timestamp to maintain consistent order
-    return [...savedStates].sort((a, b) => a.createdAt - b.createdAt);
+    // With manual reordering, we now just return the states in their current order
+    return [...savedStates];
   }, [savedStates]);
 
   // Add and select a state in one operation
@@ -223,6 +301,8 @@ export function useFretboardStates() {
     addAndSelectState,
     updateState,
     deleteState,
+    copyState,
+    reorderStates,
     loadState,
     getLastLoadedState,
     lastLoadedStateId: lastLoadedStateId.current

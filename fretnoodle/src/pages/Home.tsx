@@ -9,7 +9,6 @@ import {
   CardMedia,
   Divider,
   useTheme,
-  useMediaQuery,
   Stack
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
@@ -36,7 +35,6 @@ const TUNER_IMAGE = "/images/timstuner (1).gif";
 
 const Home = () => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const navigate = useNavigate();
   
   // Refs for sections with proper HTML element typing

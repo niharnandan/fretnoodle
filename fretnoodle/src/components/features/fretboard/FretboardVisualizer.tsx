@@ -1,12 +1,11 @@
 import React, { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import { Box, Button, Checkbox, FormControlLabel, useTheme } from '@mui/material';
 import ClearIcon from '@mui/icons-material/Clear';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import MapIcon from '@mui/icons-material/Map'; // Add Map icon import
 import P5Canvas from '../../common/P5Canvas';
 import { useFullscreen } from '../../../hooks/useFullscreen';
 import { useDrawingMode } from '../../../hooks/useDrawingMode';
-import useFretboardStates, { SavedFretboardState } from '../../../hooks/useFretboardStates';
+import useFretboardStates from '../../../hooks/useFretboardStates';
 import FretboardStates from './FretboardStates';
 import { createFretboardSketch } from '../../../utils/fretBoardSketch';
 import { FretboardVisualizerProps, FretboardState } from '../../../types/fretboard';
@@ -70,7 +69,6 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
   const { 
     isDrawingMode, 
     setIsDrawingMode,
-    drawingPoints,
     drawingModeRef,
     drawingPointsRef,
     toggleDrawingMode,
@@ -94,31 +92,6 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
     reorderStates,
     copyState
   } = useFretboardStates();
-
-  // Force direct state selection
-  const selectStateById = useCallback((stateId: string) => {
-    // Force direct state loading outside of React's normal flow
-    const loadedData = loadState(stateId);
-    if (loadedData && onStateLoad) {
-      // Use a stable state for faster loading
-      if (lastStableStateRef.current) {
-        onStateLoad({
-          ...lastStableStateRef.current,
-          ...loadedData.state
-        });
-      } else {
-        onStateLoad(loadedData.state);
-      }
-      
-      // For absolutely guaranteed state selection, directly trigger a click on the state button
-      setTimeout(() => {
-        const stateButton = document.querySelector(`button[data-state-id="${stateId}"]`);
-        if (stateButton) {
-          (stateButton as HTMLButtonElement).click();
-        }
-      }, 100);
-    }
-  }, [loadState, onStateLoad]);
 
   // Handle adding current state - memoized to avoid recreating on each render
   const handleAddState = useCallback(() => {
@@ -465,6 +438,7 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
   
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFullscreen, handleToggleFullscreen, toggleDrawingMode]);
   
   // New handler for the Map Mode toggle
@@ -540,13 +514,6 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
         if (currentState && 
             (currentState.state.detectedChord || 
             !currentState.name.startsWith('State '))) {
-            
-          // First, get the position for the state number
-          const stateIndex = sortedStates.findIndex(state => state.id === lastLoadedStateId);
-          const stateNumber = stateIndex !== -1 ? stateIndex + 1 : savedStates.length;
-          
-          // Delete and recreate the state to rename it
-          // Save the drawings first
           const currentDrawings = [...drawingPointsRef.current];
           
           // Delete current state
@@ -573,6 +540,7 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
         }));
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fretboardState, onStateLoad, lastLoadedStateId, updateState, savedStates, sortedStates, 
       drawingPointsRef, deleteState, addState, handleLoadState]);
   
@@ -589,6 +557,7 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
       isFullscreen,
       mappedNotesRef // Pass the mapped notes ref as optional parameter
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [width, height, isFullscreen, handleNoteClick]);
 
   // Prepare the CSS class for the container with a transition effect

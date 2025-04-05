@@ -31,7 +31,6 @@ const FretboardStates: React.FC<FretboardStatesProps> = ({
   const [internalSelectedId, setInternalSelectedId] = useState<string | null>(currentStateId);
   
   // Track drag state
-  const [isDragging, setIsDragging] = useState(false);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const stateContainerRef = useRef<HTMLDivElement>(null);
@@ -94,7 +93,6 @@ const FretboardStates: React.FC<FretboardStatesProps> = ({
   
   // Drag and drop handlers
   const handleDragStart = (index: number) => {
-    setIsDragging(true);
     setDraggedIndex(index);
   };
   
@@ -118,7 +116,6 @@ const FretboardStates: React.FC<FretboardStatesProps> = ({
     }
     
     // Reset drag state
-    setIsDragging(false);
     setDraggedIndex(null);
     setDragOverIndex(null);
   };
@@ -177,11 +174,11 @@ const FretboardStates: React.FC<FretboardStatesProps> = ({
               sx={{ 
                 minWidth: '100px',
                 textTransform: 'none',
-                // Use internal state for highlighting
-                backgroundColor: internalSelectedId === state.id ? 'primary.dark' : 'primary.main',
-                border: internalSelectedId === state.id ? `2px solid ${theme.palette.secondary.main}` : 'none',
+                // Changed styling for selected state button - green with white outline
+                backgroundColor: internalSelectedId === state.id ? '#2e7d32' : 'primary.main', // Using green.700 color
+                border: internalSelectedId === state.id ? `2px solid white` : 'none',
                 '&:hover': {
-                  backgroundColor: internalSelectedId === state.id ? 'primary.dark' : undefined,
+                  backgroundColor: internalSelectedId === state.id ? '#1b5e20' : undefined, // Darker green on hover
                 }
               }}
             >

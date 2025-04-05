@@ -147,7 +147,6 @@ const FretboardStates: React.FC<FretboardStatesProps> = ({
           pb: 1
         }}
       >
-        {/* State buttons with drag handle, delete and copy buttons below them */}
         {savedStates.map((state, index) => (
           <Stack 
             key={state.id} 

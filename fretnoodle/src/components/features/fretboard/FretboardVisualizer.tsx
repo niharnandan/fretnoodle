@@ -11,10 +11,6 @@ import { createFretboardSketch } from '../../../utils/fretBoardSketch';
 import { FretboardVisualizerProps, FretboardState } from '../../../types/fretboard';
 import AnimatedButton from '../../common/AnimatedButtonDelete';
 
-/**
- * Main FretboardVisualizer component
- * Handles the visualizer's state and connections to other components
- */
 const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
   fretboardState,
   width = 1000,
@@ -623,7 +619,6 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
             Clear Drawing
           </Button>
           <AnimatedButton clickAction={handleClearAllSelections}/>
-          {/* Map mode button */}
           <Button 
             variant="contained" 
             startIcon={<MapIcon />} 
@@ -667,7 +662,6 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
         height={isFullscreen ? '100%' : height}
       />
       
-      {/* State management UI - only visible in fullscreen mode */}
       {isFullscreen && (
         <FretboardStates
           savedStates={sortedStates}

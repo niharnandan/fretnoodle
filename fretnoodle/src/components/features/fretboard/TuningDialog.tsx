@@ -80,7 +80,6 @@ const TuningDialog: React.FC<TuningDialogProps> = ({
           Individual String Tuning
         </Typography>
         
-        {/* Reverse the mapping order to have thinnest string at top */}
         {[...tuning].reverse().map((note, index) => {
           // Calculate the actual string number (1-6) and the actual index in the tuning array
           const stringNumber = index + 1; // String 1 (thinnest) to String 6 (thickest)

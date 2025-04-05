@@ -66,9 +66,6 @@ const noteMapping: Record<number, string[]> = {
   11: ['B']
 };
 
-/**
- * Converts a semitone value (0-11) to a note name
- */
 const semitoneToNote = (semitone: number, preferSharp = true): string => {
   const normalizedSemitone = ((semitone % 12) + 12) % 12;
   const notes = noteMapping[normalizedSemitone];

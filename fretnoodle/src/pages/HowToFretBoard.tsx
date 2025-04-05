@@ -58,7 +58,6 @@ const HowTo: React.FC = () => {
       </Typography>
       
       <Stack spacing={4}>
-        {/* Introduction Section */}
         <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
           <Typography variant="h4" gutterBottom sx={{ color: theme.palette.primary.main }}>
             Welcome to the Guitar Fretboard Visualizer
@@ -73,9 +72,7 @@ const HowTo: React.FC = () => {
           </Typography>
         </Paper>
         
-        {/* Features Section */}
         <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3 }}>
-          {/* Basic Features */}
           <Card elevation={3} sx={{ flex: 1, borderRadius: 2 }}>
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -118,7 +115,6 @@ const HowTo: React.FC = () => {
             </CardContent>
           </Card>
           
-          {/* Advanced Features */}
           <Card elevation={3} sx={{ flex: 1, borderRadius: 2 }}>
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -162,7 +158,6 @@ const HowTo: React.FC = () => {
           </Card>
         </Box>
         
-        {/* Keyboard Shortcuts */}
         <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
             <KeyboardIcon color="primary" sx={{ mr: 1, fontSize: 28 }} />
@@ -190,7 +185,6 @@ const HowTo: React.FC = () => {
           </Box>
         </Paper>
         
-        {/* FAQ Accordions */}
         <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
           <Typography variant="h5" gutterBottom>Frequently Asked Questions</Typography>
           <Divider sx={{ mb: 3 }} />
@@ -248,7 +242,6 @@ const HowTo: React.FC = () => {
           </Accordion>
         </Paper>
         
-        {/* Tips and Tricks */}
         <Paper elevation={3} sx={{ p: 4, borderRadius: 2, bgcolor: theme.palette.mode === 'dark' ? 'rgba(0, 150, 136, 0.08)' : 'rgba(0, 150, 136, 0.04)' }}>
           <Typography variant="h5" gutterBottom sx={{ color: '#00897b' }}>Pro Tips & Tricks</Typography>
           <Divider sx={{ mb: 3 }} />

@@ -227,7 +227,6 @@ const Home = () => {
 
   return (
     <Box sx={{ overflow: 'hidden' }}>
-      {/* Add CSS for animations */}
       <style>{`
         @keyframes fadeIn {
           from { opacity: 0; }
@@ -281,7 +280,6 @@ const Home = () => {
         }
       `}</style>
 
-      {/* Hero Section with Parallax effect */}
       <Box 
         sx={{
           pt: { xs: 12, md: 16 },
@@ -293,7 +291,6 @@ const Home = () => {
           overflow: 'hidden'
         }}
       >
-        {/* Animated background elements */}
         <Box 
           sx={{ 
             position: 'absolute', 
@@ -434,7 +431,6 @@ const Home = () => {
         </Container>
       </Box>
 
-      {/* Features Section - Now uses CSS classes for animations */}
       <Box 
         ref={featuresSectionRef} 
         sx={{ 
@@ -512,7 +508,6 @@ const Home = () => {
         </Container>
       </Box>
 
-      {/* Benefits Section with icons - Now uses CSS classes for animations */}
       <Box 
         ref={toolsSectionRef}
         sx={{ 
@@ -596,7 +591,6 @@ const Home = () => {
         </Container>
       </Box>
 
-      {/* About Section - Now uses CSS classes for animations */}
       <Box 
         ref={aboutSectionRef}
         sx={{ 
@@ -678,7 +672,6 @@ const Home = () => {
         </Container>
       </Box>
 
-      {/* Call to Action */}
       <Box 
         sx={{ 
           py: { xs: 6, md: 8 }, 

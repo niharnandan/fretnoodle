@@ -14,10 +14,8 @@ const App: React.FC = () => {
   return (
     <Router>
       <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-        {/* Fixed Navbar */}
         <Navbar />
 
-        {/* Scrollable content below the navbar */}
         <Box
           component="main"
           sx={{

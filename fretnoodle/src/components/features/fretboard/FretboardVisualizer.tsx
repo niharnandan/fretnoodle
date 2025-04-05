@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState, useMemo } from 'react'
 import { Box, Button, Checkbox, FormControlLabel, useTheme } from '@mui/material';
 import ClearIcon from '@mui/icons-material/Clear';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import MapIcon from '@mui/icons-material/Map'; // Add Map icon import
 import P5Canvas from '../../common/P5Canvas';
 import { useFullscreen } from '../../../hooks/useFullscreen';
 import { useDrawingMode } from '../../../hooks/useDrawingMode';
@@ -28,6 +29,13 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
   // Flag to track if we should auto-update the current state
   const [autoUpdateEnabled, setAutoUpdateEnabled] = useState(false);
   
+  // New state for map mode and mapped notes
+  const [isMapMode, setIsMapMode] = useState(false);
+  const [mappedNotes, setMappedNotes] = useState<string[]>([]);
+  
+  // Store map mode state per state ID
+  const [stateMapModes, setStateMapModes] = useState<Record<string, {isMapMode: boolean, mappedNotes: string[]}>>({});
+  
   // Reference to track fullscreen transitions
   const wasFullscreen = useRef(false);
   
@@ -35,6 +43,8 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
   const fretboardStateRef = useRef(fretboardState);
   // Reference to theme for p5 sketch
   const themeRef = useRef(isDarkMode);
+  // Reference to mapped notes for p5 sketch
+  const mappedNotesRef = useRef<string[]>([]);
   
   // Keep the last stable state for faster transitions
   const lastStableStateRef = useRef<FretboardState | null>(null);
@@ -50,6 +60,11 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
     
     return () => clearTimeout(timeoutId);
   }, [fretboardState]);
+
+  // Update refs when mapped notes change
+  useEffect(() => {
+    mappedNotesRef.current = mappedNotes;
+  }, [mappedNotes]);
   
   // Get drawing mode functionality
   const { 
@@ -110,6 +125,12 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
     // Save current state if one is selected
     if (lastLoadedStateId) {
       updateState(lastLoadedStateId, fretboardState, drawingPointsRef.current);
+      
+      // Save map mode state
+      setStateMapModes(prev => ({
+        ...prev,
+        [lastLoadedStateId]: { isMapMode, mappedNotes }
+      }));
     }
     
     // Create a new empty state
@@ -134,6 +155,16 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
     // Enable auto-update for the new state
     setAutoUpdateEnabled(true);
     
+    // Reset map mode for the new state
+    setIsMapMode(false);
+    setMappedNotes([]);
+    
+    // Initialize map mode state for the new state
+    setStateMapModes(prev => ({
+      ...prev,
+      [newStateId]: { isMapMode: false, mappedNotes: [] }
+    }));
+    
     // Force a reload of the state after a short delay
     setTimeout(() => {
       // Load the state again after React has had time to process state updates
@@ -142,7 +173,7 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
         onStateLoad(loadedData.state);
       }
     }, 50);
-  }, [addState, updateState, loadState, onStateLoad, fretboardState, drawingPointsRef, lastLoadedStateId, clearDrawing]);
+  }, [addState, updateState, loadState, onStateLoad, fretboardState, drawingPointsRef, lastLoadedStateId, clearDrawing, isMapMode, mappedNotes]);
   
   // Handle loading a saved state - memoized for performance
   const handleLoadState = useCallback((stateId: string) => {
@@ -150,6 +181,12 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
     if (lastLoadedStateId) {
       // Update the current state with current drawing from the ref to ensure latest data
       updateState(lastLoadedStateId, fretboardState, drawingPointsRef.current);
+      
+      // Save map mode state for the current state
+      setStateMapModes(prev => ({
+        ...prev,
+        [lastLoadedStateId]: { isMapMode, mappedNotes }
+      }));
     }
     
     // Now load the requested state
@@ -174,6 +211,17 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
       setDrawingPoints([...loadedData.drawingPoints]);
       drawingPointsRef.current = [...loadedData.drawingPoints];
       
+      // Load the map mode state for this state ID if it exists
+      const stateMapMode = stateMapModes[stateId];
+      if (stateMapMode) {
+        setIsMapMode(stateMapMode.isMapMode);
+        setMappedNotes(stateMapMode.mappedNotes);
+      } else {
+        // Reset map mode if no saved state exists
+        setIsMapMode(false);
+        setMappedNotes([]);
+      }
+      
       // Enable auto-update for this state
       setAutoUpdateEnabled(true);
       
@@ -187,12 +235,22 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
     drawingPointsRef, 
     lastLoadedStateId, 
     updateState, 
-    fretboardState
+    fretboardState,
+    isMapMode,
+    mappedNotes,
+    stateMapModes
   ]);
 
   // Handle deleting a state - memoized for performance
   const handleDeleteState = useCallback((stateId: string): string | null => {
     const nextStateId = deleteState(stateId);
+    
+    // Remove the map mode state for the deleted state
+    setStateMapModes(prev => {
+      const newMapModes = { ...prev };
+      delete newMapModes[stateId];
+      return newMapModes;
+    });
     
     // If we have a next state ID, load it immediately
     if (nextStateId) {
@@ -209,6 +267,10 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
         onStateLoad(emptyState);
         clearDrawing();
       }
+      
+      // Reset map mode
+      setIsMapMode(false);
+      setMappedNotes([]);
     }
     
     return nextStateId;
@@ -228,6 +290,10 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
         }
         
         setAutoUpdateEnabled(true);
+        
+        // Reset map mode for the new state
+        setIsMapMode(false);
+        setMappedNotes([]);
       }
     }
     
@@ -239,6 +305,12 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
     if (isFullscreen) {
       if (lastLoadedStateId) {
         updateState(lastLoadedStateId, fretboardState, drawingPointsRef.current);
+        
+        // Save map mode state
+        setStateMapModes(prev => ({
+          ...prev,
+          [lastLoadedStateId]: { isMapMode, mappedNotes }
+        }));
       }
       
       // Apply the last loaded state
@@ -256,6 +328,18 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
           onStateLoad(lastState.state);
         }
         setDrawingPoints(lastState.drawingPoints);
+        
+        // Load map mode state if lastLoadedStateId exists
+        if (lastLoadedStateId) {
+          const mapModeState = stateMapModes[lastLoadedStateId];
+          if (mapModeState) {
+            setIsMapMode(mapModeState.isMapMode);
+            setMappedNotes(mapModeState.mappedNotes);
+          } else {
+            setIsMapMode(false);
+            setMappedNotes([]);
+          }
+        }
       } else if (sortedStates.length > 0) {
         // If no last state but states exist, load the first one
         handleLoadState(sortedStates[0].id);
@@ -274,7 +358,10 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
     sortedStates, 
     handleLoadState,
     toggleFullscreen,
-    drawingPointsRef
+    drawingPointsRef,
+    isMapMode,
+    mappedNotes,
+    stateMapModes
   ]);
 
   const handleCopyState = useCallback((stateId: string) => {
@@ -371,11 +458,48 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
       if (event.key === "f") {
         handleToggleFullscreen();
       }
+      if (event.key === "m" && isFullscreen) {
+        handleToggleMapMode();
+      }
     };
   
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isFullscreen, handleToggleFullscreen, toggleDrawingMode]);
+  
+  // New handler for the Map Mode toggle
+  const handleToggleMapMode = useCallback(() => {
+    if (isMapMode) {
+      // Clear mapped notes when turning off map mode
+      setMappedNotes([]);
+      setIsMapMode(false);
+      
+      // Update the state map modes
+      if (lastLoadedStateId) {
+        setStateMapModes(prev => ({
+          ...prev,
+          [lastLoadedStateId]: { isMapMode: false, mappedNotes: [] }
+        }));
+      }
+    } else {
+      // Extract distinct note names from the selected notes
+      const distinctNotes = Array.from(
+        new Set(fretboardState.selectedNotes.map(note => note.note))
+      );
+      
+      // Set these as the mapped notes
+      setMappedNotes(distinctNotes);
+      setIsMapMode(true);
+      
+      // Update the state map modes
+      if (lastLoadedStateId) {
+        setStateMapModes(prev => ({
+          ...prev,
+          [lastLoadedStateId]: { isMapMode: true, mappedNotes: distinctNotes }
+        }));
+      }
+    }
+  }, [isMapMode, fretboardState.selectedNotes, lastLoadedStateId]);
   
   // Create a custom note click handler that doesn't trigger re-renders
   const handleNoteClick = useCallback((stringIndex: number, fret: number) => {
@@ -436,6 +560,18 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
           handleLoadState(newStateId);
         }
       }
+      
+      // Also clear mapped notes and turn off map mode
+      setMappedNotes([]);
+      setIsMapMode(false);
+      
+      // Update the state map modes if we have a state ID
+      if (lastLoadedStateId) {
+        setStateMapModes(prev => ({
+          ...prev,
+          [lastLoadedStateId]: { isMapMode: false, mappedNotes: [] }
+        }));
+      }
     }
   }, [fretboardState, onStateLoad, lastLoadedStateId, updateState, savedStates, sortedStates, 
       drawingPointsRef, deleteState, addState, handleLoadState]);
@@ -450,7 +586,8 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
       handleNoteClick,
       width,
       height,
-      isFullscreen
+      isFullscreen,
+      mappedNotesRef // Pass the mapped notes ref as optional parameter
     );
   }, [width, height, isFullscreen, handleNoteClick]);
 
@@ -517,6 +654,17 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
             Clear Drawing
           </Button>
           <AnimatedButton clickAction={handleClearAllSelections}/>
+          {/* Map mode button */}
+          <Button 
+            variant="contained" 
+            startIcon={<MapIcon />} 
+            onClick={handleToggleMapMode}
+            color={isMapMode ? "primary" : "secondary"}
+            size="small"
+            sx={{ padding: '2px 8px' }}
+          >
+            {isMapMode ? "Unmap Notes" : "Map Notes"}
+          </Button>
         </Box>
       )}
       

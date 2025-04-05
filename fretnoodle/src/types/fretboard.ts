@@ -26,7 +26,8 @@ export interface FretboardColors {
   hover: p5.Color;
   text: p5.Color;
   drawLine: p5.Color;
-  root: p5.Color; // Added for root note color
+  root: p5.Color; // For root note color
+  mapped: p5.Color; // Added for mapped notes
 }
 
 export interface DrawingPoint {
@@ -46,6 +47,7 @@ export interface FretboardVisualizerProps {
   width?: number;
   height?: number;
   onNoteClick?: (stringIndex: number, fret: number) => void;
+  onStateLoad?: (state: FretboardState) => void; // For loading saved states
 }
 
 export interface FretboardState {
@@ -54,8 +56,8 @@ export interface FretboardState {
   highlightedNotes: string[];
   highlightedFrets: number[];
   selectedNotes: {string: number, fret: number, note: string}[];
-  rootNote: { string: number, fret: number, note: string } | null; // Add root note tracking
-  showIntervals: boolean; // Add flag to toggle between note names and intervals
+  rootNote: { string: number, fret: number, note: string } | null; // Root note tracking
+  showIntervals: boolean; // Flag to toggle between note names and intervals
   detectedChord: string | null;
   showNotes: boolean;
   showOctaves: boolean;
@@ -107,27 +109,3 @@ export const detectChord = (notes: string[]): string | null => {
   // This function will be used by the hook
   return null;
 };
-
-export interface FretboardColors {
-  background: p5.Color;
-  fretboard: p5.Color;
-  fret: p5.Color;
-  string: p5.Color;
-  dot: p5.Color;
-  capo: p5.Color;
-  note: p5.Color;
-  highlight: p5.Color;
-  selected: p5.Color;
-  hover: p5.Color;
-  text: p5.Color;
-  drawLine: p5.Color;
-  root: p5.Color; // Added for root note color
-}
-
-export interface FretboardVisualizerProps {
-  fretboardState: FretboardState;
-  width?: number;
-  height?: number;
-  onNoteClick?: (stringIndex: number, fret: number) => void;
-  onStateLoad?: (state: FretboardState) => void; // New prop for loading saved states
-}

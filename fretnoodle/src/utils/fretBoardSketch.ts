@@ -16,7 +16,8 @@ export const createFretboardSketch = (
   handleNoteClick: (stringIndex: number, fret: number) => void,
   width: number,
   height: number,
-  isFullscreen: boolean
+  isFullscreen: boolean,
+  mappedNotesRef?: React.MutableRefObject<string[]> // Optional parameter for mapped notes
 ) => {
   return (p: p5) => {
     // Configuration
@@ -113,7 +114,15 @@ export const createFretboardSketch = (
         ),
         
         // Drawing line: always visible red
-        drawLine: p.color(255, 0, 0, 255)
+        drawLine: p.color(255, 0, 0, 255),
+        
+        // New color for mapped notes - a lighter blue
+        mapped: p.color(
+          isDark ? 100 : 100, 
+          isDark ? 180 : 200, 
+          isDark ? 255 : 255, 
+          220
+        )
       };
     };
     
@@ -177,6 +186,9 @@ export const createFretboardSketch = (
         showOctaves,
         showDots
       } = fretboardStateRef.current;
+      
+      // Get mapped notes from ref if available
+      const mappedNotes = mappedNotesRef?.current || [];
       
       // Update colors in case theme changed
       colors = getColors();
@@ -330,9 +342,12 @@ export const createFretboardSketch = (
                 (rootNote.string === string && rootNote.fret === fret) :
                 (selectedNotes.length > 0 && selectedNotes[0].string === string && selectedNotes[0].fret === fret);
             
-            // Determine if this note should be highlighted
+            // Determine if this note should be highlighted via standard highlighting
             const isHighlighted = highlightedNotes.includes(note) || 
                                (fret > 0 && highlightedFrets.includes(fret));
+                               
+            // Determine if this note should be mapped (highlighted because it matches selected notes)
+            const isMapped = mappedNotes.includes(note);
             
             // Adjust hover detection settings
             const hoverRadius = isFullscreen ? 8 : 10;
@@ -370,6 +385,9 @@ export const createFretboardSketch = (
               p.fill(colors.selected);
             } else if (isHovered) {
               p.fill(colors.hover);
+            } else if (isMapped) {
+              // Use the mapped color (lighter blue) for mapped notes
+              p.fill(colors.mapped);
             } else if (isHighlighted) {
               p.fill(colors.highlight);
             } else {
@@ -413,6 +431,20 @@ export const createFretboardSketch = (
               
               // Draw interval text in the center of the circle
               p.text(intervalText, fretX, stringY);
+            }
+            // Show intervals for mapped notes as well
+            else if (showIntervals && isMapped) {
+              p.fill(p.color(255, 255, 255));
+              
+              // Get the reference note (root note or first selected note)
+              const referenceNote = rootNote ? 
+                rootNote.note : 
+                (selectedNotes.length > 0 ? selectedNotes[0].note : null);
+              
+              if (referenceNote) {
+                const intervalText = note === referenceNote ? "R" : getIntervalName(referenceNote, note);
+                p.text(intervalText, fretX, stringY);
+              }
             }
             
             // Draw octave if enabled
@@ -474,6 +506,7 @@ export const createFretboardSketch = (
         const bgColor = themeRef.current ? 
           p.color(50, 50, 50, 200) : p.color(0, 0, 0, 200);
         
+        // Display UI hints based on modes
         if (drawingModeRef.current) {
           p.fill(bgColor);
           p.noStroke();
@@ -483,6 +516,18 @@ export const createFretboardSketch = (
           p.textSize(14);
           p.textAlign(p.LEFT, p.CENTER);
           p.text("Drawing Mode On", 15, 25);
+          p.textAlign(p.CENTER, p.CENTER);
+        }
+        else if (mappedNotes.length > 0) {
+          // Show map mode info when mapped notes exist
+          p.fill(bgColor);
+          p.noStroke();
+          p.rect(10, 10, 270, 30, 5);
+          
+          p.fill(255);
+          p.textSize(14);
+          p.textAlign(p.LEFT, p.CENTER);
+          p.text(`Map Mode: ${mappedNotes.join(', ')} highlighted`, 15, 25);
           p.textAlign(p.CENTER, p.CENTER);
         }
         else {

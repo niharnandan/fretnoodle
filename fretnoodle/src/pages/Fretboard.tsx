@@ -95,8 +95,7 @@ const Fretboard: React.FC = () => {
       <Typography variant="h2" component="h1" gutterBottom align="center">
         Guitar Fretboard Visualizer
       </Typography>
-      
-      <Typography variant="h6" color="text.secondary" paragraph align="center">
+      <Typography variant="h6" color="text.secondary" align="center" sx={{ marginTop: -3}}>
         Explore the guitar fretboard, visualize notes, and experiment with different tunings
       </Typography>
       

@@ -1,12 +1,9 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import {
   Box,
   Container,
   Typography,
   Button,
-  Card,
-  CardContent,
-  CardMedia,
   Divider,
   useTheme,
   Stack
@@ -19,15 +16,9 @@ import KeyboardIcon from '@mui/icons-material/Keyboard';
 
 import LOGO_PATH from "../assets/images/logo1.png";
 import './Home.css';
-
-interface FeatureCardProps {
-  title: string;
-  description: string;
-  image: string;
-  buttonText: string;
-  buttonLink: string;
-  delay?: number;
-}
+import FeatureCard from '../components/home/FeatureCard';
+import ToolFeature from '../components/home/ToolFeature';
+import { useScrollAnimation } from '../hooks/useScrollAnimation';
 
 // Feature images - update with your actual paths
 const VISUALIZER_IMAGE = "/images/inputchordgif.gif";
@@ -37,194 +28,16 @@ const TUNER_IMAGE = "/images/timstuner (1).gif";
 const Home = () => {
   const theme = useTheme();
   const navigate = useNavigate();
-  
+
   // Refs for sections with proper HTML element typing
   const featuresSectionRef = useRef<HTMLDivElement>(null);
   const toolsSectionRef = useRef<HTMLDivElement>(null);
   const aboutSectionRef = useRef<HTMLDivElement>(null);
-  
-  // Refs to track if animations have played
-  const featuresAnimPlayed = useRef(false);
-  const toolsAnimPlayed = useRef(false);
-  const aboutAnimPlayed = useRef(false);
 
-  useEffect(() => {
-    // Wait for the DOM to be fully ready
-    const setupObservers = () => {
-      // Create a single options object for all observers
-      const observerOptions = {
-        root: null,
-        rootMargin: '0px',
-        threshold: 0.15
-      };
-
-      // Create observers for each section
-      if (featuresSectionRef.current) {
-        const featuresObserver = new IntersectionObserver((entries) => {
-          if (entries[0]?.isIntersecting && !featuresAnimPlayed.current) {
-            featuresAnimPlayed.current = true;
-            if (featuresSectionRef.current instanceof HTMLElement) {
-              featuresSectionRef.current.classList.add('animate-section');
-            }
-            featuresObserver.disconnect();
-          }
-        }, observerOptions);
-        
-        featuresObserver.observe(featuresSectionRef.current);
-      }
-      
-      if (toolsSectionRef.current) {
-        const toolsObserver = new IntersectionObserver((entries) => {
-          if (entries[0]?.isIntersecting && !toolsAnimPlayed.current) {
-            toolsAnimPlayed.current = true;
-            if (toolsSectionRef.current instanceof HTMLElement) {
-              toolsSectionRef.current.classList.add('animate-section');
-            }
-            toolsObserver.disconnect();
-          }
-        }, observerOptions);
-        
-        toolsObserver.observe(toolsSectionRef.current);
-      }
-      
-      if (aboutSectionRef.current) {
-        const aboutObserver = new IntersectionObserver((entries) => {
-          if (entries[0]?.isIntersecting && !aboutAnimPlayed.current) {
-            aboutAnimPlayed.current = true;
-            if (aboutSectionRef.current instanceof HTMLElement) {
-              aboutSectionRef.current.classList.add('animate-section');
-            }
-            aboutObserver.disconnect();
-          }
-        }, observerOptions);
-        
-        aboutObserver.observe(aboutSectionRef.current);
-      }
-      
-      // Return cleanup function
-      return () => {
-        // No need to explicitly disconnect as we're already disconnecting after triggering
-      };
-    };
-    
-    // Setup after a short delay to ensure DOM is ready
-    const timeoutId = setTimeout(setupObservers, 100);
-    return () => clearTimeout(timeoutId);
-  }, []);
-
-  // Feature Card Component - now uses CSS classes for animation
-  const FeatureCard = ({ title, description, image, buttonText, buttonLink, delay = 0 }: FeatureCardProps) => (
-    <Card 
-      className="feature-card"
-      style={{ 
-        animationDelay: `${delay}ms`,
-        opacity: 0, // Start invisible, animation will make it visible
-      }}
-      sx={{ 
-        height: '100%', 
-        display: 'flex', 
-        flexDirection: 'column',
-        borderRadius: 2,
-        overflow: 'hidden',
-        transition: 'transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out',
-        '&:hover': {
-          transform: 'translateY(-8px)',
-          boxShadow: theme.shadows[10]
-        }
-      }}
-    >
-      <CardMedia
-        component="img"
-        height="200"
-        image={image}
-        alt={title}
-        sx={{ objectFit: 'cover' }}
-      />
-      <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-        <Typography variant="h5" component="h2" gutterBottom sx={{ fontWeight: 'bold' }}>
-          {title}
-        </Typography>
-        <Typography variant="body1" sx={{ mb: 3, flexGrow: 1 }}>
-          {description}
-        </Typography>
-        <Button 
-          variant="contained" 
-          color="primary" 
-          onClick={() => navigate(buttonLink)}
-          sx={{ 
-            borderRadius: 8, 
-            py: 1.2,
-            alignSelf: 'flex-start',
-            boxShadow: 3
-          }}
-        >
-          {buttonText}
-        </Button>
-      </CardContent>
-    </Card>
-  );
-
-  // Tool Feature Component - uses CSS classes for animation
-  const ToolFeature = ({ 
-    icon, 
-    title, 
-    description, 
-    delay = 0 
-  }: { 
-    icon: React.ReactNode; 
-    title: string; 
-    description: string; 
-    delay?: number;
-  }) => (
-    <Box 
-      className="tool-feature"
-      style={{ 
-        animationDelay: `${delay}ms`,
-        opacity: 0, // Start invisible, animation will make it visible
-      }}
-      sx={{ 
-        textAlign: 'center',
-        p: 3,
-        bgcolor: theme.palette.mode === 'dark' ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.7)',
-        borderRadius: 4,
-        boxShadow: 2,
-        transition: 'transform 0.3s ease',
-        '&:hover': {
-          transform: 'translateY(-8px)'
-        }
-      }}
-    >
-      <Box 
-        sx={{ 
-          color: theme.palette.primary.main, 
-          display: 'flex', 
-          justifyContent: 'center',
-          mb: 2
-        }}
-      >
-        {icon}
-      </Box>
-      <Typography 
-        variant="h5" 
-        component="h3" 
-        gutterBottom 
-        sx={{ 
-          fontWeight: 600,
-          color: theme.palette.mode === 'dark' ? 'white' : 'inherit'
-        }}
-      >
-        {title}
-      </Typography>
-      <Typography 
-        variant="body1"
-        sx={{ 
-          color: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.8)' : 'inherit' 
-        }}
-      >
-        {description}
-      </Typography>
-    </Box>
-  );
+  // Setup scroll animations for each section
+  useScrollAnimation(featuresSectionRef);
+  useScrollAnimation(toolsSectionRef);
+  useScrollAnimation(aboutSectionRef);
 
   return (
     <Box sx={{ overflow: 'hidden' }}>

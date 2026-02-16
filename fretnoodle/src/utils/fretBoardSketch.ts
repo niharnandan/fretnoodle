@@ -3,10 +3,10 @@ import {
   DEFAULT_FRETBOARD_CONFIG,
   getNoteAtFret,
   DrawingPoint,
-  FretboardColors,
   FretboardState
 } from '../types/fretboard';
 import { getIntervalName } from '../utils/interval-utils';
+import { createFretboardColors } from './fretboardColors';
 
 // Create a sketch factory function that accepts refs and handlers
 export const createFretboardSketch = (
@@ -40,95 +40,9 @@ export const createFretboardSketch = (
     let fretboardHeight: number;
     let fretWidth: number;
     let stringSpacing: number;
-    
-    // Create a function to get current theme-aware colors
-    const getColors = (): FretboardColors => {
-      const isDark = themeRef.current;
-      
-      return {
-        // Background: light gray in light mode, dark gray in dark mode
-        background: p.color(isDark ? 30 : 245, isDark ? 30 : 245, isDark ? 30 : 245),
-        
-        // Fretboard: wooden color in light mode, darker brown in dark mode
-        fretboard: p.color(
-          isDark ? 120 : 210, 
-          isDark ? 100 : 180, 
-          isDark ? 70 : 140
-        ),
-        
-        // Fret: dark in light mode, light in dark mode
-        fret: p.color(
-          isDark ? 150 : 80, 
-          isDark ? 150 : 80, 
-          isDark ? 150 : 80
-        ),
-        
-        // String: silver in light mode, brighter in dark mode
-        string: p.color(
-          isDark ? 220 : 200, 
-          isDark ? 220 : 200, 
-          isDark ? 220 : 200
-        ),
-        
-        // Dot markers: off-white in light mode, darker in dark mode
-        dot: p.color(
-          isDark ? 180 : 240, 
-          isDark ? 180 : 240, 
-          isDark ? 180 : 240
-        ),
-        
-        // Capo: remains reddish in both modes
-        capo: p.color(120, 20, 20),
-        
-        // Note: dark in light mode, light in dark mode
-        note: p.color(
-          isDark ? 200 : 50, 
-          isDark ? 200 : 50, 
-          isDark ? 200 : 50
-        ),
-        
-        // Highlight: uses theme's primary color
-        highlight: p.color(
-          isDark ? 39 : 76, 
-          isDark ? 225 : 175, 
-          isDark ? 193 : 80
-        ),
-        
-        // Selected: uses theme's secondary color variations
-        selected: p.color(
-          isDark ? 39 : 33, 
-          isDark ? 133 : 150, 
-          isDark ? 245 : 243
-        ),
-        
-        // Root note: bright red for visibility
-        root: p.color(255, 0, 0, 255),
-        
-        // Hover: uses theme's orange/amber accent
-        hover: p.color(255, 152, 0, 150),
-        
-        // Text: dark in light mode, light in dark mode
-        text: p.color(
-          isDark ? 220 : 20, 
-          isDark ? 220 : 20, 
-          isDark ? 220 : 20
-        ),
-        
-        // Drawing line: always visible red
-        drawLine: p.color(255, 0, 0, 255),
-        
-        // New color for mapped notes - a lighter blue
-        mapped: p.color(
-          isDark ? 100 : 100, 
-          isDark ? 180 : 200, 
-          isDark ? 255 : 255, 
-          220
-        )
-      };
-    };
-    
+
     // Create colors object
-    let colors = getColors();
+    let colors = createFretboardColors(p, themeRef.current);
     
     const setupDimensions = () => {
       // Set horizontal margin
@@ -190,9 +104,9 @@ export const createFretboardSketch = (
       
       // Get mapped notes from ref if available
       const mappedNotes = mappedNotesRef?.current || [];
-      
+
       // Update colors in case theme changed
-      colors = getColors();
+      colors = createFretboardColors(p, themeRef.current);
       
       // Set number of frets based on mode
       const displayFrets = isFullscreen ? 24 : config.numFrets; // 24 frets in fullscreen

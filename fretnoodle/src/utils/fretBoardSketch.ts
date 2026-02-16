@@ -1,15 +1,16 @@
 import p5 from 'p5';
-import { 
-  DEFAULT_FRETBOARD_CONFIG, 
-  getNoteAtFret, 
+import {
+  DEFAULT_FRETBOARD_CONFIG,
+  getNoteAtFret,
   DrawingPoint,
-  FretboardColors
+  FretboardColors,
+  FretboardState
 } from '../types/fretboard';
 import { getIntervalName } from '../utils/interval-utils';
 
 // Create a sketch factory function that accepts refs and handlers
 export const createFretboardSketch = (
-  fretboardStateRef: React.MutableRefObject<any>,
+  fretboardStateRef: React.MutableRefObject<FretboardState>,
   drawingModeRef: React.MutableRefObject<boolean>,
   drawingPointsRef: React.MutableRefObject<DrawingPoint[]>,
   themeRef: React.MutableRefObject<boolean>,

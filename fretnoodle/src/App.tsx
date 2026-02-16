@@ -8,7 +8,6 @@ import Visualizer from './pages/Visualizer';
 import Fretboard from './pages/Fretboard';
 import HowTo from './pages/HowToFretBoard';
 import Home from './pages/Home';
-// import Tuner from './pages/Tuner';
 
 const App: React.FC = () => {
   return (
@@ -25,7 +24,6 @@ const App: React.FC = () => {
           }}
         >
           <Routes>
-            <Route path="/tuner" element={<></>} />
             <Route path="/visualizer" element={<Visualizer />} />
             <Route path="/about" element={<About />} />
             <Route path="/fretboard" element={<Fretboard />} />

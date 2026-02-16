@@ -29,23 +29,6 @@ export function useDrawingMode(initialDrawingMode: boolean = false, isFullscreen
     setIsDrawingMode(prev => !prev);
   }, []);
 
-  // Handle keyboard events
-  useEffect(() => {
-    function handleKeyPress(e: KeyboardEvent) {
-      if (e.key === 'd' && isFullscreen) {
-        toggleDrawingMode();
-      }
-    }
-
-    // Add event listener
-    document.addEventListener('keydown', handleKeyPress);
-    
-    // Cleanup
-    return () => {
-      document.removeEventListener('keydown', handleKeyPress);
-    };
-  }, [isFullscreen, toggleDrawingMode]);
-
   // Function to update the drawing points
   const setDrawingPointsWithRefs = useCallback((points: DrawingPoint[]) => {
     setDrawingPoints(points);

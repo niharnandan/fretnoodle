@@ -5,6 +5,7 @@ import MapIcon from '@mui/icons-material/Map'; // Add Map icon import
 import P5Canvas from '../../common/P5Canvas';
 import { useFullscreen } from '../../../hooks/useFullscreen';
 import { useDrawingMode } from '../../../hooks/useDrawingMode';
+import { useKeyboardShortcuts } from '../../../hooks/useKeyboardShortcuts';
 import useFretboardStates from '../../../hooks/useFretboardStates';
 import FretboardStates from './FretboardStates';
 import { createFretboardSketch } from '../../../utils/fretBoardSketch';
@@ -415,28 +416,6 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
     themeRef.current = isDarkMode;
   }, [isDarkMode]);
 
-  // Add event listeners for keyboard shortcuts
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && isFullscreen) {
-        handleToggleFullscreen();
-      }
-      if (event.key === "d" && isFullscreen) {
-        toggleDrawingMode();
-      }
-      if (event.key === "f") {
-        handleToggleFullscreen();
-      }
-      if (event.key === "m" && isFullscreen) {
-        handleToggleMapMode();
-      }
-    };
-  
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isFullscreen, handleToggleFullscreen, toggleDrawingMode]);
-  
   // New handler for the Map Mode toggle
   const handleToggleMapMode = useCallback(() => {
     if (isMapMode) {
@@ -470,7 +449,15 @@ const FretboardVisualizer: React.FC<FretboardVisualizerProps> = React.memo(({
       }
     }
   }, [isMapMode, fretboardState.selectedNotes, lastLoadedStateId]);
-  
+
+  // Setup keyboard shortcuts
+  useKeyboardShortcuts({
+    isFullscreen,
+    onToggleFullscreen: handleToggleFullscreen,
+    onToggleDrawingMode: toggleDrawingMode,
+    onToggleMapMode: handleToggleMapMode,
+  });
+
   // Create a custom note click handler that doesn't trigger re-renders
   const handleNoteClick = useCallback((stringIndex: number, fret: number) => {
     if (onNoteClick) {

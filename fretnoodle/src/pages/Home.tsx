@@ -1,11 +1,11 @@
 import React, { useEffect, useRef } from 'react';
-import { 
-  Box, 
-  Container, 
-  Typography, 
-  Button, 
-  Card, 
-  CardContent, 
+import {
+  Box,
+  Container,
+  Typography,
+  Button,
+  Card,
+  CardContent,
   CardMedia,
   Divider,
   useTheme,
@@ -17,7 +17,8 @@ import BuildIcon from '@mui/icons-material/Build';
 import TimelineIcon from '@mui/icons-material/Timeline';
 import KeyboardIcon from '@mui/icons-material/Keyboard';
 
-import LOGO_PATH from "../assets/images/logo2.png";
+import LOGO_PATH from "../assets/images/logo1.png";
+import './Home.css';
 
 interface FeatureCardProps {
   title: string;
@@ -227,59 +228,6 @@ const Home = () => {
 
   return (
     <Box sx={{ overflow: 'hidden' }}>
-      <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        
-        @keyframes slideUp {
-          from { 
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to { 
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        @keyframes scaleIn {
-          from { 
-            opacity: 0;
-            transform: scale(0.9);
-          }
-          to { 
-            opacity: 1;
-            transform: scale(1);
-          }
-        }
-        
-        .animate-section .section-title {
-          animation: fadeIn 1s ease forwards;
-        }
-        
-        .animate-section .section-subtitle {
-          animation: fadeIn 1s ease 0.2s forwards;
-        }
-        
-        .animate-section .feature-card {
-          animation: scaleIn 0.8s ease forwards;
-        }
-        
-        .animate-section .tool-feature {
-          animation: scaleIn 0.8s ease forwards;
-        }
-        
-        .animate-section .about-content {
-          animation: slideUp 0.8s ease forwards;
-        }
-        
-        .animate-section .cta-button {
-          animation: fadeIn 1s ease 0.4s forwards;
-        }
-      `}</style>
-
       <Box 
         sx={{
           pt: { xs: 12, md: 16 },
@@ -291,22 +239,18 @@ const Home = () => {
           overflow: 'hidden'
         }}
       >
-        <Box 
-          sx={{ 
-            position: 'absolute', 
-            top: 0, 
+        <Box
+          className="hero-background-pattern"
+          sx={{
+            position: 'absolute',
+            top: 0,
             left: 0,
             width: '100%',
             height: '100%',
             opacity: 0.05,
             zIndex: 0,
             backgroundImage: 'url("/images/guitar-pattern.png")',
-            backgroundSize: '400px',
-            animation: 'moveBackground 60s linear infinite',
-            '@keyframes moveBackground': {
-              '0%': { backgroundPosition: '0 0' },
-              '100%': { backgroundPosition: '400px 400px' }
-            }
+            backgroundSize: '400px'
           }}
         />
 
@@ -322,19 +266,14 @@ const Home = () => {
               animation: 'fadeIn 1.5s ease'
             }}
           >
-            <Box 
-              component="img" 
-              src={LOGO_PATH} 
-              alt="FretNoodle Logo" 
-              sx={{ 
-                width: { xs: 150, md: 220 }, 
-                mb: 3,
-                animation: 'pulse 3s infinite ease-in-out',
-                '@keyframes pulse': {
-                  '0%': { transform: 'scale(1)' },
-                  '50%': { transform: 'scale(1.05)' },
-                  '100%': { transform: 'scale(1)' }
-                }
+            <Box
+              component="img"
+              src={LOGO_PATH}
+              alt="FretNoodle Logo"
+              className="hero-logo-pulse"
+              sx={{
+                width: { xs: 150, md: 220 },
+                mb: 3
               }}
             />
             <Typography 
@@ -495,12 +434,12 @@ const Home = () => {
               />
             </Box>
             <Box sx={{ flex: 1 }}>
-              <FeatureCard 
-                title="Guitar Tuner" 
+              <FeatureCard
+                title="Guitar Tuner"
                 description="A simple yet accurate tuner using machine learning pitch detection. Fine-tune your instrument to standard tuning or experiment with alternative tuning systems."
                 image={TUNER_IMAGE}
-                buttonText="Try Now"
-                buttonLink="/tuner"
+                buttonText="Coming Soon"
+                buttonLink="#"
                 delay={400}
               />
             </Box>

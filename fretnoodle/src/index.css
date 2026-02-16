@@ -12,16 +12,6 @@ code {
     monospace;
 }
 
-#fretboard-visualizer {
-  transition: opacity 5s ease-out;
-}
-
-/* Transition effect when switching states */
-.state-transition {
-  opacity: 0.5;
-  transition: opacity 5s ease-out;
-}
-
 canvas {
   transform: translateZ(0);
   will-change: transform;

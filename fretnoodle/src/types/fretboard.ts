@@ -37,7 +37,13 @@ export interface DrawingPoint {
   inFullscreen: boolean;
 }
 
-export interface Chord {
+export interface SelectedNote {
+  string: number;
+  fret: number;
+  note: string;
+}
+
+export interface ChordShape {
   name: string;
   positions: number[];  // Fret positions for each string (-1 means don't play)
 }
@@ -55,8 +61,8 @@ export interface FretboardState {
   capo: number;
   highlightedNotes: string[];
   highlightedFrets: number[];
-  selectedNotes: {string: number, fret: number, note: string}[];
-  rootNote: { string: number, fret: number, note: string } | null; // Root note tracking
+  selectedNotes: SelectedNote[];
+  rootNote: SelectedNote | null; // Root note tracking
   showIntervals: boolean; // Flag to toggle between note names and intervals
   detectedChord: string | null;
   showNotes: boolean;
@@ -69,11 +75,6 @@ export interface FretboardConfig {
   numStrings: number;
   dotPositions: number[];
   doubleDotPositions: number[];
-}
-
-export interface ChordDefinition {
-  name: string;
-  notes: string[];
 }
 
 export const DEFAULT_FRETBOARD_CONFIG: FretboardConfig = {
@@ -101,11 +102,4 @@ export const getNoteAtFret = (openNote: string, fret: number): string => {
   const index = NOTE_SEQUENCE.indexOf(openNote);
   if (index === -1) return openNote;
   return NOTE_SEQUENCE[(index + fret) % NOTE_SEQUENCE.length];
-};
-
-// Function to detect chord from notes
-export const detectChord = (notes: string[]): string | null => {
-  // Import this from commonChords.ts instead of defining here
-  // This function will be used by the hook
-  return null;
 };

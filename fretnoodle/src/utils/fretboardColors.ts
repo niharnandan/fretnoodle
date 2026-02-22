@@ -1,85 +1,21 @@
-import p5 from 'p5';
 import { FretboardColors } from '../types/fretboard';
 
-export function createFretboardColors(p: p5, isDark: boolean): FretboardColors {
+export function createFretboardColors(isDark: boolean): FretboardColors {
   return {
-    // Background: light gray in light mode, dark gray in dark mode
-    background: p.color(isDark ? 30 : 245, isDark ? 30 : 245, isDark ? 30 : 245),
-
-    // Fretboard: wooden color in light mode, darker brown in dark mode
-    fretboard: p.color(
-      isDark ? 120 : 210,
-      isDark ? 100 : 180,
-      isDark ? 70 : 140
-    ),
-
-    // Fret: dark in light mode, light in dark mode
-    fret: p.color(
-      isDark ? 150 : 80,
-      isDark ? 150 : 80,
-      isDark ? 150 : 80
-    ),
-
-    // String: silver in light mode, brighter in dark mode
-    string: p.color(
-      isDark ? 220 : 200,
-      isDark ? 220 : 200,
-      isDark ? 220 : 200
-    ),
-
-    // Dot markers: off-white in light mode, darker in dark mode
-    dot: p.color(
-      isDark ? 180 : 240,
-      isDark ? 180 : 240,
-      isDark ? 180 : 240
-    ),
-
-    // Capo: remains reddish in both modes
-    capo: p.color(120, 20, 20),
-
-    // Note: dark in light mode, light in dark mode
-    note: p.color(
-      isDark ? 200 : 50,
-      isDark ? 200 : 50,
-      isDark ? 200 : 50
-    ),
-
-    // Highlight: uses theme's primary color
-    highlight: p.color(
-      isDark ? 39 : 76,
-      isDark ? 225 : 175,
-      isDark ? 193 : 80
-    ),
-
-    // Selected: uses theme's secondary color variations
-    selected: p.color(
-      isDark ? 39 : 33,
-      isDark ? 133 : 150,
-      isDark ? 245 : 243
-    ),
-
-    // Root note: bright red for visibility
-    root: p.color(255, 0, 0, 255),
-
-    // Hover: uses theme's orange/amber accent
-    hover: p.color(255, 152, 0, 150),
-
-    // Text: dark in light mode, light in dark mode
-    text: p.color(
-      isDark ? 220 : 20,
-      isDark ? 220 : 20,
-      isDark ? 220 : 20
-    ),
-
-    // Drawing line: always visible red
-    drawLine: p.color(255, 0, 0, 255),
-
-    // Mapped notes - a lighter blue
-    mapped: p.color(
-      isDark ? 100 : 100,
-      isDark ? 180 : 200,
-      isDark ? 255 : 255,
-      220
-    )
+    background: isDark ? 'rgb(30, 30, 30)' : 'rgb(245, 245, 245)',
+    fretboard: isDark ? 'rgb(120, 100, 70)' : 'rgb(210, 180, 140)',
+    fret: isDark ? 'rgb(150, 150, 150)' : 'rgb(80, 80, 80)',
+    string: isDark ? 'rgb(220, 220, 220)' : 'rgb(200, 200, 200)',
+    dot: isDark ? 'rgb(180, 180, 180)' : 'rgb(240, 240, 240)',
+    capo: 'rgb(120, 20, 20)',
+    note: isDark ? 'rgb(200, 200, 200)' : 'rgb(50, 50, 50)',
+    highlight: isDark ? 'rgb(39, 225, 193)' : 'rgb(76, 175, 80)',
+    selected: isDark ? 'rgb(39, 133, 245)' : 'rgb(33, 150, 243)',
+    root: 'rgba(255, 0, 0, 1)',
+    hover: 'rgba(255, 152, 0, 0.59)',
+    text: isDark ? 'rgb(220, 220, 220)' : 'rgb(20, 20, 20)',
+    drawLine: 'rgba(255, 0, 0, 1)',
+    mapped: isDark ? 'rgba(100, 180, 255, 0.86)' : 'rgba(100, 200, 255, 0.86)',
+    defaultNote: isDark ? 'rgba(100, 100, 100, 0.59)' : 'rgba(255, 255, 255, 0.59)',
   };
 }

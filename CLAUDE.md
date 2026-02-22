@@ -16,36 +16,41 @@ ESLint is configured via react-scripts (extends `react-app` and `react-app/jest`
 
 ## Architecture
 
-React 19 + TypeScript app using Create React App. Interactive guitar fretboard visualizer with p5.js canvas rendering, chord detection, and music theory tools.
+React 19 + TypeScript app using Create React App. Interactive guitar fretboard visualizer with react-konva canvas rendering, chord detection, and music theory tools.
 
 **Routes** (defined in `App.tsx`):
 - `/` Home, `/fretboard` main tool, `/visualizer` placeholder, `/about`, `/howto`
 
-### P5.js / React Integration
+### React-Konva Fretboard Rendering
 
-This is the most important architectural pattern to understand. P5.js needs mutable state access without triggering React re-renders:
+The fretboard is rendered using react-konva, which provides declarative canvas elements that integrate naturally with React state and props — no ref bridges needed.
 
-1. `createFretboardSketch()` in `utils/fretBoardSketch.ts` is a factory that accepts React refs
-2. Refs (`fretboardStateRef`, `drawingModeRef`, `themeRef`, `mappedNotesRef`) let the p5 draw loop read latest React state each frame
-3. `P5Canvas` (`components/common/P5Canvas.tsx`) manages p5 instance lifecycle
-4. `FretboardVisualizer` is the orchestrator that wires refs, hooks, and the sketch together
-5. Note clicks flow back from p5 → `handleNoteClick` callback → React state update → ref sync
+**Component hierarchy:**
 
-Changing the sketch factory signature or ref structure will break the bridge between React and p5.
+1. `KonvaFretboard` (`components/features/fretboard/KonvaFretboard.tsx`) — Stage/Layer composite with three layers:
+   - **Static layer** (`listening={false}`) — `FretboardBackground`, `FretLines`, `FretDots`, `CapoBar`, `GuitarStrings`
+   - **Interactive layer** — `NoteGrid` → `FretNote` (per-note click/hover via Konva events)
+   - **Overlay layer** (`listening={false}`) — `DrawingAnnotations`, `OverlayUI`
+2. Sub-components live in `components/features/fretboard/konva/`
+3. `FretboardVisualizer` is the orchestrator that wires hooks and passes props to `KonvaFretboard`
 
-### State Management (No Redux — hooks + refs)
+**Supporting utilities:**
+- `utils/fretboardColors.ts` — `createFretboardColors(isDark)` returns CSS color strings (`FretboardColors` uses `string` not `p5.Color`)
+- `utils/fretboardDimensions.ts` — `calculateDimensions(width, height, isFullscreen)` returns layout geometry
+
+### State Management (No Redux — hooks only)
 
 **`useFretboard`** — Core fretboard state: tuning, capo, selected notes, root note, chord detection. Chord detection runs automatically when 3+ notes are selected, matching against `types/allChords.ts`.
 
 **`useFretboardStates`** — Save/load/reorder named fretboard configurations. Each saved state includes drawing points and is auto-named from detected chords. States are in-memory only (not persisted to localStorage).
 
-**`useDrawingMode`** / **`useFullscreen`** — Toggle modes. Drawing mode uses refs so the p5 sketch can access points without re-instantiation.
+**`useDrawingMode`** / **`useFullscreen`** — Toggle modes. Drawing mode state is passed as props to KonvaFretboard.
 
 **`useKeyboardShortcuts`** — Centralized keyboard handler (F=fullscreen, D=drawing, M=map, Escape=exit). Do not add keyboard listeners elsewhere — they previously caused a double-toggle bug.
 
 ### Theme System
 
-`ThemeContext` provides light/dark mode via MUI's `ThemeProvider`. Preference stored in localStorage key `themeMode`. The p5 sketch reads `themeRef.current` each frame and recomputes colors via `utils/fretboardColors.ts`.
+`ThemeContext` provides light/dark mode via MUI's `ThemeProvider`. Preference stored in localStorage key `themeMode`. Colors are computed via `createFretboardColors(isDarkMode)` and passed as props to `KonvaFretboard`.
 
 ## Music Theory Data Model
 
@@ -61,6 +66,7 @@ Changing the sketch factory signature or ref structure will break the bridge bet
 SelectedNote    { string, fret, note }         // A note clicked on the fretboard
 FretboardState  { tuning, capo, selectedNotes, rootNote, detectedChord, ... }
 DrawingPoint    { x, y, isDragging, inFullscreen }
+FretboardColors { background, fretboard, fret, ... } // All string (CSS color values)
 ChordShape      { name, positions[] }          // Fingering diagram (fret per string)
 Chord           { name, notes[] }              // Pitch-class definition (from commonChords.ts)
 ```

@@ -1,5 +1,3 @@
-import p5 from "p5";
-
 // Types for fretboard and guitar
 export interface Note {
   name: string;
@@ -14,20 +12,21 @@ export interface GuitarString {
 }
 
 export interface FretboardColors {
-  background: p5.Color;
-  fretboard: p5.Color;
-  fret: p5.Color;
-  string: p5.Color;
-  dot: p5.Color;
-  capo: p5.Color;
-  note: p5.Color;
-  highlight: p5.Color;
-  selected: p5.Color;
-  hover: p5.Color;
-  text: p5.Color;
-  drawLine: p5.Color;
-  root: p5.Color; // For root note color
-  mapped: p5.Color; // Added for mapped notes
+  background: string;
+  fretboard: string;
+  fret: string;
+  string: string;
+  dot: string;
+  capo: string;
+  note: string;
+  highlight: string;
+  selected: string;
+  hover: string;
+  text: string;
+  drawLine: string;
+  root: string;
+  mapped: string;
+  defaultNote: string;
 }
 
 export interface DrawingPoint {
